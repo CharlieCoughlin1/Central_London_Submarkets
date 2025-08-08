@@ -54,12 +54,23 @@
     }
 
     var geojson;
-    fetch('./final_poly.geojson')
+    var localUrl = 'final_poly.geojson';
+    var remoteUrl = 'https://raw.githubusercontent.com/CharlieCoughlin1/Central_London_Submarkets/main/final_poly.geojson';
+
+    fetch(localUrl)
       .then(function(response) {
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
         return response.json();
+      })
+      .catch(function() {
+        return fetch(remoteUrl).then(function(response) {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        });
       })
       .then(function(data) {
         geojson = L.geoJSON(data, {
