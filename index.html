@@ -57,8 +57,9 @@
     }
 
     var geojson;
-    var localUrl = 'final_poly.geojson';
-    var remoteUrl = 'https://raw.githubusercontent.com/CharlieCoughlin1/Central_London_Submarkets/main/final_poly.geojson';
+    var cacheBuster = '?v=' + Date.now();
+    var localUrl = 'final_poly.geojson' + cacheBuster;
+    var remoteUrl = 'https://raw.githubusercontent.com/CharlieCoughlin1/Central_London_Submarkets/main/final_poly.geojson' + cacheBuster;
 
     fetch(localUrl)
       .then(function(response) {
