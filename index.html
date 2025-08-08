@@ -4,10 +4,31 @@
   <meta charset="utf-8" />
   <title>Central London Submarkets</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://fonts.cdnfonts.com/css/din-pro" />
   <style>
     body, html { margin: 0; }
-    h1 { text-align: center; margin: 10px 0; }
+    h1 {
+      text-align: center;
+      margin: 10px 0;
+      font-family: 'DIN Pro', sans-serif;
+      color: #cc2030;
+    }
     #map { height: calc(100vh - 60px); background: #ffffff; }
+    .custom-popup .leaflet-popup-content-wrapper {
+      background: #ffffff;
+      border: 2px solid #cc2030;
+      border-radius: 4px;
+    }
+    .custom-popup .leaflet-popup-tip {
+      background: #ffffff;
+      border: 2px solid #cc2030;
+    }
+    .custom-popup .leaflet-popup-content {
+      margin: 8px 10px;
+      font-family: 'DIN Pro', sans-serif;
+      font-weight: bold;
+      color: #cc2030;
+    }
   </style>
 </head>
 <body>
@@ -26,6 +47,15 @@
     }).setView([51.5074, -0.1278], 11);
 
     function style(feature) {
+      if (feature.properties && feature.properties.id === 'layer-0') {
+        return {
+          fillColor: '#87CEEB',
+          weight: 0,
+          color: 'transparent',
+          stroke: false,
+          fillOpacity: 0.7
+        };
+      }
       return {
         fillColor: '#cccccc',
         weight: 1,
@@ -35,10 +65,12 @@
     }
 
     function highlightFeature(e) {
-      e.target.setStyle({
-        fillColor: '#666666'
+      var layer = e.target;
+      var isRiver = layer.feature.properties.id === 'layer-0';
+      layer.setStyle({
+        fillColor: isRiver ? '#87CEEB' : '#cc2030'
       });
-      e.target.openPopup();
+      layer.openPopup();
     }
 
     function resetHighlight(e) {
@@ -48,7 +80,7 @@
 
     function onEachFeature(feature, layer) {
       if (feature.properties && feature.properties.label) {
-        layer.bindPopup(feature.properties.label);
+        layer.bindPopup(feature.properties.label, { className: 'custom-popup' });
       }
       layer.on({
         mouseover: highlightFeature,
