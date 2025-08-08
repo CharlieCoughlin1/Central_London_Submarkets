@@ -62,13 +62,14 @@
     }).setView([51.5074, -0.1278], 11);
 
     function style(feature) {
-      if (feature.properties && feature.properties.id === 'layer-0') {
+      if (feature.properties && feature.properties.label === 'River Thames') {
         return {
           fillColor: '#ADD8E6',
           weight: 0,
           color: 'transparent',
           stroke: false,
-          fillOpacity: 0.7
+          fillOpacity: 0.7,
+          interactive: false
         };
       }
       return {
@@ -95,13 +96,15 @@
     }
 
     function onEachFeature(feature, layer) {
-      var isRiver = feature.properties && feature.properties.id === 'layer-0';
+      var isRiver = feature.properties && feature.properties.label === 'River Thames';
       if (!isRiver && feature.properties && feature.properties.label) {
         layer.bindPopup(feature.properties.label, { className: 'custom-popup', closeButton: false });
         layer.on({
           mouseover: highlightFeature,
           mouseout: resetHighlight
         });
+      } else if (isRiver) {
+        layer.options.interactive = false;
       }
     }
 
