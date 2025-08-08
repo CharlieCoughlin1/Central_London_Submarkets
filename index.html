@@ -5,10 +5,13 @@
   <title>Central London Submarkets</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-sA+oUXEY5JCC0t1zu3rJ6mkhX1scohd50B8ZTMn90oE=" crossorigin=""/>
   <style>
-    #map { height: 100vh; }
+    body, html { margin: 0; }
+    h1 { text-align: center; margin: 10px 0; }
+    #map { height: calc(100vh - 60px); }
   </style>
 </head>
 <body>
+  <h1>Central London Submarkets</h1>
   <div id="map"></div>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-o9N1j8e+T1M3PoeEYmngEjj6bBdgiyE4Z0AQCA0yZzM=" crossorigin=""></script>
   <script>
@@ -51,14 +54,22 @@
     }
 
     var geojson;
-    fetch('final_poly.geojson')
-      .then(function(response) { return response.json(); })
+    fetch('./final_poly.geojson')
+      .then(function(response) {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
       .then(function(data) {
         geojson = L.geoJSON(data, {
           style: style,
           onEachFeature: onEachFeature
         }).addTo(map);
         map.fitBounds(geojson.getBounds());
+      })
+      .catch(function(error) {
+        console.error('Error loading GeoJSON:', error);
       });
   </script>
 </body>
