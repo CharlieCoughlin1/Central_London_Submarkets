@@ -60,11 +60,19 @@
       .custom-popup .leaflet-popup-content {
         margin: 0;
         font-family: "DIN Pro", "DINPro", sans-serif;
-        font-weight: bold;
-        color: #cc2030;
-        font-size: 2rem;
         text-align: center;
         white-space: nowrap;
+      }
+      .custom-popup .popup-title {
+        color: #cc2030;
+        font-size: 2rem;
+        font-weight: 700;
+      }
+      .custom-popup .popup-prices {
+        margin-top: 10px;
+        color: #000000;
+        font-size: 1.5rem;
+        font-weight: 500;
       }
       .custom-popup .psf-note {
         display: block;
@@ -159,13 +167,15 @@
           var content = label;
           if (data) {
             content =
+              "<div class='popup-title'>" +
               label +
-              "<br/>" +
+              "</div>" +
+              "<div class='popup-prices'>" +
               "Grade A: " +
               data.A +
               " | Grade B: " +
               data.B +
-              "<br/><span class='psf-note'>*psf</span>";
+              "<br/><span class='psf-note'>*psf</span></div>";
           }
           layer.bindPopup(content, {
             className: "custom-popup",
