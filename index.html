@@ -13,18 +13,17 @@
       body,
       .leaflet-container {
         margin: 0;
-        font-family: "DIN Pro", sans-serif;
+        font-family: "DIN Pro", "DINPro", sans-serif;
       }
       h1 {
         text-align: center;
         margin: 20px auto 10px;
-        font-family: "DIN Pro", sans-serif;
+        font-family: "DIN Pro", "DINPro", sans-serif;
         color: #cc2030;
-        font-size: 4em;
+        font-size: 5em;
         font-weight: 700;
         letter-spacing: 1px;
-        border-bottom: 2px solid #cc2030;
-        padding-bottom: 5px;
+        text-transform: uppercase;
         width: fit-content;
       }
       #map {
@@ -38,12 +37,13 @@
         background: #ffffff;
         border: 2px solid #cc2030;
         border-radius: 8px;
-        min-width: 400px;
         padding: 35px 45px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         display: flex;
         justify-content: center;
         align-items: center;
+        width: fit-content;
+        max-width: none;
       }
       .custom-popup .leaflet-popup-tip,
       .custom-popup .leaflet-popup-tip-container {
@@ -51,17 +51,17 @@
       }
       .custom-popup .leaflet-popup-content {
         margin: 0;
-        font-family: "DIN Pro", sans-serif;
+        font-family: "DIN Pro", "DINPro", sans-serif;
         font-weight: bold;
         color: #cc2030;
         font-size: 2rem;
         text-align: center;
-        width: 100%;
+        white-space: nowrap;
       }
     </style>
   </head>
   <body>
-    <h1>Central London Submarkets</h1>
+    <h1>CENTRAL LONDON SUBMARKETS</h1>
     <div id="map"></div>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
