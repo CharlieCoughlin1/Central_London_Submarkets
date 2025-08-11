@@ -1,145 +1,170 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-  <meta charset="utf-8" />
-  <title>Central London Submarkets</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="https://fonts.cdnfonts.com/css/din-pro" />
-  <style>
-    body, html {
-      margin: 0;
-      font-family: 'DIN Pro', sans-serif;
-    }
-    h1 {
-      text-align: center;
-      margin: 20px 0 10px;
-      font-family: 'DIN Pro', sans-serif;
-      color: #cc2030;
-      font-size: 2.5em;
-      font-weight: 700;
-      letter-spacing: 1px;
-      border-bottom: 2px solid #cc2030;
-      display: inline-block;
-      margin-left: auto;
-      margin-right: auto;
-      padding-bottom: 5px;
-    }
-    #map { height: calc(100vh - 60px); background: #ffffff; }
-    .custom-popup {
-      pointer-events: none;
-    }
-    .custom-popup .leaflet-popup-content-wrapper {
-      background: #ffffff;
-      border: 2px solid #cc2030;
-      border-radius: 4px;
-      min-width: 200px;
-      padding: 14px 20px;
-    }
-    .custom-popup .leaflet-popup-tip {
-      background: #ffffff;
-      border: 2px solid #cc2030;
-    }
-    .custom-popup .leaflet-popup-content {
-      margin: 0;
-      font-family: 'DIN Pro', sans-serif;
-      font-weight: bold;
-      color: #cc2030;
-      font-size: 1.1rem;
-      text-align: center;
-    }
-  </style>
-</head>
-<body>
-  <h1>Central London Submarkets</h1>
-  <div id="map"></div>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script>
-    var map = L.map('map', {
-      zoomControl: false,
-      dragging: false,
-      scrollWheelZoom: false,
-      doubleClickZoom: false,
-      boxZoom: false,
-      keyboard: false,
-      touchZoom: false
-    }).setView([51.5074, -0.1278], 11);
+  <head>
+    <meta charset="utf-8" />
+    <title>Central London Submarkets</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <link rel="stylesheet" href="https://fonts.cdnfonts.com/css/din-pro" />
+    <style>
+      body,
+      html {
+        margin: 0;
+        font-family: "DIN Pro", sans-serif;
+      }
+      h1 {
+        text-align: center;
+        margin: 20px 0 10px;
+        font-family: "DIN Pro", sans-serif;
+        color: #cc2030;
+        font-size: 2.5em;
+        font-weight: 700;
+        letter-spacing: 1px;
+        border-bottom: 2px solid #cc2030;
+        display: inline-block;
+        margin-left: auto;
+        margin-right: auto;
+        padding-bottom: 5px;
+      }
+      #map {
+        height: calc(100vh - 60px);
+        background: #ffffff;
+      }
+      .custom-popup {
+        pointer-events: none;
+      }
+      .custom-popup .leaflet-popup-content-wrapper {
+        background: #ffffff;
+        border: 2px solid #cc2030;
+        border-radius: 8px;
+        min-width: 260px;
+        padding: 20px 25px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+      .custom-popup .leaflet-popup-tip {
+        background: #ffffff;
+        border: 2px solid #cc2030;
+      }
+      .custom-popup .leaflet-popup-content {
+        margin: 0;
+        font-family: "DIN Pro", sans-serif;
+        font-weight: bold;
+        color: #cc2030;
+        font-size: 1.3rem;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Central London Submarkets</h1>
+    <div id="map"></div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+      var map = L.map("map", {
+        zoomControl: false,
+        dragging: false,
+        scrollWheelZoom: false,
+        doubleClickZoom: false,
+        boxZoom: false,
+        keyboard: false,
+        touchZoom: false,
+      }).setView([51.5074, -0.1278], 11);
 
-    function style(feature) {
-      if (feature.properties && feature.properties.label === 'River Thames') {
+      function style(feature) {
+        if (feature.properties && feature.properties.label === "River Thames") {
+          return {
+            fillColor: "#ADD8E6",
+            weight: 1,
+            color: "#555555",
+            fillOpacity: 0.7,
+            stroke: true,
+          };
+        }
         return {
-          fillColor: '#ADD8E6',
+          fillColor: "#cccccc",
           weight: 1,
-          color: '#555555',
+          color: "#555555",
           fillOpacity: 0.7,
-          stroke: true
         };
       }
-      return {
-        fillColor: '#cccccc',
-        weight: 1,
-        color: '#555555',
-        fillOpacity: 0.7
-      };
-    }
 
-    function highlightFeature(e) {
-      var layer = e.target;
-      layer.setStyle({ fillColor: '#cc2030' });
-      if (layer.getPopup()) {
-        layer.openPopup();
-      }
-    }
-
-    function resetHighlight(e) {
-      geojson.resetStyle(e.target);
-      if (e.target.getPopup()) {
-        e.target.closePopup();
-      }
-    }
-
-    function onEachFeature(feature, layer) {
-      var isRiver = feature.properties && feature.properties.label === 'River Thames';
-      if (!isRiver && feature.properties && feature.properties.label) {
-        layer.bindPopup(feature.properties.label, { className: 'custom-popup', closeButton: false });
-        layer.on({
-          mouseover: highlightFeature,
-          mouseout: resetHighlight
-        });
-      } else if (isRiver) {
-        layer.options.interactive = false;
-      }
-    }
-
-    var geojson;
-    var cacheBuster = '?v=' + Date.now();
-    var localUrl = 'final_poly.geojson' + cacheBuster;
-    var remoteUrl = 'https://raw.githubusercontent.com/CharlieCoughlin1/Central_London_Submarkets/main/final_poly.geojson' + cacheBuster;
-
-    fetch(localUrl)
-      .then(function(response) {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
+      function highlightFeature(e) {
+        var layer = e.target;
+        layer.setStyle({ fillColor: "#cc2030", weight: 2 });
+        if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+          layer.bringToFront();
         }
-        return response.json();
-      })
-      .catch(function() {
-        return fetch(remoteUrl).then(function(response) {
+        if (layer.getPopup() && !layer.isPopupOpen()) {
+          layer.openPopup();
+        }
+      }
+
+      function resetHighlight(e) {
+        geojson.resetStyle(e.target);
+        if (e.target.getPopup()) {
+          e.target.closePopup();
+        }
+      }
+
+      function onEachFeature(feature, layer) {
+        var isRiver =
+          feature.properties && feature.properties.label === "River Thames";
+        if (!isRiver && feature.properties && feature.properties.label) {
+          layer.bindPopup(feature.properties.label, {
+            className: "custom-popup",
+            closeButton: false,
+          });
+          layer.on({
+            mouseover: highlightFeature,
+            mouseout: resetHighlight,
+          });
+          if (feature.properties.label === "Noho / Fitzrovia") {
+            layer.on("click", function () {
+              window.open(
+                "https://infogram.com/noho-fitzrovia-1hmr6g8ye03yz2n",
+                "_blank",
+              );
+            });
+          }
+        } else if (isRiver) {
+          layer.options.interactive = false;
+        }
+      }
+
+      var geojson;
+      var cacheBuster = "?v=" + Date.now();
+      var localUrl = "final_poly.geojson" + cacheBuster;
+      var remoteUrl =
+        "https://raw.githubusercontent.com/CharlieCoughlin1/Central_London_Submarkets/main/final_poly.geojson" +
+        cacheBuster;
+
+      fetch(localUrl)
+        .then(function (response) {
           if (!response.ok) {
-            throw new Error('Network response was not ok');
+            throw new Error("Network response was not ok");
           }
           return response.json();
+        })
+        .catch(function () {
+          return fetch(remoteUrl).then(function (response) {
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+            return response.json();
+          });
+        })
+        .then(function (data) {
+          geojson = L.geoJSON(data, {
+            style: style,
+            onEachFeature: onEachFeature,
+          }).addTo(map);
+          map.fitBounds(geojson.getBounds());
+        })
+        .catch(function (error) {
+          console.error("Error loading GeoJSON:", error);
         });
-      })
-      .then(function(data) {
-        geojson = L.geoJSON(data, {
-          style: style,
-          onEachFeature: onEachFeature
-        }).addTo(map);
-        map.fitBounds(geojson.getBounds());
-      })
-      .catch(function(error) {
-        console.error('Error loading GeoJSON:', error);
-      });
-  </script>
-</body>
+    </script>
+  </body>
 </html>
