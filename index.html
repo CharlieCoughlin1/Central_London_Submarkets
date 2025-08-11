@@ -17,10 +17,10 @@
       }
       h1 {
         text-align: center;
-        margin: 20px auto 0;
+        margin: 10px auto 0;
         font-family: "DIN Pro", "DINPro", sans-serif;
         color: #cc2030;
-        font-size: 5em;
+        font-size: 6em;
         font-weight: 700;
         letter-spacing: 1px;
         text-transform: uppercase;
@@ -29,10 +29,10 @@
 
       .subtitle {
         text-align: center;
-        margin: 10px auto 20px;
+        margin: 5px auto 15px;
         font-family: "DIN Pro", "DINPro", sans-serif;
         color: #cc2030;
-        font-size: 1.5em;
+        font-size: 1.75em;
         font-weight: 400;
       }
       #map {
@@ -66,6 +66,12 @@
         text-align: center;
         white-space: nowrap;
       }
+      .custom-popup .psf-note {
+        display: block;
+        text-align: right;
+        font-size: 1rem;
+        font-weight: normal;
+      }
     </style>
   </head>
   <body>
@@ -84,11 +90,35 @@
         touchZoom: false,
       }).setView([51.5074, -0.1278], 11);
 
+      var priceData = {
+        "Camden": { A: "£63.00", B: "£42.50" },
+        "Euston & Kings Cross": { A: "£89.00", B: "£60.00" },
+        "Mayfair & St James's": { A: "£170.00", B: "£87.00" },
+        "Soho": { A: "£100.00", B: "£69.50" },
+        "Covent Garden": { A: "£90.00", B: "£62.00" },
+        "Victoria / Westminster": { A: "£95.00", B: "£60.00" },
+        "City (EC2, EC3, EC4)": { A: "£85.00", B: "£52.00" },
+        "Clerkenwell & Farringdon": { A: "£90.00", B: "£65.00" },
+        "Old Street / Shoreditch": { A: "£80.00", B: "£52.00" },
+        "Aldgate / Whitechapel": { A: "£60.00", B: "£40.00" },
+        "Vauxhall / Nine Elms & Battersea": { A: "£63.00", B: "£40.00" },
+        "Southbank": { A: "£85.00", B: "£52.00" },
+        "Midtown": { A: "£85.00", B: "£55.00" },
+        "Canary Wharf": { A: "£55.00", B: "£32.00" },
+        "Noho / Fitzrovia": { A: "£105.00", B: "£65.00" },
+        "Marylebone": { A: "£98.00", B: "£62.50" },
+        "Paddington": { A: "£85.00", B: "£50.00" },
+        "Kensington & Chelsea": { A: "£75.00", B: "£42.50" },
+        "White City / Shepherd's Bush": { A: "£58.00", B: "£40.00" },
+        "Hammersmith": { A: "£58.00", B: "£40.00" },
+        "Knightsbridge / Belgravia": { A: "£90.00", B: "£60.00" },
+      };
+
       function style(feature) {
         if (feature.properties && feature.properties.label === "River Thames") {
           return {
             fillColor: "#ADD8E6",
-            weight: 1,
+            weight: 1.5,
             color: "#555555",
             fillOpacity: 0.7,
             stroke: true,
@@ -96,7 +126,7 @@
         }
         return {
           fillColor: "#cccccc",
-          weight: 1,
+          weight: 1.5,
           color: "#555555",
           fillOpacity: 0.7,
         };
@@ -104,7 +134,7 @@
 
       function highlightFeature(e) {
         var layer = e.target;
-        layer.setStyle({ fillColor: "#cc2030", weight: 2 });
+        layer.setStyle({ fillColor: "#cc2030", weight: 2.5 });
         if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
           layer.bringToFront();
         }
@@ -124,7 +154,20 @@
         var isRiver =
           feature.properties && feature.properties.label === "River Thames";
         if (!isRiver && feature.properties && feature.properties.label) {
-          layer.bindPopup(feature.properties.label, {
+          var label = feature.properties.label;
+          var data = priceData[label];
+          var content = label;
+          if (data) {
+            content =
+              label +
+              "<br/>" +
+              "Grade A: " +
+              data.A +
+              " | Grade B: " +
+              data.B +
+              "<br/><span class='psf-note'>*psf</span>";
+          }
+          layer.bindPopup(content, {
             className: "custom-popup",
             closeButton: false,
             maxWidth: 1000,
