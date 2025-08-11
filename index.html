@@ -49,8 +49,9 @@
         padding: 35px 45px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         display: inline-block;
-        width: auto;
+        width: max-content;
         max-width: none;
+        box-sizing: border-box;
       }
       .custom-popup .leaflet-popup-tip,
       .custom-popup .leaflet-popup-tip-container {
@@ -126,6 +127,7 @@
           layer.bindPopup(feature.properties.label, {
             className: "custom-popup",
             closeButton: false,
+            maxWidth: 1000,
           });
           layer.on({
             mouseover: highlightFeature,
