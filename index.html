@@ -38,6 +38,7 @@
       #map {
         height: calc(100vh - 60px);
         background: #ffffff;
+        position: relative;
       }
       .custom-popup {
         pointer-events: none;
@@ -65,20 +66,41 @@
       }
       .custom-popup .popup-title {
         color: #cc2030;
-        font-size: 2rem;
+        font-size: 2.5rem;
         font-weight: 700;
       }
       .custom-popup .popup-prices {
-        margin-top: 10px;
+        margin-top: 15px;
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+      }
+      .price-box {
+        border: 2px solid #cc2030;
+        border-radius: 6px;
+        padding: 10px 20px;
+        background: #f9f9f9;
+        min-width: 130px;
+      }
+      .price-box .grade {
+        display: block;
+        color: #cc2030;
+        font-size: 1.2rem;
+        font-weight: 700;
+      }
+      .price-box .price {
+        display: block;
         color: #000000;
         font-size: 1.5rem;
         font-weight: 500;
       }
-      .custom-popup .psf-note {
-        display: block;
-        text-align: right;
-        font-size: 1rem;
-        font-weight: normal;
+      .psf-control {
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 4px;
+        padding: 2px 6px;
+        font-size: 0.8rem;
+        font-family: "DIN Pro", "DINPro", sans-serif;
+        margin: 0 4px 4px 0;
       }
     </style>
   </head>
@@ -97,6 +119,14 @@
         keyboard: false,
         touchZoom: false,
       }).setView([51.5074, -0.1278], 11);
+
+      var psfControl = L.control({ position: "bottomright" });
+      psfControl.onAdd = function (map) {
+        var div = L.DomUtil.create("div", "psf-control");
+        div.innerHTML = "*All prices are per sq ft";
+        return div;
+      };
+      psfControl.addTo(map);
 
       var priceData = {
         "Camden": { A: "£63.00", B: "£42.50" },
@@ -171,11 +201,13 @@
               label +
               "</div>" +
               "<div class='popup-prices'>" +
-              "Grade A: " +
+              "<div class='price-box'><span class='grade'>Grade A</span><span class='price'>" +
               data.A +
-              " | Grade B: " +
+              "</span></div>" +
+              "<div class='price-box'><span class='grade'>Grade B</span><span class='price'>" +
               data.B +
-              "<br/><span class='psf-note'>*psf</span></div>";
+              "</span></div>" +
+              "</div>";
           }
           layer.bindPopup(content, {
             className: "custom-popup",
