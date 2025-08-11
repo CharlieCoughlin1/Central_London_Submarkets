@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Central London Submarkets</title>
+    <title>Central London Offices Guide</title>
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -17,7 +17,7 @@
       }
       h1 {
         text-align: center;
-        margin: 20px auto 10px;
+        margin: 20px auto 0;
         font-family: "DIN Pro", "DINPro", sans-serif;
         color: #cc2030;
         font-size: 5em;
@@ -25,6 +25,15 @@
         letter-spacing: 1px;
         text-transform: uppercase;
         width: fit-content;
+      }
+
+      .subtitle {
+        text-align: center;
+        margin: 10px auto 20px;
+        font-family: "DIN Pro", "DINPro", sans-serif;
+        color: #cc2030;
+        font-size: 1.5em;
+        font-weight: 400;
       }
       #map {
         height: calc(100vh - 60px);
@@ -39,10 +48,8 @@
         border-radius: 8px;
         padding: 35px 45px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: fit-content;
+        display: inline-block;
+        width: auto;
         max-width: none;
       }
       .custom-popup .leaflet-popup-tip,
@@ -61,7 +68,8 @@
     </style>
   </head>
   <body>
-    <h1>CENTRAL LONDON SUBMARKETS</h1>
+    <h1>CENTRAL LONDON OFFICES GUIDE</h1>
+    <p class="subtitle">Click a subdistrict to get started</p>
     <div id="map"></div>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
