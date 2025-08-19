@@ -20,7 +20,7 @@
         margin: 10px auto 0;
         font-family: "DIN Pro", "DINPro", sans-serif;
         color: #cc2030;
-        font-size: 6em;
+        font-size: 3em;
         font-weight: 700;
         letter-spacing: 1px;
         text-transform: uppercase;
@@ -32,7 +32,7 @@
         margin: 5px auto 15px;
         font-family: "DIN Pro", "DINPro", sans-serif;
         color: #cc2030;
-        font-size: 1.75em;
+        font-size: 1.2em;
         font-weight: 400;
       }
       #map {
@@ -45,9 +45,9 @@
       }
       .custom-popup .leaflet-popup-content-wrapper {
         background: #ffffff;
-        border: 2px solid #cc2030;
+        border: 1px solid #cc2030;
         border-radius: 8px;
-        padding: 35px 45px;
+        padding: 20px 25px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         display: inline-block;
         width: max-content;
@@ -66,32 +66,32 @@
       }
       .custom-popup .popup-title {
         color: #cc2030;
-        font-size: 2.5rem;
+        font-size: 1.75rem;
         font-weight: 700;
       }
       .custom-popup .popup-prices {
-        margin-top: 15px;
+        margin-top: 10px;
         display: flex;
         justify-content: center;
-        gap: 15px;
+        gap: 10px;
       }
       .price-box {
-        border: 2px solid #cc2030;
+        border: 1px solid #cc2030;
         border-radius: 6px;
-        padding: 10px 20px;
+        padding: 8px 16px;
         background: #f9f9f9;
-        min-width: 130px;
+        min-width: 100px;
       }
       .price-box .grade {
         display: block;
         color: #cc2030;
-        font-size: 1.2rem;
+        font-size: 1rem;
         font-weight: 700;
       }
       .price-box .price {
         display: block;
         color: #000000;
-        font-size: 1.5rem;
+        font-size: 1.2rem;
         font-weight: 500;
       }
       .psf-control {
@@ -156,7 +156,7 @@
         if (feature.properties && feature.properties.label === "River Thames") {
           return {
             fillColor: "#ADD8E6",
-            weight: 1.5,
+            weight: 0.75,
             color: "#555555",
             fillOpacity: 0.7,
             stroke: true,
@@ -164,7 +164,7 @@
         }
         return {
           fillColor: "#cccccc",
-          weight: 1.5,
+          weight: 0.75,
           color: "#555555",
           fillOpacity: 0.7,
         };
@@ -172,7 +172,7 @@
 
       function highlightFeature(e) {
         var layer = e.target;
-        layer.setStyle({ fillColor: "#cc2030", weight: 2.5 });
+        layer.setStyle({ fillColor: "#cc2030", weight: 1.5 });
         if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
           layer.bringToFront();
         }
