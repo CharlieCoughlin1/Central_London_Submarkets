@@ -5,13 +5,13 @@
     <title>Central London Offices Guide</title>
     <link
       rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      href="https://unpkg.com/maplibre-gl@3.3.1/dist/maplibre-gl.css"
     />
     <link rel="stylesheet" href="https://fonts.cdnfonts.com/css/din-pro" />
     <style>
       html,
       body,
-      .leaflet-container {
+      #map {
         margin: 0;
         font-family: "DIN Pro", "DINPro", sans-serif;
       }
@@ -29,7 +29,7 @@
 
       .subtitle {
         text-align: center;
-        margin: 4px auto 12px;
+        margin: 4px auto 0;
         font-family: "DIN Pro", "DINPro", sans-serif;
         color: #cc2030;
         font-size: 1em;
@@ -43,7 +43,7 @@
       .custom-popup {
         pointer-events: none;
       }
-      .custom-popup .leaflet-popup-content-wrapper {
+      .custom-popup .maplibregl-popup-content {
         background: #ffffff;
         border: 1px solid #cc2030;
         border-radius: 8px;
@@ -54,11 +54,10 @@
         max-width: none;
         box-sizing: border-box;
       }
-      .custom-popup .leaflet-popup-tip,
-      .custom-popup .leaflet-popup-tip-container {
+      .custom-popup .maplibregl-popup-tip {
         display: none;
       }
-      .custom-popup .leaflet-popup-content {
+      .custom-popup .maplibregl-popup-content {
         margin: 0;
         font-family: "DIN Pro", "DINPro", sans-serif;
         text-align: center;
@@ -101,38 +100,25 @@
         font-size: 0.7rem;
         font-family: "DIN Pro", "DINPro", sans-serif;
         margin: 0 4px 4px 0;
+        position: absolute;
+        bottom: 0;
+        right: 0;
       }
     </style>
   </head>
   <body>
     <h1>CENTRAL LONDON OFFICES GUIDE</h1>
     <p class="subtitle">Click a subdistrict to get started</p>
-    <div id="map"></div>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <div id="map">
+      <div class="psf-control">*All prices are per sq ft</div>
+    </div>
+    <script src="https://unpkg.com/maplibre-gl@3.3.1/dist/maplibre-gl.js"></script>
     <script>
-      var map = L.map("map", {
-        zoomControl: false,
-        dragging: false,
-        scrollWheelZoom: false,
-        doubleClickZoom: false,
-        boxZoom: false,
-        keyboard: false,
-        touchZoom: false,
-      }).setView([51.5074, -0.1278], 11);
-
-      var psfControl = L.control({ position: "bottomright" });
-      psfControl.onAdd = function (map) {
-        var div = L.DomUtil.create("div", "psf-control");
-        div.innerHTML = "*All prices are per sq ft";
-        return div;
-      };
-      psfControl.addTo(map);
-
       var priceData = {
-        "Camden": { A: "£63.00", B: "£42.50" },
+        Camden: { A: "£63.00", B: "£42.50" },
         "Euston & Kings Cross": { A: "£89.00", B: "£60.00" },
         "Mayfair & St James's": { A: "£170.00", B: "£87.00" },
-        "Soho": { A: "£100.00", B: "£69.50" },
+        Soho: { A: "£100.00", B: "£69.50" },
         "Covent Garden": { A: "£90.00", B: "£62.00" },
         "Victoria / Westminster": { A: "£95.00", B: "£60.00" },
         "City (EC2, EC3, EC4)": { A: "£85.00", B: "£52.00" },
@@ -140,95 +126,49 @@
         "Old Street / Shoreditch": { A: "£80.00", B: "£52.00" },
         "Aldgate / Whitechapel": { A: "£60.00", B: "£40.00" },
         "Vauxhall / Nine Elms & Battersea": { A: "£63.00", B: "£40.00" },
-        "Southbank": { A: "£85.00", B: "£52.00" },
-        "Midtown": { A: "£85.00", B: "£55.00" },
+        Southbank: { A: "£85.00", B: "£52.00" },
+        Midtown: { A: "£85.00", B: "£55.00" },
         "Canary Wharf": { A: "£55.00", B: "£32.00" },
         "Noho / Fitzrovia": { A: "£105.00", B: "£65.00" },
-        "Marylebone": { A: "£98.00", B: "£62.50" },
-        "Paddington": { A: "£85.00", B: "£50.00" },
+        Marylebone: { A: "£98.00", B: "£62.50" },
+        Paddington: { A: "£85.00", B: "£50.00" },
         "Kensington & Chelsea": { A: "£75.00", B: "£42.50" },
         "White City / Shepherd's Bush": { A: "£58.00", B: "£40.00" },
-        "Hammersmith": { A: "£58.00", B: "£40.00" },
+        Hammersmith: { A: "£58.00", B: "£40.00" },
         "Knightsbridge / Belgravia": { A: "£90.00", B: "£60.00" },
       };
 
-      function style(feature) {
-        if (feature.properties && feature.properties.label === "River Thames") {
-          return {
-            fillColor: "#ADD8E6",
-            fillOpacity: 0.7,
-            stroke: false,
-          };
-        }
-        return {
-          fillColor: "#cccccc",
-          fillOpacity: 0.7,
-          stroke: false,
-        };
-      }
+      var map = new maplibregl.Map({
+        container: "map",
+        style: {
+          version: 8,
+          sources: {},
+          layers: [
+            {
+              id: "background",
+              type: "background",
+              paint: { "background-color": "#ffffff" },
+            },
+          ],
+        },
+        center: [-0.1278, 51.5074],
+        zoom: 11,
+      });
 
-      function highlightFeature(e) {
-        var layer = e.target;
-        layer.setStyle({ fillColor: "#cc2030", color: "#cc2030", weight: 1.5 });
-        if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-          layer.bringToFront();
-        }
-        if (layer.getPopup() && !layer.isPopupOpen()) {
-          layer.openPopup();
-        }
-      }
+      map.dragPan.disable();
+      map.scrollZoom.disable();
+      map.doubleClickZoom.disable();
+      map.boxZoom.disable();
+      map.keyboard.disable();
+      map.dragRotate.disable();
+      map.touchZoomRotate.disable();
 
-      function resetHighlight(e) {
-        geojson.resetStyle(e.target);
-        if (e.target.getPopup()) {
-          e.target.closePopup();
-        }
-      }
+      var hoveredId = null;
+      var popup = new maplibregl.Popup({
+        closeButton: false,
+        className: "custom-popup",
+      });
 
-      function onEachFeature(feature, layer) {
-        var isRiver =
-          feature.properties && feature.properties.label === "River Thames";
-        if (!isRiver && feature.properties && feature.properties.label) {
-          var label = feature.properties.label;
-          var data = priceData[label];
-          var content = label;
-          if (data) {
-            content =
-              "<div class='popup-title'>" +
-              label +
-              "</div>" +
-              "<div class='popup-prices'>" +
-              "<div class='price-box'><span class='grade'>Grade A</span><span class='price'>" +
-              data.A +
-              "</span></div>" +
-              "<div class='price-box'><span class='grade'>Grade B</span><span class='price'>" +
-              data.B +
-              "</span></div>" +
-              "</div>";
-          }
-          layer.bindPopup(content, {
-            className: "custom-popup",
-            closeButton: false,
-            maxWidth: 300,
-          });
-          layer.on({
-            mouseover: highlightFeature,
-            mouseout: resetHighlight,
-          });
-          if (feature.properties.label === "Noho / Fitzrovia") {
-            layer.on("click", function () {
-              window.open(
-                "https://infogram.com/noho-fitzrovia-1hmr6g8ye03yz2n",
-                "_blank",
-              );
-            });
-          }
-        } else if (isRiver) {
-          layer.options.interactive = false;
-        }
-      }
-
-      var geojson;
       var cacheBuster = "?v=" + Date.now();
       var localUrl = "final_poly.geojson" + cacheBuster;
       var remoteUrl =
@@ -251,11 +191,108 @@
           });
         })
         .then(function (data) {
-          geojson = L.geoJSON(data, {
-            style: style,
-            onEachFeature: onEachFeature,
-          }).addTo(map);
-          map.fitBounds(geojson.getBounds());
+          map.addSource("subdistricts", {
+            type: "geojson",
+            data: data,
+            tolerance: 0,
+            generateId: true,
+          });
+
+          map.addLayer({
+            id: "subdistrict-fills",
+            type: "fill",
+            source: "subdistricts",
+            paint: {
+              "fill-color": [
+                "case",
+                ["==", ["get", "label"], "River Thames"],
+                "#ADD8E6",
+                ["boolean", ["feature-state", "hover"], false],
+                "#cc2030",
+                "#cccccc",
+              ],
+              "fill-opacity": 0.7,
+            },
+          });
+
+          var bounds = new maplibregl.LngLatBounds();
+          data.features.forEach(function (feature) {
+            var coords = feature.geometry.coordinates.flat(Infinity);
+            for (var i = 0; i < coords.length; i += 2) {
+              bounds.extend([coords[i], coords[i + 1]]);
+            }
+          });
+          map.fitBounds(bounds, { padding: 20 });
+
+          map.on("mousemove", "subdistrict-fills", function (e) {
+            var feature = e.features[0];
+            var label = feature.properties.label;
+            if (label === "River Thames") {
+              map.getCanvas().style.cursor = "";
+              if (hoveredId !== null) {
+                map.setFeatureState(
+                  { source: "subdistricts", id: hoveredId },
+                  { hover: false },
+                );
+                hoveredId = null;
+                popup.remove();
+              }
+              return;
+            }
+
+            map.getCanvas().style.cursor = "pointer";
+            if (hoveredId !== null && hoveredId !== feature.id) {
+              map.setFeatureState(
+                { source: "subdistricts", id: hoveredId },
+                { hover: false },
+              );
+            }
+            hoveredId = feature.id;
+            map.setFeatureState(
+              { source: "subdistricts", id: hoveredId },
+              { hover: true },
+            );
+
+            var dataInfo = priceData[label];
+            var content = label;
+            if (dataInfo) {
+              content =
+                "<div class='popup-title'>" +
+                label +
+                "</div>" +
+                "<div class='popup-prices'>" +
+                "<div class='price-box'><span class='grade'>Grade A</span><span class='price'>" +
+                dataInfo.A +
+                "</span></div>" +
+                "<div class='price-box'><span class='grade'>Grade B</span><span class='price'>" +
+                dataInfo.B +
+                "</span></div>" +
+                "</div>";
+            }
+            popup.setLngLat(e.lngLat).setHTML(content).addTo(map);
+          });
+
+          map.on("mouseleave", "subdistrict-fills", function () {
+            map.getCanvas().style.cursor = "";
+            if (hoveredId !== null) {
+              map.setFeatureState(
+                { source: "subdistricts", id: hoveredId },
+                { hover: false },
+              );
+            }
+            hoveredId = null;
+            popup.remove();
+          });
+
+          map.on("click", "subdistrict-fills", function (e) {
+            var label = e.features[0].properties.label;
+            if (label === "Noho / Fitzrovia") {
+              window.open(
+                "https://infogram.com/noho-fitzrovia-1hmr6g8ye03yz2n",
+                "_blank",
+              );
+            }
+          });
         })
         .catch(function (error) {
           console.error("Error loading GeoJSON:", error);
