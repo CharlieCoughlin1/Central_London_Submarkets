@@ -3,117 +3,47 @@
   <head>
     <meta charset="utf-8" />
     <title>Central London Offices Guide</title>
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/maplibre-gl@3.3.1/dist/maplibre-gl.css"
-    />
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@3.3.1/dist/maplibre-gl.css" />
     <link rel="stylesheet" href="https://fonts.cdnfonts.com/css/din-pro" />
     <style>
-      html,
-      body,
-      #map {
-        margin: 0;
-        font-family: "DIN Pro", "DINPro", sans-serif;
-      }
-      h1 {
+      html, body, #map { margin: 0; font-family: "DIN Pro","DINPro",sans-serif; }
+      .site-header {
+        position: sticky; top: 0; z-index: 2;
+        background: #fff;
+        border-bottom: 1px solid rgba(0,0,0,.06);
+        padding: 10px 12px 6px;
         text-align: center;
-        margin: 8px auto 0;
-        font-family: "DIN Pro", "DINPro", sans-serif;
-        color: #cc2030;
-        font-size: 2em;
-        font-weight: 700;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-        width: fit-content;
       }
-
-      .subtitle {
-        text-align: center;
-        margin: 4px auto 0;
-        font-family: "DIN Pro", "DINPro", sans-serif;
-        color: #cc2030;
-        font-size: 1em;
-        font-weight: 400;
-        margin-bottom: 0;
-      }
-      #map {
-        height: calc(100vh - 50px);
-        background: #ffffff;
-        position: relative;
-        margin-top: 0;
-      }
-      .custom-popup {
-        pointer-events: none;
-      }
+      h1 { margin: 0; letter-spacing: 1px; color: #cc2030; font-weight: 700; text-transform: uppercase; }
+      .subtitle { margin: 4px 0 0; color: #cc2030; opacity: .9; }
+      #map { height: calc(100vh - 56px); background: #fff; position: relative; }
+      .custom-popup { pointer-events: none; }
       .custom-popup .maplibregl-popup-content {
-        background: #ffffff;
-        border: 1px solid #cc2030;
-        border-radius: 8px;
-        padding: 12px 16px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        display: inline-block;
-        width: max-content;
-        max-width: none;
-        box-sizing: border-box;
+        background: #fff; border: 1px solid #cc2030; border-radius: 8px;
+        padding: 10px 14px; box-shadow: 0 4px 12px rgba(0,0,0,.15);
+        display: inline-block; width: max-content; max-width: none; box-sizing: border-box;
       }
-      .custom-popup .maplibregl-popup-tip {
-        display: none;
-      }
-      .custom-popup .maplibregl-popup-content {
-        margin: 0;
-        font-family: "DIN Pro", "DINPro", sans-serif;
-        text-align: center;
-        white-space: nowrap;
-      }
-      .custom-popup .popup-title {
-        color: #cc2030;
-        font-size: 1.25rem;
-        font-weight: 700;
-      }
-      .custom-popup .popup-prices {
-        margin-top: 8px;
-        display: flex;
-        justify-content: center;
-        gap: 8px;
-      }
-      .price-box {
-        border: 1px solid #cc2030;
-        border-radius: 6px;
-        padding: 6px 10px;
-        background: #f9f9f9;
-        min-width: 80px;
-      }
-      .price-box .grade {
-        display: block;
-        color: #cc2030;
-        font-size: 0.9rem;
-        font-weight: 700;
-      }
-      .price-box .price {
-        display: block;
-        color: #000000;
-        font-size: 1rem;
-        font-weight: 500;
-      }
-      .psf-control {
-        background: rgba(255, 255, 255, 0.8);
-        border-radius: 4px;
-        padding: 2px 6px;
-        font-size: 0.7rem;
-        font-family: "DIN Pro", "DINPro", sans-serif;
-        margin: 0 4px 4px 0;
-        position: absolute;
-        bottom: 0;
-        right: 0;
+      .custom-popup .maplibregl-popup-tip { display:none; }
+      .custom-popup .maplibregl-popup-content { margin:0; text-align:center; white-space:nowrap; }
+      .custom-popup .popup-title { color:#cc2030; font-size:1.15rem; font-weight:700; letter-spacing:.2px; }
+      .custom-popup .popup-prices { margin-top:8px; display:flex; justify-content:center; gap:8px; }
+      .price-box { border:1px solid #cc2030; border-radius:6px; padding:6px 10px; background:#fafafa; min-width:92px; line-height:1.2; }
+      .price-box .grade { display:block; color:#cc2030; font-size:.9rem; font-weight:700; }
+      .price-box .price { display:block; color:#000; font-size:1rem; font-weight:500; }
+      .psf-control { background:rgba(255,255,255,.85); border-radius:4px; padding:4px 8px; font-size:.7rem; position:absolute; bottom:8px; right:8px; }
+      @media (max-width:480px) {
+        h1 { font-size:1.6rem; }
+        .custom-popup .popup-title { font-size:1.05rem; }
+        .price-box { min-width:80px; padding:6px 8px; }
       }
     </style>
   </head>
   <body>
-    <h1>CENTRAL LONDON OFFICES GUIDE</h1>
-    <p class="subtitle">Click a subdistrict to get started</p>
-    <div id="map">
-      <div class="psf-control">*All prices are per sq ft</div>
-    </div>
+    <header class="site-header">
+      <h1>CENTRAL LONDON OFFICES GUIDE</h1>
+      <p class="subtitle">Click a subdistrict to get started</p>
+    </header>
+    <div id="map"><div class="psf-control">*All prices are per sq ft</div></div>
     <script src="https://unpkg.com/maplibre-gl@3.3.1/dist/maplibre-gl.js"></script>
     <script>
       var priceData = {
@@ -140,21 +70,13 @@
         "Knightsbridge / Belgravia": { A: "£90.00", B: "£60.00" },
       };
 
-      var map = new maplibregl.Map({
-        container: "map",
-        style: {
-          version: 8,
-          sources: {},
-          layers: [
-            {
-              id: "background",
-              type: "background",
-              paint: { "background-color": "#ffffff" },
-            },
-          ],
-        },
+      const map = new maplibregl.Map({
+        container: 'map',
+        style: { version: 8, sources: {}, layers: [{ id:'background', type:'background', paint:{'background-color':'#ffffff'} }] },
         center: [-0.1278, 51.5074],
         zoom: 11,
+        canvasContextAttributes: { antialias: true },
+        antialias: true
       });
 
       map.dragPan.disable();
@@ -165,60 +87,73 @@
       map.dragRotate.disable();
       map.touchZoomRotate.disable();
 
-      var hoveredId = null;
-      var popup = new maplibregl.Popup({
-        closeButton: false,
-        className: "custom-popup",
-      });
+      let hoveredId = null;
+      const popup = new maplibregl.Popup({ closeButton:false, className:'custom-popup' });
 
-      var cacheBuster = "?v=" + Date.now();
-      var localUrl = "final_poly.geojson" + cacheBuster;
-      var remoteUrl =
-        "https://raw.githubusercontent.com/CharlieCoughlin1/Central_London_Submarkets/main/final_poly.geojson" +
-        cacheBuster;
+      var cacheBuster = '?v=' + Date.now();
+      var localUrl = 'final_poly.geojson' + cacheBuster;
+      var remoteUrl = 'https://raw.githubusercontent.com/CharlieCoughlin1/Central_London_Submarkets/main/final_poly.geojson' + cacheBuster;
 
       fetch(localUrl)
         .then(function (response) {
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
-          }
+          if (!response.ok) { throw new Error('Network response was not ok'); }
           return response.json();
         })
         .catch(function () {
           return fetch(remoteUrl).then(function (response) {
-            if (!response.ok) {
-              throw new Error("Network response was not ok");
-            }
+            if (!response.ok) { throw new Error('Network response was not ok'); }
             return response.json();
           });
         })
         .then(function (data) {
-          map.addSource("subdistricts", {
-            type: "geojson",
+          map.addSource('subdistricts', {
+            type: 'geojson',
             data: data,
             tolerance: 0,
-            generateId: true,
+            maxzoom: 22,
+            lineMetrics: true,
+            promoteId: 'label'
           });
 
           map.addLayer({
-            id: "subdistrict-fills",
-            type: "fill",
-            source: "subdistricts",
+            id: 'subdistrict-fills',
+            type: 'fill',
+            source: 'subdistricts',
             paint: {
-              "fill-color": [
-                "case",
-                ["==", ["get", "label"], "River Thames"],
-                "#ADD8E6",
-                ["boolean", ["feature-state", "hover"], false],
-                "#cc2030",
-                "#cccccc",
+              'fill-color': [
+                'case',
+                ['==', ['get', 'label'], 'River Thames'], '#ADD8E6',
+                ['boolean', ['feature-state', 'hover'], false], '#cc2030',
+                '#cccccc'
               ],
-              "fill-opacity": 0.7,
+              'fill-opacity': 0.7,
+              'fill-outline-color': 'rgba(0,0,0,0)'
+            }
+          });
+
+          map.addLayer({
+            id: 'subdistrict-outline',
+            type: 'line',
+            source: 'subdistricts',
+            paint: {
+              'line-color': [
+                'case',
+                ['==', ['get', 'label'], 'River Thames'], '#88bfe8',
+                ['boolean', ['feature-state', 'hover'], false], '#cc2030',
+                '#999999'
+              ],
+              'line-width': [
+                'case', ['boolean', ['feature-state', 'hover'], false], 2, 1
+              ],
+              'line-opacity': 1,
+              'line-blur': 0
             },
+            layout: { 'line-join': 'round', 'line-cap': 'round' }
           });
 
           var bounds = new maplibregl.LngLatBounds();
           data.features.forEach(function (feature) {
+            if (feature.properties.label === 'River Thames') return;
             var coords = feature.geometry.coordinates.flat(Infinity);
             for (var i = 0; i < coords.length; i += 2) {
               bounds.extend([coords[i], coords[i + 1]]);
@@ -226,35 +161,27 @@
           });
           map.fitBounds(bounds, { padding: 20 });
 
-          map.on("mousemove", "subdistrict-fills", function (e) {
+          map.on('mousemove', 'subdistrict-fills', function (e) {
             var feature = e.features[0];
             var label = feature.properties.label;
-            if (label === "River Thames") {
-              map.getCanvas().style.cursor = "";
-              if (hoveredId !== null) {
-                map.setFeatureState(
-                  { source: "subdistricts", id: hoveredId },
-                  { hover: false },
-                );
+            var fid = label;
+            if (label === 'River Thames') {
+              map.getCanvas().style.cursor = '';
+              if (hoveredId) {
+                map.setFeatureState({ source: 'subdistricts', id: hoveredId }, { hover: false });
                 hoveredId = null;
                 popup.remove();
               }
               return;
             }
 
-            map.getCanvas().style.cursor = "pointer";
-            if (hoveredId !== feature.id) {
-              if (hoveredId !== null) {
-                map.setFeatureState(
-                  { source: "subdistricts", id: hoveredId },
-                  { hover: false },
-                );
+            map.getCanvas().style.cursor = 'pointer';
+            if (hoveredId !== fid) {
+              if (hoveredId) {
+                map.setFeatureState({ source: 'subdistricts', id: hoveredId }, { hover: false });
               }
-              hoveredId = feature.id;
-              map.setFeatureState(
-                { source: "subdistricts", id: hoveredId },
-                { hover: true },
-              );
+              hoveredId = fid;
+              map.setFeatureState({ source: 'subdistricts', id: hoveredId }, { hover: true });
             }
 
             var dataInfo = priceData[label];
@@ -274,35 +201,27 @@
                 "</div>";
             }
             popup.setLngLat(e.lngLat).setHTML(content);
-            if (!popup.isOpen()) {
-              popup.addTo(map);
-            }
+            if (!popup.isOpen()) { popup.addTo(map); }
           });
 
-          map.on("mouseleave", "subdistrict-fills", function () {
-            map.getCanvas().style.cursor = "";
-            if (hoveredId !== null) {
-              map.setFeatureState(
-                { source: "subdistricts", id: hoveredId },
-                { hover: false },
-              );
+          map.on('mouseleave', 'subdistrict-fills', function () {
+            map.getCanvas().style.cursor = '';
+            if (hoveredId) {
+              map.setFeatureState({ source: 'subdistricts', id: hoveredId }, { hover: false });
             }
             hoveredId = null;
             popup.remove();
           });
 
-          map.on("click", "subdistrict-fills", function (e) {
+          map.on('click', 'subdistrict-fills', function (e) {
             var label = e.features[0].properties.label;
-            if (label === "Noho / Fitzrovia") {
-              window.open(
-                "https://infogram.com/noho-fitzrovia-1hmr6g8ye03yz2n",
-                "_blank",
-              );
+            if (label === 'Noho / Fitzrovia') {
+              window.open('https://infogram.com/noho-fitzrovia-1hmr6g8ye03yz2n', '_blank');
             }
           });
         })
         .catch(function (error) {
-          console.error("Error loading GeoJSON:", error);
+          console.error('Error loading GeoJSON:', error);
         });
     </script>
   </body>
