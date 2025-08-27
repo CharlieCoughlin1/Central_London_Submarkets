@@ -34,11 +34,13 @@
         color: #cc2030;
         font-size: 1em;
         font-weight: 400;
+        margin-bottom: 0;
       }
       #map {
         height: calc(100vh - 50px);
         background: #ffffff;
         position: relative;
+        margin-top: 0;
       }
       .custom-popup {
         pointer-events: none;
@@ -241,17 +243,19 @@
             }
 
             map.getCanvas().style.cursor = "pointer";
-            if (hoveredId !== null && hoveredId !== feature.id) {
+            if (hoveredId !== feature.id) {
+              if (hoveredId !== null) {
+                map.setFeatureState(
+                  { source: "subdistricts", id: hoveredId },
+                  { hover: false },
+                );
+              }
+              hoveredId = feature.id;
               map.setFeatureState(
                 { source: "subdistricts", id: hoveredId },
-                { hover: false },
+                { hover: true },
               );
             }
-            hoveredId = feature.id;
-            map.setFeatureState(
-              { source: "subdistricts", id: hoveredId },
-              { hover: true },
-            );
 
             var dataInfo = priceData[label];
             var content = label;
@@ -269,7 +273,10 @@
                 "</span></div>" +
                 "</div>";
             }
-            popup.setLngLat(e.lngLat).setHTML(content).addTo(map);
+            popup.setLngLat(e.lngLat).setHTML(content);
+            if (!popup.isOpen()) {
+              popup.addTo(map);
+            }
           });
 
           map.on("mouseleave", "subdistrict-fills", function () {
