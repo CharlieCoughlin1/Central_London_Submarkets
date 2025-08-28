@@ -109,9 +109,6 @@
         display:flex; align-items:center; justify-content:center; gap:8px;
         margin:2px 0 4px;
       }
-      .popup-badge{
-        width:8px; height:8px; border-radius:50%; background:var(--popup-accent); flex:0 0 8px;
-      }
       .popup-title{
         color:var(--ink);
         font-weight:700; font-size:1rem; letter-spacing:.3px;
@@ -244,7 +241,6 @@
         return `
     <div class="pop-inner" data-label="${title}" role="status" aria-live="polite">
       <div class="popup-title-row">
-        <span class="popup-badge" aria-hidden="true"></span>
         <h3 class="popup-title">${title}</h3>
       </div>
       ${prices}
@@ -272,6 +268,9 @@
           requestAnimationFrame(() => popup.getElement().classList.add('active'));
           return;
         }
+
+        const el = popup.getElement();
+        if (el) el.classList.add('active');
 
         // If open and same label: only move location; keep content
         const current = popup.getElement().querySelector('.pop-inner');
