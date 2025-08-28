@@ -20,14 +20,11 @@
         --shadow-1:0 4px 12px rgba(0,0,0,.12);
         --popup-accent: var(--brand);
         --header-h: 0px;
-        --vh: 100dvh;
       }
 
       html, body {
         height:100%;
-        min-height:100vh;
-        min-height:100svh;
-        min-height:100dvh;
+        overflow:hidden;
       }
       body {
         margin:0;
@@ -35,7 +32,6 @@
         background:var(--surface);
         color:var(--ink);
         font-family:"DIN Pro","DINPro",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-        padding-top:var(--header-h);
       }
       .site-header{
         position:fixed;
@@ -60,11 +56,15 @@
         color:var(--muted-ink);
       }
       #map{
-        height:calc(var(--vh) - var(--header-h));
+        position:fixed;
+        top:var(--header-h);
+        left:0;
+        right:0;
+        bottom:0;
         min-height:320px;
-        position:relative;
         background:var(--ui);
         padding-bottom:env(safe-area-inset-bottom);
+        box-sizing:border-box;
       }
       .psf-control{
         position:absolute;
@@ -212,21 +212,8 @@
 
       const mapContainer = document.getElementById('map');
       new ResizeObserver(() => map.resize()).observe(mapContainer);
-
-      function setVH(){
-        const vv = window.visualViewport;
-        const h = vv ? Math.round(vv.height) : window.innerHeight;
-        root.style.setProperty('--vh', h + 'px');
-        map.resize();
-      }
-      setVH();
-
-      if (window.visualViewport) {
-        visualViewport.addEventListener('resize', setVH);
-        visualViewport.addEventListener('scroll', setVH);
-      }
-      window.addEventListener('resize', setVH);
-      window.addEventListener('orientationchange', setVH);
+      window.addEventListener('resize', () => map.resize());
+      window.addEventListener('orientationchange', () => map.resize());
 
       async function updateHeaderHeight(){
         if (document.fonts && document.fonts.ready) {
@@ -234,7 +221,6 @@
         }
         const h = Math.ceil(headerEl.getBoundingClientRect().height);
         root.style.setProperty('--header-h', h + 'px');
-        document.body.style.paddingTop = h + 'px';
         map.resize();
       }
       updateHeaderHeight();
