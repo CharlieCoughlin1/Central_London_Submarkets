@@ -80,9 +80,15 @@
         padding:10px 14px;
         margin:0;
         text-align:center;
-        white-space:nowrap;
+        box-sizing:border-box;
+        white-space:normal;
+        overflow-wrap:anywhere;
+        word-break:break-word;
+        max-width:min(90vw, 420px);
+        font-family:"DIN Pro","DINPro",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+        font-variant-numeric:tabular-nums;
       }
-      .popup-title{color:var(--brand);font-weight:700;font-size:1.15rem;letter-spacing:.2px;}
+      .popup-title{color:var(--ink);font-weight:700;font-size:1.15rem;letter-spacing:.2px;display:block;line-height:1.2;margin:0;padding:0 2px;}
       .popup-prices{margin-top:8px;display:flex;justify-content:center;gap:8px;}
       .price-box{
         border:1px solid var(--stroke);
@@ -165,12 +171,11 @@
       map.once('load', () => map.resize());
 
       let hoveredId = null;
-      const popup = new maplibregl.Popup({ closeButton: false, className: 'custom-popup' });
+      const popup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, className: 'custom-popup', maxWidth: '420px' });
       let popupTimer = null;
 
       const brand = getComputedStyle(document.documentElement).getPropertyValue('--brand').trim();
       const water = getComputedStyle(document.documentElement).getPropertyValue('--water').trim();
-      const waterStroke = getComputedStyle(document.documentElement).getPropertyValue('--water-stroke').trim();
 
       function debounce(fn, delay) {
         let t;
@@ -238,42 +243,46 @@
             map.addSource('subdistricts', {
               type: 'geojson',
               data: data,
-              tolerance: 0,
               maxzoom: 22,
-              lineMetrics: true,
               promoteId: 'label'
+            });
+
+            map.addLayer({
+              id: 'thames-fill',
+              type: 'fill',
+              source: 'subdistricts',
+              filter: ['==', ['get', 'label'], 'River Thames'],
+              paint: {
+                'fill-color': water,
+                'fill-outline-color': 'rgba(0,0,0,0)',
+                'fill-opacity': 1
+              }
             });
 
             map.addLayer({
               id: 'subdistrict-fills',
               type: 'fill',
               source: 'subdistricts',
+              filter: ['!=', ['get', 'label'], 'River Thames'],
               paint: {
                 'fill-color': [
                   'case',
-                  ['==', ['get', 'label'], 'River Thames'], water,
                   ['boolean', ['feature-state', 'hover'], false], 'rgba(204,32,48,0.12)',
                   '#E9EBEE'
                 ],
-                'fill-opacity': 1,
-                'fill-outline-color': 'rgba(0,0,0,0)'
+                'fill-outline-color': '#A3A8B3',
+                'fill-opacity': 1
               }
             });
 
             map.addLayer({
-              id: 'subdistrict-outline',
+              id: 'subdistrict-hover-outline',
               type: 'line',
               source: 'subdistricts',
+              filter: ['!=', ['get', 'label'], 'River Thames'],
               paint: {
-                'line-color': [
-                  'case',
-                  ['==', ['get', 'label'], 'River Thames'], waterStroke,
-                  ['boolean', ['feature-state', 'hover'], false], brand,
-                  '#A3A8B3'
-                ],
-                'line-width': [
-                  'case', ['boolean', ['feature-state', 'hover'], false], 2, 1
-                ],
+                'line-color': brand,
+                'line-width': ['case', ['boolean', ['feature-state', 'hover'], false], 2, 0],
                 'line-opacity': 1,
                 'line-blur': 0
               },
@@ -290,9 +299,9 @@
             });
             map.fitBounds(bounds, { padding: 20 });
 
-            map.on('mousemove', function (e) {
+            function handleMove(e) {
               const features = map.queryRenderedFeatures(e.point, { layers: ['subdistrict-fills'] });
-              const feature = features.find(f => f.properties.label !== 'River Thames');
+              const feature = features[0];
               if (!feature) { clearHover(); return; }
 
               map.getCanvas().style.cursor = 'pointer';
@@ -307,11 +316,24 @@
               const label = feature.properties.label;
               popup.setLngLat(center).setHTML(renderPopup(label, priceData[label]));
               if (!popup.isOpen()) popup.addTo(map);
+            }
+
+            let pendingMove = false;
+            let lastMoveEvent = null;
+            map.on('mousemove', function (e) {
+              lastMoveEvent = e;
+              if (!pendingMove) {
+                pendingMove = true;
+                requestAnimationFrame(function () {
+                  pendingMove = false;
+                  handleMove(lastMoveEvent);
+                });
+              }
             });
 
             map.on('click', function (e) {
               const features = map.queryRenderedFeatures(e.point, { layers: ['subdistrict-fills'] });
-              const feature = features.find(f => f.properties.label !== 'River Thames');
+              const feature = features[0];
               if (!feature) return;
 
               const label = feature.properties.label;
