@@ -39,7 +39,7 @@
         background:var(--surface);
         border-bottom:1px solid var(--stroke);
         box-shadow:0 1px 2px rgba(0,0,0,.04);
-        padding:12px 16px 8px;
+        padding:12px 16px 4px;
         text-align:center;
       }
       h1{
@@ -71,13 +71,14 @@
         color:var(--muted-ink);
       }
       .custom-popup{pointer-events:none;}
+      .custom-popup *{user-select:none;}
       .custom-popup .maplibregl-popup-tip{display:none;}
       .custom-popup .maplibregl-popup-content{
-        background:var(--surface);
+        background:rgba(255,255,255,.6);
         border:1px solid var(--stroke);
         border-radius:var(--radius-2);
         box-shadow:var(--shadow-1);
-        padding:10px 14px;
+        padding:8px 12px;
         margin:0;
         text-align:center;
         box-sizing:border-box;
@@ -88,24 +89,24 @@
         font-family:"DIN Pro","DINPro",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
         font-variant-numeric:tabular-nums;
       }
-      .popup-title{color:var(--ink);font-weight:700;font-size:1.15rem;letter-spacing:.2px;display:block;line-height:1.2;margin:0;padding:0 2px;}
+      .popup-title{color:var(--brand);font-weight:700;font-size:1.05rem;letter-spacing:.2px;display:block;line-height:1.2;margin:0;padding:0 2px;text-transform:uppercase;}
       .popup-prices{margin-top:8px;display:flex;justify-content:center;gap:8px;}
       .price-box{
         border:1px solid var(--stroke);
         background:#FAFAFB;
         border-radius:var(--radius-1);
-        padding:6px 10px;
-        min-width:92px;
+        padding:4px 8px;
+        min-width:86px;
         line-height:1.2;
         font-variant-numeric:tabular-nums;
       }
       .price-box .grade{display:block;color:var(--muted-ink);font-size:.9rem;font-weight:700;}
       .price-box .price{display:block;color:var(--ink);font-size:1rem;font-weight:500;}
       @media (max-width:480px){
-        .site-header{padding:10px 12px 6px;}
+        .site-header{padding:10px 12px 4px;}
         h1{font-size:1.6rem;}
-        .popup-title{font-size:1.05rem;}
-        .price-box{min-width:80px;padding:6px 8px;}
+        .popup-title{font-size:.95rem;}
+        .price-box{min-width:74px;padding:4px 6px;}
       }
       @media (prefers-reduced-motion: reduce){
         *{transition:none!important;}
@@ -203,9 +204,9 @@
       }
 
       function renderPopup(label, dataInfo) {
-        if (!dataInfo) return "<div class='popup-title'>" + label + "</div>";
+        if (!dataInfo) return "<div class='popup-title'>" + label.toUpperCase() + "</div>";
         return (
-          "<div class='popup-title'>" + label + "</div>" +
+          "<div class='popup-title'>" + label.toUpperCase() + "</div>" +
           "<div class='popup-prices'>" +
             "<div class='price-box'><span class='grade'>Grade A</span><span class='price'>" + dataInfo.A + "</span></div>" +
             "<div class='price-box'><span class='grade'>Grade B</span><span class='price'>" + dataInfo.B + "</span></div>" +
@@ -271,7 +272,8 @@
                   '#E9EBEE'
                 ],
                 'fill-outline-color': '#A3A8B3',
-                'fill-opacity': 1
+                'fill-opacity': 1,
+                'fill-antialias': true
               }
             });
 
@@ -284,7 +286,7 @@
                 'line-color': brand,
                 'line-width': ['case', ['boolean', ['feature-state', 'hover'], false], 2, 0],
                 'line-opacity': 1,
-                'line-blur': 0
+                'line-blur': 0.5
               },
               layout: { 'line-join': 'round', 'line-cap': 'round' }
             });
