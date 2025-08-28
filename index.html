@@ -66,18 +66,6 @@
         border-top:1px solid var(--stroke);
         padding-bottom:env(safe-area-inset-bottom);
       }
-      .map-chip{
-        position:absolute;
-        top:8px;
-        background:rgba(255,255,255,.8);
-        border:1px solid var(--stroke);
-        border-radius:var(--radius-1);
-        padding:4px 8px;
-        font-size:.7rem;
-        color:var(--muted-ink);
-        z-index:1;
-      }
-      .legend-chip{left:8px;}
       .psf-control{
         position:absolute;
         bottom:8px;
@@ -168,10 +156,9 @@
       <h1>CENTRAL LONDON OFFICES GUIDE</h1>
       <p class="subtitle">Click a subdistrict to get started</p>
     </header>
-    <div id="map">
-      <div class="map-chip legend-chip"><span class="legend-text">Submarket (grey) • Hover (red outline) • River (blue)</span></div>
-      <div class="psf-control">*All prices are per sq ft</div>
-    </div>
+      <div id="map">
+        <div class="psf-control">*All prices are per sq ft</div>
+      </div>
     <script src="https://unpkg.com/maplibre-gl@3.3.1/dist/maplibre-gl.js"></script>
     <script>
       var priceData = {
