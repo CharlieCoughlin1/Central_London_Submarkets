@@ -19,6 +19,8 @@
         --radius-2:8px;
         --shadow-1:0 4px 12px rgba(0,0,0,.12);
         --popup-accent: var(--brand);
+        --header-h: 0px;
+        --vh: 100dvh;
       }
 
       html, body {
@@ -29,8 +31,8 @@
       }
       body {
         margin:0;
-        display:flex;
-        flex-direction:column;
+        display:grid;
+        grid-template-rows:auto 1fr;
         background:var(--surface);
         color:var(--ink);
         font-family:"DIN Pro","DINPro",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
@@ -40,7 +42,8 @@
         background:var(--surface);
         border-bottom:1px solid var(--stroke);
         box-shadow:0 1px 2px rgba(0,0,0,.04);
-        padding:12px 16px 0;
+        padding:12px 16px 8px;
+        margin:0;
         text-align:center;
       }
       h1{
@@ -55,11 +58,32 @@
         color:var(--muted-ink);
       }
       #map{
-        flex:1 1 auto;
+        height:calc(var(--vh) - var(--header-h));
         min-height:320px;
+        flex:0 0 auto;
         position:relative;
         background:var(--ui);
+        border-top:1px solid var(--stroke);
+        padding-bottom:env(safe-area-inset-bottom);
       }
+      .map-chip{
+        position:absolute;
+        top:8px;
+        background:rgba(255,255,255,.8);
+        border:1px solid var(--stroke);
+        border-radius:var(--radius-1);
+        padding:4px 8px;
+        font-size:.7rem;
+        color:var(--muted-ink);
+        z-index:1;
+      }
+      .reset-view{right:8px;}
+      .legend-chip{left:8px;display:flex;align-items:center;gap:4px;}
+      .legend-chip button{
+        background:none;border:none;padding:0;margin:0;font-size:.7rem;color:var(--muted-ink);cursor:pointer;
+      }
+      .legend-chip .legend-text{display:none;}
+      .legend-chip.active .legend-text{display:inline;}
       .psf-control{
         position:absolute;
         bottom:8px;
@@ -139,6 +163,7 @@
         .custom-popup .maplibregl-popup-content{max-width:calc(100vw - 24px); padding:8px 10px 10px;}
         .popup-title{font-size:.92rem;}
         .price-box{min-width:76px; padding:6px 7px;}
+        .reset-view{display:none;}
       }
       @media (prefers-reduced-motion: reduce){
         *{transition:none!important;}
@@ -150,7 +175,11 @@
       <h1>CENTRAL LONDON OFFICES GUIDE</h1>
       <p class="subtitle">Click a subdistrict to get started</p>
     </header>
-    <div id="map"><div class="psf-control">*All prices are per sq ft</div></div>
+    <div id="map">
+      <div class="map-chip legend-chip"><button class="legend-toggle" aria-label="Toggle legend">?</button><span class="legend-text">Submarket (grey) • Hover (red outline) • River (blue)</span></div>
+      <button class="map-chip reset-view" id="reset-view">Reset view</button>
+      <div class="psf-control">*All prices are per sq ft</div>
+    </div>
     <script src="https://unpkg.com/maplibre-gl@3.3.1/dist/maplibre-gl.js"></script>
     <script>
       var priceData = {
@@ -181,6 +210,11 @@
         "Noho / Fitzrovia": "https://infogram.com/noho-fitzrovia-1hmr6g8ye03yz2n"
       };
 
+      const root = document.documentElement;
+      const headerEl = document.querySelector('.site-header');
+      const legendChip = document.querySelector('.legend-chip');
+      legendChip.querySelector('.legend-toggle').addEventListener('click', () => legendChip.classList.toggle('active'));
+
       const map = new maplibregl.Map({
         container: 'map',
         style: { version: 8, sources: {}, layers: [{ id: 'background', type: 'background', paint: { 'background-color': '#ffffff' } }] },
@@ -200,8 +234,24 @@
       map.getCanvas().style.cursor = 'default';
 
       const mapContainer = document.getElementById('map');
-      window.addEventListener('resize', () => map.resize());
       new ResizeObserver(() => map.resize()).observe(mapContainer);
+
+      function setVH(){
+        root.style.setProperty('--vh', window.innerHeight + 'px');
+        map.resize();
+      }
+      setVH();
+      window.addEventListener('resize', setVH);
+      window.addEventListener('orientationchange', setVH);
+
+      function updateHeaderHeight(){
+        const h = headerEl.getBoundingClientRect().height;
+        root.style.setProperty('--header-h', h + 'px');
+        map.resize();
+      }
+      updateHeaderHeight();
+      const headerRO = new ResizeObserver(() => updateHeaderHeight());
+      headerRO.observe(headerEl);
       map.once('load', () => map.resize());
 
       let hoveredId = null;
@@ -352,13 +402,26 @@
               paint: {
                 'fill-color': [
                   'case',
-                  ['boolean', ['feature-state', 'hover'], false], 'rgba(204,32,48,0.12)',
-                  '#E9EBEE'
+                  ['boolean', ['feature-state', 'hover'], false], 'rgba(204,32,48,0.10)',
+                  '#EDEFF2'
                 ],
-                'fill-outline-color': '#A3A8B3',
-                'fill-opacity': 1,
-                'fill-antialias': true
+                'fill-outline-color': '#B6BCC6',
+                'fill-opacity': 1
               }
+            });
+
+            map.addLayer({
+              id: 'subdistrict-hover-halo',
+              type: 'line',
+              source: 'subdistricts',
+              filter: ['!=', ['get', 'label'], 'River Thames'],
+              paint: {
+                'line-color': '#000',
+                'line-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 0.06, 0],
+                'line-width': ['case', ['boolean', ['feature-state', 'hover'], false], 4, 0],
+                'line-blur': 0.8
+              },
+              layout: { 'line-join': 'round', 'line-cap': 'round' }
             });
 
             map.addLayer({
@@ -370,7 +433,7 @@
                 'line-color': brand,
                 'line-width': ['case', ['boolean', ['feature-state', 'hover'], false], 2, 0],
                 'line-opacity': 1,
-                'line-blur': 0.5
+                'line-blur': 0
               },
               layout: { 'line-join': 'round', 'line-cap': 'round' }
             });
@@ -384,6 +447,13 @@
               }
             });
             map.fitBounds(bounds, { padding: { top: 10, right: 20, bottom: 20, left: 20 } });
+
+            const resetBtn = document.getElementById('reset-view');
+            if (resetBtn) {
+              resetBtn.addEventListener('click', () => {
+                map.fitBounds(bounds, { padding: { top: 10, right: 20, bottom: 20, left: 20 } });
+              });
+            }
 
             function handleMove(e) {
               const features = map.queryRenderedFeatures(e.point, { layers: ['subdistrict-fills'] });
