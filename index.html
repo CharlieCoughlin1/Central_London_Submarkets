@@ -65,6 +65,46 @@
         padding-bottom:env(safe-area-inset-bottom);
         box-sizing:border-box;
       }
+      .map-footer-actions{
+        display:flex;
+        justify-content:center;
+        padding:16px 12px 0;
+      }
+      .table-toggle{
+        display:inline-flex;
+        align-items:center;
+        gap:8px;
+        background:var(--brand);
+        color:var(--surface);
+        border:none;
+        border-radius:999px;
+        padding:10px 18px;
+        font-size:.95rem;
+        font-weight:700;
+        letter-spacing:.4px;
+        text-transform:uppercase;
+        cursor:pointer;
+        box-shadow:0 6px 16px rgba(204,32,48,0.2);
+        transition:background .18s ease, box-shadow .18s ease, transform .18s ease;
+      }
+      .table-toggle:focus-visible{
+        outline:3px solid rgba(204,32,48,0.3);
+        outline-offset:2px;
+      }
+      .table-toggle:hover{box-shadow:0 8px 18px rgba(204,32,48,0.26); transform:translateY(-1px);}
+      .table-toggle:active{transform:translateY(0); box-shadow:0 4px 12px rgba(204,32,48,0.22);}
+      .table-toggle.is-open{background:var(--ink); box-shadow:0 6px 16px rgba(15,23,42,0.18);}
+      .table-toggle .toggle-label{line-height:1;}
+      .table-toggle .chevron{
+        width:12px;
+        height:12px;
+        border-right:2px solid currentColor;
+        border-bottom:2px solid currentColor;
+        transform:rotate(45deg);
+        transition:transform .18s ease;
+        margin-top:-2px;
+      }
+      .table-toggle.is-open .chevron{transform:rotate(-135deg);}
       .psf-control{
         position:absolute;
         bottom:8px;
@@ -122,6 +162,7 @@
         padding:0 12px 32px;
         max-width:min(1100px,95vw);
       }
+      .table-wrap[hidden]{display:none;}
       .table-wrap h2{
         margin:0 0 16px;
         font-weight:800;
@@ -206,6 +247,8 @@
         .site-header{padding:10px 12px 0;}
         h1{font-size:1.6rem;}
         #map{height:clamp(280px,52vh,520px);}
+        .map-footer-actions{padding:12px 12px 0;}
+        .table-toggle{padding:9px 16px; font-size:.9rem;}
         .custom-popup .maplibregl-popup-content{max-width:calc(100vw - 24px); padding:6px 8px 8px;}
         .popup-title{font-size:.92rem;}
         .price-box{min-width:65px; padding:4px 6px;}
@@ -228,7 +271,14 @@
       <div class="psf-control">*All prices are per sq ft</div>
     </div>
 
-    <section class="table-wrap" aria-labelledby="rents-heading">
+    <div class="map-footer-actions">
+      <button type="button" id="toggle-table" class="table-toggle" aria-expanded="false" aria-controls="rents-section">
+        <span class="toggle-label">View rent table</span>
+        <span class="chevron" aria-hidden="true"></span>
+      </button>
+    </div>
+
+    <section id="rents-section" class="table-wrap" aria-labelledby="rents-heading" hidden>
       <h2 id="rents-heading">Central London Office Rents</h2>
       <div class="table-scroller">
         <table id="rents-table" class="rent-table" aria-describedby="rents-caption">
@@ -302,11 +352,18 @@
       map.getCanvas().style.cursor = 'default';
 
       const mapContainer = document.getElementById('map');
-      new ResizeObserver(() => map.resize()).observe(mapContainer);
+      if (mapContainer && window.ResizeObserver) {
+        const mapObserver = new ResizeObserver(() => map.resize());
+        mapObserver.observe(mapContainer);
+      }
       window.addEventListener('resize', () => map.resize());
-      window.addEventListener('orientationchange', () => map.resize());
+      window.addEventListener('orientationchange', () => {
+        map.resize();
+        updateHeaderHeight();
+      });
 
       async function updateHeaderHeight(){
+        if (!headerEl) return;
         if (document.fonts && document.fonts.ready) {
           try { await document.fonts.ready; } catch(e){}
         }
@@ -315,8 +372,12 @@
         map.resize();
       }
       updateHeaderHeight();
-      const headerRO = new ResizeObserver(() => updateHeaderHeight());
-      headerRO.observe(headerEl);
+      if (headerEl && window.ResizeObserver) {
+        const headerRO = new ResizeObserver(() => updateHeaderHeight());
+        headerRO.observe(headerEl);
+      } else if (headerEl) {
+        window.addEventListener('resize', updateHeaderHeight);
+      }
       map.once('load', () => map.resize());
 
       let hoveredId = null;
@@ -462,6 +523,29 @@
         tbody.appendChild(frag);
       }
 
+      const tableSection = document.getElementById('rents-section');
+      const tableToggleButton = document.getElementById('toggle-table');
+      const tableToggleLabel = tableToggleButton ? tableToggleButton.querySelector('.toggle-label') : null;
+
+      function setTableVisibility(shouldShow) {
+        if (!tableSection || !tableToggleButton || !tableToggleLabel) return;
+        tableSection.hidden = !shouldShow;
+        tableToggleButton.setAttribute('aria-expanded', shouldShow ? 'true' : 'false');
+        tableToggleButton.classList.toggle('is-open', shouldShow);
+        tableToggleLabel.textContent = shouldShow ? 'Hide rent table' : 'View rent table';
+      }
+
+      if (tableToggleButton) {
+        setTableVisibility(false);
+        tableToggleButton.addEventListener('click', () => {
+          const nextState = tableSection ? tableSection.hidden : true;
+          setTableVisibility(nextState);
+          if (nextState && tableSection && tableSection.scrollIntoView) {
+            requestAnimationFrame(() => tableSection.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+          }
+        });
+      }
+
       map.on('load', function () {
         var cacheBuster = '?v=' + Date.now();
         var localUrl = 'final_poly.geojson' + cacheBuster;
@@ -505,10 +589,11 @@
               filter: ['==', ['get', 'label'], 'River Thames'],
               paint: {
                 'line-color': waterStroke,
-                'line-width': 1.2,
+                'line-width': 1.2
+              },
+              layout: {
                 'line-join': 'round',
-                'line-cap': 'round',
-                'line-smooth': 0.6
+                'line-cap': 'round'
               }
             });
 
