@@ -23,8 +23,9 @@
       }
 
       html, body {
-        height:100%;
-        overflow:hidden;
+        min-height:100%;
+        overflow-y:auto;
+        overflow-x:hidden;
       }
       body {
         margin:0;
@@ -56,11 +57,9 @@
         color:var(--muted-ink);
       }
       #map{
-        position:fixed;
-        top:var(--header-h);
-        left:0;
-        right:0;
-        bottom:0;
+        position:relative;
+        margin-top:var(--header-h);
+        height:clamp(320px,58vh,640px);
         min-height:320px;
         background:var(--ui);
         padding-bottom:env(safe-area-inset-bottom);
@@ -77,6 +76,7 @@
         font-size:.7rem;
         color:var(--muted-ink);
       }
+
       .custom-popup{pointer-events:none; opacity:0; transform:translateY(2px); transition:opacity .16s ease, transform .16s ease;}
       .custom-popup.active{opacity:1; transform:translateY(0);}
       .custom-popup *{pointer-events:none;user-select:none;}
@@ -97,7 +97,6 @@
         font-variant-numeric:tabular-nums;
         position:relative;
       }
-      /* thin brand accent bar */
       .custom-popup .maplibregl-popup-content::before{
         content:"";
         position:absolute;
@@ -111,40 +110,108 @@
       .pop-inner{opacity:1; transform:translateY(0); transition:opacity .14s ease, transform .14s ease;}
       .pop-inner.is-out{opacity:0; transform:translateY(4px);}
       .pop-inner.is-in{opacity:1; transform:translateY(0);}
-      .popup-title-row{
-        display:flex; align-items:center; justify-content:center; gap:8px;
-        margin:2px 0 4px;
+      .popup-title-row{display:flex; align-items:center; justify-content:center; gap:8px; margin:2px 0 4px;}
+      .popup-title{color:var(--ink); font-weight:700; font-size:1rem; letter-spacing:.3px; line-height:1.2; margin:0; padding:0 2px; text-transform:uppercase;}
+      .popup-prices{margin-top:6px; display:flex; justify-content:center; gap:8px; flex-wrap:wrap;}
+      .price-box{border:1px solid var(--stroke); background:#FAFAFB; border-radius:8px; padding:4px 6px; min-width:72px; line-height:1.2;}
+      .price-box .grade{display:block; color:var(--muted-ink); font-size:.85rem; font-weight:700; letter-spacing:.2px;}
+      .price-box .price{display:block; color:var(--ink); font-size:1rem; font-weight:600;}
+
+      .table-wrap{
+        margin:28px auto 64px;
+        padding:0 12px 32px;
+        max-width:min(1100px,95vw);
       }
-      .popup-title{
-        color:var(--ink);
-        font-weight:700; font-size:1rem; letter-spacing:.3px;
-        line-height:1.2; margin:0; padding:0 2px;
+      .table-wrap h2{
+        margin:0 0 16px;
+        font-weight:800;
+        letter-spacing:1px;
         text-transform:uppercase;
+        font-size:1rem;
+        color:var(--ink);
+        position:relative;
+        display:inline-block;
+        padding-top:6px;
       }
-      .popup-prices{
-        margin-top:6px;
-        display:flex; justify-content:center; gap:8px; flex-wrap:wrap;
+      .table-wrap h2::after{
+        content:"";
+        position:absolute;
+        top:0;
+        left:0;
+        width:100%;
+        height:3px;
+        background:var(--brand);
+        border-radius:4px;
       }
-      .price-box{
+      .table-scroller{
+        overflow:auto;
+        background:var(--surface);
         border:1px solid var(--stroke);
+        border-radius:var(--radius-2);
+        box-shadow:0 4px 10px rgba(0,0,0,.08);
+      }
+      .rent-table{
+        width:100%;
+        border-collapse:separate;
+        border-spacing:0;
+        font-variant-numeric:tabular-nums;
+      }
+      .rent-table caption{
+        caption-side:bottom;
+        text-align:right;
+        padding:10px 12px;
+        color:var(--muted-ink);
+        font-size:.85rem;
+      }
+      .rent-table thead th{
+        position:sticky;
+        top:0;
+        z-index:1;
+        background:var(--ui);
+        color:var(--muted-ink);
+        text-align:left;
+        font-weight:800;
+        padding:12px 14px;
+        border-bottom:1px solid var(--stroke);
+      }
+      .rent-table tbody td{
+        padding:12px 14px;
+        border-bottom:1px solid #F1F2F4;
+      }
+      .rent-table tbody tr:nth-child(even){
         background:#FAFAFB;
-        border-radius:8px;
-        padding:4px 6px;
-        min-width:72px;
-        line-height:1.2;
       }
-      .price-box .grade{
-        display:block; color:var(--muted-ink); font-size:.85rem; font-weight:700; letter-spacing:.2px;
+      .rent-table tbody tr:hover{
+        background:rgba(204,32,48,0.06);
       }
-      .price-box .price{
-        display:block; color:var(--ink); font-size:1rem; font-weight:600;
+      .rent-table a{
+        font-weight:700;
+        color:var(--ink);
+        text-decoration:none;
+        transition:text-shadow .18s ease, text-decoration-color .18s ease;
       }
+      .rent-table a:hover{
+        text-decoration:underline;
+        text-decoration-color:var(--brand);
+        text-shadow:0 1px 0 rgba(204,32,48,0.18);
+      }
+      .rent-table .no-link{
+        color:var(--muted-ink);
+        font-weight:600;
+        opacity:.9;
+        cursor:default;
+      }
+
       @media (max-width:480px){
         .site-header{padding:10px 12px 0;}
         h1{font-size:1.6rem;}
+        #map{height:clamp(280px,52vh,520px);}
         .custom-popup .maplibregl-popup-content{max-width:calc(100vw - 24px); padding:6px 8px 8px;}
         .popup-title{font-size:.92rem;}
         .price-box{min-width:65px; padding:4px 6px;}
+        .rent-table thead th,
+        .rent-table tbody td{padding:10px 12px; font-size:.95rem;}
+        .rent-table caption{text-align:left; padding:10px 10px;}
       }
       @media (prefers-reduced-motion: reduce){
         *{transition:none!important;}
@@ -156,9 +223,28 @@
       <h1>CENTRAL LONDON OFFICES GUIDE</h1>
       <p class="subtitle">Click a subdistrict to get started</p>
     </header>
-      <div id="map">
-        <div class="psf-control">*All prices are per sq ft</div>
+
+    <div id="map">
+      <div class="psf-control">*All prices are per sq ft</div>
+    </div>
+
+    <section class="table-wrap" aria-labelledby="rents-heading">
+      <h2 id="rents-heading">Central London Office Rents</h2>
+      <div class="table-scroller">
+        <table id="rents-table" class="rent-table" aria-describedby="rents-caption">
+          <caption id="rents-caption">*All prices are per sq ft</caption>
+          <thead>
+            <tr>
+              <th scope="col">Submarket</th>
+              <th scope="col">Grade A</th>
+              <th scope="col">Grade B</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
       </div>
+    </section>
+
     <script src="https://unpkg.com/maplibre-gl@3.3.1/dist/maplibre-gl.js"></script>
     <script>
       var priceData = {
@@ -194,7 +280,12 @@
 
       const map = new maplibregl.Map({
         container: 'map',
-        style: { version: 8, sources: {}, layers: [{ id: 'background', type: 'background', paint: { 'background-color': '#ffffff' } }] },
+        style: {
+          version: 8,
+          glyphs: 'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf',
+          sources: {},
+          layers: [{ id: 'background', type: 'background', paint: { 'background-color': '#ffffff' } }]
+        },
         center: [-0.1278, 51.5074],
         zoom: 11,
         canvasContextAttributes: { antialias: true },
@@ -287,7 +378,6 @@
         const isOpen = popup.isOpen();
         clearTimeout(popupFadeTimer);
 
-        // Open if closed
         if (!isOpen) {
           popup.setLngLat(center).setHTML(nextHtml).addTo(map);
           requestAnimationFrame(() => popup.getElement().classList.add('active'));
@@ -297,7 +387,6 @@
         const el = popup.getElement();
         if (el) el.classList.add('active');
 
-        // If open and same label: only move location; keep content
         const current = popup.getElement().querySelector('.pop-inner');
         const currentLabel = current ? current.getAttribute('data-label') : '';
         const nextLabel = (label || '').toUpperCase();
@@ -307,7 +396,6 @@
           return;
         }
 
-        // Cross-fade content swap
         if (current) current.classList.add('is-out');
         setTimeout(() => {
           popup.setLngLat(center).setHTML(nextHtml);
@@ -331,6 +419,47 @@
       function scheduleClearHover() {
         clearTimeout(hoverLeaveTimer);
         hoverLeaveTimer = setTimeout(removeHover, 100);
+      }
+
+      function buildRentsTable(){
+        const tbody = document.querySelector('#rents-table tbody');
+        const labels = Object.keys(priceData).filter(label => label !== 'River Thames').sort((a, b) => a.localeCompare(b));
+        const frag = document.createDocumentFragment();
+
+        for (const label of labels){
+          const tr = document.createElement('tr');
+
+          const tdLabel = document.createElement('td');
+          const url = labelToUrl[label];
+          if (url){
+            const a = document.createElement('a');
+            a.href = url;
+            a.target = '_blank';
+            a.rel = 'noopener';
+            a.textContent = label;
+            a.title = `Open ${label} dashboard`;
+            tdLabel.appendChild(a);
+          } else {
+            const span = document.createElement('span');
+            span.textContent = label;
+            span.className = 'no-link';
+            tdLabel.appendChild(span);
+          }
+
+          const tdA = document.createElement('td');
+          tdA.textContent = priceData[label]?.A || '—';
+
+          const tdB = document.createElement('td');
+          tdB.textContent = priceData[label]?.B || '—';
+
+          tr.appendChild(tdLabel);
+          tr.appendChild(tdA);
+          tr.appendChild(tdB);
+          frag.appendChild(tr);
+        }
+
+        tbody.innerHTML = '';
+        tbody.appendChild(frag);
       }
 
       map.on('load', function () {
@@ -413,6 +542,36 @@
               layout: { 'line-join': 'round', 'line-cap': 'round' }
             });
 
+            // Always-on submarket labels (hidden on hover via feature-state)
+            map.addLayer({
+              id: 'subdistrict-labels',
+              type: 'symbol',
+              source: 'subdistricts',
+              filter: ['!=', ['get', 'label'], 'River Thames'],
+              layout: {
+                'symbol-placement': 'point',
+                'text-field': ['get', 'label'],
+                'text-font': ['Open Sans Semibold', 'Open Sans Regular'],
+                'text-size': ['interpolate', ['linear'], ['zoom'], 10, 10, 12, 12, 14, 14],
+                'text-letter-spacing': 0.05,
+                'text-padding': 2,
+                'text-allow-overlap': false,
+                'text-optional': true
+              },
+              paint: {
+                'text-color': 'rgba(15, 23, 42, 0.86)',
+                'text-halo-color': 'rgba(255,255,255,0.95)',
+                'text-halo-width': 1.2,
+                'text-halo-blur': 0.5,
+                'text-opacity': [
+                  'case',
+                  ['boolean', ['feature-state', 'hover'], false],
+                  0,
+                  0.88
+                ]
+              }
+            });
+
             map.addLayer({
               id: 'subdistrict-hover-outline',
               type: 'line',
@@ -436,7 +595,6 @@
               }
             });
             map.fitBounds(bounds, { padding: { top: 10, right: 20, bottom: 20, left: 20 } });
-
 
             function handleMove(e) {
               const features = map.queryRenderedFeatures(e.point, { layers: ['subdistrict-fills'] });
@@ -474,6 +632,8 @@
               }
             });
 
+            map.on('mouseleave', 'subdistrict-fills', scheduleClearHover);
+
             map.on('click', function (e) {
               const features = map.queryRenderedFeatures(e.point, { layers: ['subdistrict-fills'] });
               const feature = features[0];
@@ -502,7 +662,12 @@
             console.error('Error loading GeoJSON:', error);
           });
       });
+
+      if (document.readyState !== 'loading') {
+        buildRentsTable();
+      } else {
+        document.addEventListener('DOMContentLoaded', buildRentsTable);
+      }
     </script>
   </body>
 </html>
-
