@@ -81,7 +81,7 @@
         z-index:3;
       }
 
-      /* Right-side rents table button + panel (unchanged from last version) */
+      /* Right-side rents table button + panel (unchanged) */
       .panel-controls{
         position:absolute;
         top:12px;
@@ -210,18 +210,19 @@
         cursor:default;
       }
 
-      /* --- NEW: Client logo banner at the bottom of the map --- */
+      /* --- NEW: Client logo banner (moved OUTSIDE #map and fixed to viewport) --- */
       .logo-marquee{
-        position:absolute;
+        position:fixed;
         left:12px;
         right:12px;
-        bottom:12px;
-        z-index:2; /* below PSF control and table button */
-        background:rgba(255,255,255,0.88);
+        /* keep clear of the iOS home indicator */
+        bottom:calc(env(safe-area-inset-bottom) + 12px);
+        z-index:4; /* Above map layers; below table panel and its toggle (z:6) and leaves PSF note visible (z:3) due to stacking order */
+        background:rgba(255,255,255,0.9);
         border:1px solid var(--stroke);
         border-radius:12px;
         box-shadow:var(--shadow-1);
-        pointer-events:none; /* do not block map interaction */
+        pointer-events:none; /* never block map interactions */
         backdrop-filter:saturate(120%) blur(4px);
       }
       .logo-marquee .logo-accent{
@@ -267,12 +268,15 @@
       .logo-track{
         display:flex;
         align-items:center;
-        width:max-content; /* allow content to define width */
-        animation: marquee-rtl 55s linear infinite reverse; /* left-to-right */
+        width:max-content; /* content defines natural width */
+        will-change:transform;
+        animation: marquee-ltr 55s linear infinite;
       }
-      @keyframes marquee-rtl{
-        0%   { transform: translateX(0); }
-        100% { transform: translateX(-50%); } /* two strips -> half width loop */
+      /* Left-to-right continuous loop:
+         We render two identical strips (A + B). Moving from -50% to 0% shows B -> A smoothly. */
+      @keyframes marquee-ltr{
+        0%   { transform: translateX(-50%); }
+        100% { transform: translateX(0%); }
       }
       .logo-strip{
         display:flex;
@@ -292,7 +296,7 @@
       .logo-strip img{
         display:block;
         height:24px;
-        max-width:140px;
+        max-width:160px;
         object-fit:contain;
         opacity:.95;
         filter:none; /* keep brand colours */
@@ -411,20 +415,20 @@
         </aside>
       </div>
 
-      <!-- NEW: Client logos banner at the bottom of the map -->
-      <div class="logo-marquee" id="logo-marquee" role="region" aria-label="Clients we work with">
-        <div class="logo-accent" aria-hidden="true"></div>
-        <div class="logo-banner-inner">
-          <p class="banner-subtitle">Trusted by leading London office occupiers</p>
-          <div class="logo-viewport">
-            <div class="logo-track" id="logo-track">
-              <!-- JS will inject two identical strips for a seamless left-to-right scroll -->
-            </div>
+      <div class="psf-control">*All prices are per sq ft</div>
+    </div>
+
+    <!-- NEW: Client logos banner (outside #map so MapLibre never hides it) -->
+    <div class="logo-marquee" id="logo-marquee" role="region" aria-label="Clients we work with">
+      <div class="logo-accent" aria-hidden="true"></div>
+      <div class="logo-banner-inner">
+        <p class="banner-subtitle">Trusted by leading London office occupiers</p>
+        <div class="logo-viewport">
+          <div class="logo-track" id="logo-track">
+            <!-- JS will inject two identical strips for a seamless left‑to‑right scroll -->
           </div>
         </div>
       </div>
-
-      <div class="psf-control">*All prices are per sq ft</div>
     </div>
 
     <script src="https://unpkg.com/maplibre-gl@3.3.1/dist/maplibre-gl.js"></script>
@@ -850,69 +854,126 @@
         });
       }
 
-      /* === NEW: Client logos marquee builder ===
-         Place your logo files in the "Client logos" folder.
-         Option A (recommended): create "Client logos/manifest.json" with an array of filenames or {src, alt} objects.
-           Example manifest.json:
-             ["client1.svg","client2.png", {"src":"client3.svg","alt":"Client 3"}]
-         Option B: edit the clientLogos array below.
-         Any image that fails to load will be removed gracefully.
+      /* === Client logos marquee ===
+         It will:
+         1) Try to load "Client logos/manifest.json" (array of filenames OR {src,alt} objects).
+         2) If not found and no hardcoded list, it will try a gentle numeric scan: "Client logos/1.svg|png|webp|jpg|jpeg", ... up to 20.
+         3) Never hides the banner even if no logos are found (prevents the "flash then disappear" issue).
       */
       const clientLogos = [
-        // Example placeholders — replace with your actual filenames or use manifest.json
-        // { src: "Client logos/Client1.svg", alt: "Client 1" },
-        // { src: "Client logos/Client2.png", alt: "Client 2" },
-        // { src: "Client logos/Client3.svg", alt: "Client 3" }
+        // Optional hardcoded entries (uncomment and adjust if you prefer not to use a manifest):
+        // { src: "Client logos/Acme.svg", alt: "Acme" },
+        // { src: "Client logos/Contoso.png", alt: "Contoso" },
       ];
 
       function deriveAltFromPath(path){
         try {
           const name = path.split('/').pop().split('.').slice(0,-1).join('.');
-          return name.replace(/[-_]+/g,' ').replace(/\s+/g,' ').trim();
+          return name.replace(/[-_]+/g,' ').replace(/\s+/g,' ').trim() || 'Client logo';
         } catch(e){ return 'Client logo'; }
       }
 
-      function buildLogoMarquee(list){
-        const track = document.getElementById('logo-track');
-        const banner = document.getElementById('logo-marquee');
-        if (!track || !banner) return;
+      function makeStrip(nodes){
+        const ul = document.createElement('ul');
+        ul.className = 'logo-strip';
+        nodes.forEach(n => ul.appendChild(n));
+        return ul;
+      }
 
-        const items = Array.isArray(list) ? list.slice() : [];
-        if (!items.length){
-          // If still empty, hide the banner shell
-          banner.style.display = 'none';
+      function buildNodesFromList(list){
+        const nodes = [];
+        for (const item of list){
+          const obj = (typeof item === 'string') ? { src: 'Client logos/' + item, alt: deriveAltFromPath(item) } : item;
+          if (!obj || !obj.src) continue;
+          const li = document.createElement('li');
+          const img = document.createElement('img');
+          img.loading = 'lazy';
+          img.decoding = 'async';
+          img.alt = obj.alt || deriveAltFromPath(obj.src);
+          img.src = obj.src;
+          img.onerror = () => { li.remove(); };
+          li.appendChild(img);
+          nodes.push(li);
+        }
+        return nodes;
+      }
+
+      function renderLogoMarquee(list){
+        const track = document.getElementById('logo-track');
+        if (!track) return;
+
+        // Build nodes and duplicate for seamless loop
+        const nodes = buildNodesFromList(list);
+        track.innerHTML = '';
+        track.style.animationPlayState = 'paused'; // pause while we construct
+
+        // If nothing resolved, leave the banner visible, just no logos (no hiding).
+        if (!nodes.length){
+          // Keep an empty strip so height remains tidy
+          track.appendChild(makeStrip([]));
+          track.appendChild(makeStrip([]));
+          track.style.animationPlayState = 'paused';
           return;
         }
 
-        const makeStrip = () => {
-          const ul = document.createElement('ul');
-          ul.className = 'logo-strip';
-          for (const item of items){
-            const obj = (typeof item === 'string') ? { src: 'Client logos/' + item, alt: deriveAltFromPath(item) } : item;
-            const li = document.createElement('li');
-            const img = document.createElement('img');
-            img.loading = 'lazy';
-            img.decoding = 'async';
-            img.alt = obj.alt || deriveAltFromPath(obj.src || '');
-            img.src = obj.src || '';
-            img.onerror = () => { li.remove(); };
-            li.appendChild(img);
-            ul.appendChild(li);
-          }
-          return ul;
-        };
-
-        track.innerHTML = '';
-        track.appendChild(makeStrip());
-        track.appendChild(makeStrip()); // duplicate for seamless loop
+        track.appendChild(makeStrip(nodes));
+        track.appendChild(makeStrip(nodes.map(n => n.cloneNode(true))));
+        // Start animation once DOM is ready
+        requestAnimationFrame(() => { track.style.animationPlayState = 'running'; });
       }
 
-      function initLogos(){
-        // Try to fetch a manifest first
-        fetch('Client logos/manifest.json', { cache: 'no-store' })
-          .then(r => r.ok ? r.json() : Promise.reject())
-          .then(json => buildLogoMarquee(json))
-          .catch(() => buildLogoMarquee(clientLogos));
+      async function gentleNumericScan(max = 20){
+        const EXTS = ['svg','png','webp','jpg','jpeg'];
+        const guesses = [];
+        for (let i=1;i<=max;i++){
+          for (const ext of EXTS){
+            guesses.push({ src: `Client logos/${i}.${ext}` });
+          }
+          for (const ext of EXTS){
+            guesses.push({ src: `Client logos/logo-${i}.${ext}` });
+          }
+        }
+
+        // Probe images and keep the ones that load
+        const probes = guesses.map(g => new Promise(resolve => {
+          const img = new Image();
+          img.onload = () => resolve(g.src);
+          img.onerror = () => resolve(null);
+          img.src = g.src + `?v=${Date.now()}`; // cache-bust
+        }));
+
+        const results = await Promise.all(probes);
+        const found = results.filter(Boolean).map(src => ({ src, alt: deriveAltFromPath(src) }));
+        return found;
+      }
+
+      async function initLogos(){
+        // Priority 1: manifest.json
+        try{
+          const r = await fetch('Client logos/manifest.json', { cache: 'no-store' });
+          if (r.ok){
+            const json = await r.json();
+            if (Array.isArray(json) && json.length){
+              renderLogoMarquee(json);
+              return;
+            }
+          }
+        } catch(e){ /* ignore */ }
+
+        // Priority 2: hardcoded array (if provided)
+        if (Array.isArray(clientLogos) && clientLogos.length){
+          renderLogoMarquee(clientLogos);
+          return;
+        }
+
+        // Priority 3: gentle numeric scan (no directory listing required)
+        try{
+          const discovered = await gentleNumericScan(20);
+          renderLogoMarquee(discovered);
+        } catch(e){
+          // Even if scan fails, keep banner visible (empty track).
+          renderLogoMarquee([]);
+        }
       }
 
       // DOM init
@@ -930,5 +991,6 @@
     </script>
   </body>
 </html>
+
 
 
