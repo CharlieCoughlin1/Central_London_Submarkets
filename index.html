@@ -67,7 +67,7 @@
         box-sizing:border-box;
       }
 
-      /* Existing small PSF note (unchanged) */
+      /* Small PSF note (unchanged) */
       .psf-control{
         position:absolute;
         bottom:8px;
@@ -216,7 +216,7 @@
         left:12px;
         right:12px;
         bottom:calc(env(safe-area-inset-bottom) + 12px);
-        z-index:2; /* Below PSF note (z:3), below table button (z:6), above map */
+        z-index:2; /* Below PSF note (z:3) and table UI (z:6); above the map */
         background:rgba(255,255,255,0.9);
         border:1px solid var(--stroke);
         border-radius:12px;
@@ -271,8 +271,7 @@
         will-change:transform;
         animation: marquee-ltr 55s linear infinite; /* left-to-right */
       }
-      /* Left-to-right continuous loop:
-         We render two identical strips (A + B). Moving from -50% to 0% shows B -> A smoothly. */
+      /* Left-to-right continuous loop: render two identical strips (A + B). */
       @keyframes marquee-ltr{
         0%   { transform: translateX(-50%); }
         100% { transform: translateX(0%); }
@@ -280,7 +279,7 @@
       .logo-strip{
         display:flex;
         align-items:center;
-        gap:28px; /* space between logos */
+        gap:14px; /* reduced gap (half of previous 28px) */
         list-style:none;
         margin:0;
         padding:0 10px 2px;
@@ -294,10 +293,10 @@
       }
       .logo-strip img{
         display:block;
-        height:28px;       /* tuned to be readable without obstructing map */
-        max-width:180px;
+        height:50px;       /* larger logos (~just under double) */
+        max-width:220px;
         object-fit:contain;
-        opacity:.95;
+        opacity:.98;
         filter:none;
       }
 
@@ -310,7 +309,8 @@
         .rent-table thead th, .rent-table tbody td{ padding:10px 12px; }
         .table-panel{ width:calc(100vw - 24px); right:0; }
         .banner-subtitle{ font-size:.72rem; }
-        .logo-strip img{ height:22px; max-width:140px; }
+        .logo-strip{ gap:10px; }
+        .logo-strip img{ height:38px; max-width:180px; }
       }
       @media (prefers-reduced-motion: reduce){
         *{transition:none!important;}
@@ -424,7 +424,7 @@
         <p class="banner-subtitle">Trusted by leading London office occupiers</p>
         <div class="logo-viewport">
           <div class="logo-track" id="logo-track">
-            <!-- JS injects two identical strips for a seamless left‑to‑right scroll -->
+            <!-- JS injects two identical strips for a seamless left-to-right scroll -->
           </div>
         </div>
       </div>
@@ -461,13 +461,22 @@
         "Noho / Fitzrovia": "https://infogram.com/noho-fitzrovia-1hmr6g8ye03yz2n"
       };
 
-      /* === MAP (restored original behavior) === */
+      /* === MAP (restored original behavior, with dynamic fit + static labels) === */
       const root = document.documentElement;
       const headerEl = document.querySelector('.site-header');
+      const logoMarqueeEl = document.getElementById('logo-marquee');
 
       const map = new maplibregl.Map({
         container: 'map',
-        style: { version: 8, sources: {}, layers: [{ id: 'background', type: 'background', paint: { 'background-color': '#ffffff' } }] },
+        /* IMPORTANT: add glyphs so symbol text renders */
+        style: {
+          version: 8,
+          glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
+          sources: {},
+          layers: [
+            { id: 'background', type: 'background', paint: { 'background-color': '#ffffff' } }
+          ]
+        },
         center: [-0.1278, 51.5074],
         zoom: 11,
         canvasContextAttributes: { antialias: true },
@@ -484,9 +493,18 @@
       map.getCanvas().style.cursor = 'default';
 
       const mapContainer = document.getElementById('map');
-      new ResizeObserver(() => map.resize()).observe(mapContainer);
-      window.addEventListener('resize', () => map.resize());
-      window.addEventListener('orientationchange', () => map.resize());
+      new ResizeObserver(() => {
+        map.resize();
+        debouncedRefit();
+      }).observe(mapContainer);
+      window.addEventListener('resize', () => {
+        map.resize();
+        debouncedRefit();
+      });
+      window.addEventListener('orientationchange', () => {
+        map.resize();
+        debouncedRefit();
+      });
 
       async function updateHeaderHeight(){
         if (document.fonts && document.fonts.ready) {
@@ -495,6 +513,7 @@
         const h = Math.ceil(headerEl.getBoundingClientRect().height);
         root.style.setProperty('--header-h', h + 'px');
         map.resize();
+        debouncedRefit();
       }
       updateHeaderHeight();
       const headerRO = new ResizeObserver(() => updateHeaderHeight());
@@ -603,6 +622,32 @@
         hoverLeaveTimer = setTimeout(removeHover, 100);
       }
 
+      /* Dynamic padding that respects header height + logo banner height.
+         Ensures the map's fitted bounds are never obscured by chrome. */
+      function getDynamicFitPadding(){
+        const headerH = Math.ceil(headerEl.getBoundingClientRect().height || 0);
+        const bannerH = Math.ceil(logoMarqueeEl?.offsetHeight || 0);
+        const safeBottom = 10;
+        return {
+          top: headerH + 10,
+          right: 20,
+          bottom: bannerH + safeBottom + 10,
+          left: 20
+        };
+      }
+
+      let initialBounds = null;
+      function fitToInitialBounds(options = {}){
+        if (!initialBounds) return;
+        const padding = getDynamicFitPadding();
+        map.fitBounds(initialBounds, {
+          padding,
+          duration: options.duration ?? 0,
+          easing: t => t
+        });
+      }
+      const debouncedRefit = debounce(() => fitToInitialBounds({ duration: 0 }), 120);
+
       map.on('load', function () {
         var cacheBuster = '?v=' + Date.now();
         var localUrl = 'final_poly.geojson' + cacheBuster;
@@ -627,6 +672,7 @@
               promoteId: 'label'
             });
 
+            // Thames fill/outline
             map.addLayer({
               id: 'thames-fill',
               type: 'fill',
@@ -653,6 +699,7 @@
               }
             });
 
+            // Subdistrict polygons
             map.addLayer({
               id: 'subdistrict-fills',
               type: 'fill',
@@ -669,6 +716,7 @@
               }
             });
 
+            // Hover halo + outline
             map.addLayer({
               id: 'subdistrict-hover-halo',
               type: 'line',
@@ -697,6 +745,45 @@
               layout: { 'line-join': 'round', 'line-cap': 'round' }
             });
 
+            // NEW: Always-on subdistrict labels (hide on hover)
+            map.addLayer({
+              id: 'subdistrict-labels',
+              type: 'symbol',
+              source: 'subdistricts',
+              filter: ['!=', ['get', 'label'], 'River Thames'],
+              layout: {
+                'symbol-placement': 'point',
+                'text-field': ['get', 'label'],
+                'text-font': ['Open Sans Regular','Open Sans Bold'],
+                'text-size': [
+                  'interpolate', ['linear'], ['zoom'],
+                  10, 10,
+                  12, 12,
+                  14, 14,
+                  16, 18
+                ],
+                'text-justify': 'center',
+                'text-anchor': 'center',
+                'text-max-width': 12,
+                'text-line-height': 1.1,
+                'text-letter-spacing': 0.05,
+                'text-allow-overlap': false,
+                'text-padding': 2
+              },
+              paint: {
+                'text-color': '#475569',
+                'text-halo-color': '#FFFFFF',
+                'text-halo-width': 1.25,
+                'text-halo-blur': 0.2,
+                'text-opacity': [
+                  'case',
+                  ['boolean', ['feature-state','hover'], false], 0,
+                  1
+                ]
+              }
+            }, 'subdistrict-hover-outline'); // place below the red hover outline
+
+            // Compute initial bounds once (excluding Thames)
             var bounds = new maplibregl.LngLatBounds();
             data.features.forEach(function (feature) {
               if (feature.properties.label === 'River Thames') return;
@@ -705,8 +792,10 @@
                 bounds.extend([coords[i], coords[i + 1]]);
               }
             });
-            map.fitBounds(bounds, { padding: { top: 10, right: 20, bottom: 20, left: 20 } });
+            initialBounds = bounds;
+            fitToInitialBounds({ duration: 0 });
 
+            // Interaction
             function handleMove(e) {
               const features = map.queryRenderedFeatures(e.point, { layers: ['subdistrict-fills'] });
               const feature = features[0];
@@ -855,14 +944,11 @@
 
       /* === Client logos marquee ===
          Requirement: Load all PNGs from "Client logos" folder in the repo, sort alphabetically,
-         and animate them left-to-right. Works on GitHub Pages by using the GitHub Contents API.
-         If you fork or rename the repo, this code tries multiple discovery strategies automatically.
+         and animate left-to-right. Uses GitHub Contents API (works on GitHub Pages).
       */
 
       const LOGO_DIR = "Client logos";
       const BRANCHES = ["main","master"];
-
-      // If you know the repo, set a hint here (owner/repo). This matches your GeoJSON fallback repo.
       const REPO_HINT = "CharlieCoughlin1/Central_London_Submarkets";
 
       function deriveAltFromPath(path){
@@ -871,14 +957,12 @@
           return name.replace(/[-_]+/g,' ').replace(/\s+/g,' ').trim() || 'Client logo';
         } catch(e){ return 'Client logo'; }
       }
-
       function makeStrip(nodes){
         const ul = document.createElement('ul');
         ul.className = 'logo-strip';
         nodes.forEach(n => ul.appendChild(n));
         return ul;
       }
-
       function buildNodesFromList(list){
         const nodes = [];
         for (const obj of list){
@@ -888,48 +972,46 @@
           img.decoding = 'async';
           img.alt = obj.alt || deriveAltFromPath(obj.src);
           img.src = obj.src;
-          img.onerror = () => { li.remove(); };
+          img.addEventListener('load', () => debouncedRefit()); // refit map when banner height settles
+          img.onerror = () => { li.remove(); debouncedRefit(); };
           li.appendChild(img);
           nodes.push(li);
         }
         return nodes;
       }
-
       function renderLogoMarqueeFromSrcs(srcs){
         const track = document.getElementById('logo-track');
         if (!track) return;
 
-        const list = srcs.map(src => ({ src, alt: deriveAltFromPath(src) }));
-        // Sort alphabetically by filename (case-insensitive)
-        list.sort((a,b) => a.src.toLowerCase().localeCompare(b.src.toLowerCase()));
+        // Keep only PNGs, sort alphabetically
+        const list = srcs
+          .filter(src => /\.png$/i.test(src))
+          .sort((a,b) => a.toLowerCase().localeCompare(b.toLowerCase()))
+          .map(src => ({ src, alt: deriveAltFromPath(src) }));
 
         const nodes = buildNodesFromList(list);
         track.innerHTML = '';
 
         if (!nodes.length){
-          // Keep banner visible even if empty (so it never "disappears")
           track.appendChild(makeStrip([]));
           track.appendChild(makeStrip([]));
           track.style.animationPlayState = 'paused';
+          debouncedRefit();
           return;
         }
 
         track.appendChild(makeStrip(nodes));
-        // Duplicate for seamless loop
-        const cloneNodes = nodes.map(n => n.cloneNode(true));
-        track.appendChild(makeStrip(cloneNodes));
-
-        // Start animation
+        track.appendChild(makeStrip(nodes.map(n => n.cloneNode(true)))); // duplicate for seamless loop
         track.style.animationPlayState = 'running';
-      }
 
+        // Safety refit after images likely cached
+        setTimeout(() => debouncedRefit(), 250);
+      }
       function encodePathSegments(path){
         return path.split('/').map(encodeURIComponent).join('/');
       }
-
       function guessRepoFromPage(){
         const { hostname, pathname } = window.location;
-        // e.g., https://username.github.io/reponame/...
         if (hostname.endsWith('github.io')){
           const owner = hostname.split('.')[0];
           const seg = pathname.split('/').filter(Boolean);
@@ -938,7 +1020,6 @@
         }
         return null;
       }
-
       async function fetchGithubDirPngs(ownerRepo, branch){
         const [owner, repo] = ownerRepo.split('/');
         const encodedDir = encodePathSegments(LOGO_DIR);
@@ -947,23 +1028,18 @@
         if (!r.ok) throw new Error('No listing');
         const json = await r.json();
         if (!Array.isArray(json)) throw new Error('Unexpected');
-        // Filter PNGs only
         const pngs = json
           .filter(item => item && item.type === 'file' && /\.png$/i.test(item.name))
           .sort((a,b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
-        // Prefer download_url; if missing, synthesize a raw URL
         return pngs.map(item => item.download_url || `https://raw.githubusercontent.com/${owner}/${repo}/${encodeURIComponent(branch)}/${encodedDir}/${encodeURIComponent(item.name)}`);
       }
-
       async function discoverLogoPngs(){
         const candidates = new Set();
         const fromHint = REPO_HINT && REPO_HINT.includes('/') ? REPO_HINT : null;
         const fromPage = guessRepoFromPage();
-
         if (fromHint) candidates.add(fromHint);
         if (fromPage) candidates.add(fromPage);
 
-        // Try each repo candidate across likely branches
         for (const repo of candidates){
           for (const ref of BRANCHES){
             try {
@@ -972,27 +1048,22 @@
             } catch(e){ /* try next */ }
           }
         }
-
-        // Final fallback: try current page repo (if we didn't already) on 'gh-pages'
+        // Fallback: gh-pages branch for site repos
         if (fromPage){
           try {
             const urls = await fetchGithubDirPngs(fromPage, 'gh-pages');
             if (urls && urls.length) return urls;
           } catch(e){ /* ignore */ }
         }
-
-        // If everything fails, return empty and keep banner visible (no hiding).
         return [];
       }
-
       async function initLogos(){
-        // 1) Try local manifest first (optional power users)
+        // Try manifest first (optional optimization)
         try{
           const r = await fetch(`${encodePathSegments(LOGO_DIR)}/manifest.json`, { cache: 'no-store' });
           if (r.ok){
             const json = await r.json();
             if (Array.isArray(json) && json.length){
-              // Keep only PNGs, sort by filename
               const srcs = json
                 .map(x => (typeof x === 'string' ? `${LOGO_DIR}/${x}` : x.src))
                 .filter(Boolean)
@@ -1004,10 +1075,13 @@
             }
           }
         } catch(e){ /* continue to GitHub API path */ }
-
-        // 2) GitHub Contents API (works on GitHub Pages)
         const pngSrcs = await discoverLogoPngs();
         renderLogoMarqueeFromSrcs(pngSrcs);
+      }
+
+      /* --- Utilities --- */
+      function debounce(fn, ms){
+        let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn.apply(null,args), ms); };
       }
 
       // DOM init
@@ -1025,6 +1099,7 @@
     </script>
   </body>
 </html>
+
 
 
 
