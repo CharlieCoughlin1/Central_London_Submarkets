@@ -24,7 +24,7 @@
 
       html, body {
         height:100%;
-        overflow:hidden; /* Keep original full-screen map layout */
+        overflow:hidden; /* Full-screen map layout */
       }
       body {
         margin:0;
@@ -67,7 +67,7 @@
         box-sizing:border-box;
       }
 
-      /* Small PSF note (unchanged) */
+      /* PSF note */
       .psf-control{
         position:absolute;
         bottom:8px;
@@ -81,7 +81,7 @@
         z-index:3;
       }
 
-      /* Right-side rents table button + panel (unchanged) */
+      /* Right-side rents table button + panel */
       .panel-controls{
         position:absolute;
         top:12px;
@@ -216,7 +216,7 @@
         left:12px;
         right:12px;
         bottom:calc(env(safe-area-inset-bottom) + 12px);
-        z-index:2; /* Below PSF note (z:3) and table UI (z:6); above the map */
+        z-index:2; /* Below PSF note (z:3) & table UI (z:6); above the map */
         background:rgba(255,255,255,0.9);
         border:1px solid var(--stroke);
         border-radius:12px;
@@ -279,7 +279,7 @@
       .logo-strip{
         display:flex;
         align-items:center;
-        gap:14px; /* reduced gap (half of previous 28px) */
+        gap:14px; /* reduced gap */
         list-style:none;
         margin:0;
         padding:0 10px 2px;
@@ -293,7 +293,7 @@
       }
       .logo-strip img{
         display:block;
-        height:50px;       /* larger logos (~just under double) */
+        height:50px;       /* larger logos */
         max-width:220px;
         object-fit:contain;
         opacity:.98;
@@ -388,7 +388,7 @@
     </header>
 
     <div id="map">
-      <!-- Right-side toggle and drop-down panel for the table (unchanged) -->
+      <!-- Right-side toggle and drop-down panel for the table -->
       <div class="panel-controls">
         <button class="table-toggle" type="button" aria-expanded="false" aria-controls="rents-panel" title="Open rents table">Rents Table</button>
 
@@ -432,7 +432,7 @@
 
     <script src="https://unpkg.com/maplibre-gl@3.3.1/dist/maplibre-gl.js"></script>
     <script>
-      /* === DATA (unchanged) === */
+      /* === DATA === */
       var priceData = {
         Camden: { A: "£63.00", B: "£42.50" },
         "Euston & Kings Cross": { A: "£89.00", B: "£60.00" },
@@ -461,21 +461,17 @@
         "Noho / Fitzrovia": "https://infogram.com/noho-fitzrovia-1hmr6g8ye03yz2n"
       };
 
-      /* === MAP (restored original behavior, with dynamic fit + static labels) === */
+      /* === MAP (restored to proven working state — no persistent labels) === */
       const root = document.documentElement;
       const headerEl = document.querySelector('.site-header');
       const logoMarqueeEl = document.getElementById('logo-marquee');
 
       const map = new maplibregl.Map({
         container: 'map',
-        /* IMPORTANT: add glyphs so symbol text renders */
         style: {
           version: 8,
-          glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
           sources: {},
-          layers: [
-            { id: 'background', type: 'background', paint: { 'background-color': '#ffffff' } }
-          ]
+          layers: [{ id: 'background', type: 'background', paint: { 'background-color': '#ffffff' } }]
         },
         center: [-0.1278, 51.5074],
         zoom: 11,
@@ -483,6 +479,7 @@
         antialias: true
       });
 
+      // Disable interactions (as before)
       map.dragPan.disable();
       map.scrollZoom.disable();
       map.doubleClickZoom.disable();
@@ -493,18 +490,11 @@
       map.getCanvas().style.cursor = 'default';
 
       const mapContainer = document.getElementById('map');
-      new ResizeObserver(() => {
-        map.resize();
-        debouncedRefit();
-      }).observe(mapContainer);
-      window.addEventListener('resize', () => {
-        map.resize();
-        debouncedRefit();
-      });
-      window.addEventListener('orientationchange', () => {
-        map.resize();
-        debouncedRefit();
-      });
+
+      // Keep map sized & fitted when UI changes
+      new ResizeObserver(() => { map.resize(); debouncedRefit(); }).observe(mapContainer);
+      window.addEventListener('resize', () => { map.resize(); debouncedRefit(); });
+      window.addEventListener('orientationchange', () => { map.resize(); debouncedRefit(); });
 
       async function updateHeaderHeight(){
         if (document.fonts && document.fonts.ready) {
@@ -622,8 +612,8 @@
         hoverLeaveTimer = setTimeout(removeHover, 100);
       }
 
-      /* Dynamic padding that respects header height + logo banner height.
-         Ensures the map's fitted bounds are never obscured by chrome. */
+      /* Dynamic padding that respects header + logo banner height.
+         Ensures the fitted bounds are never hidden behind chrome. */
       function getDynamicFitPadding(){
         const headerH = Math.ceil(headerEl.getBoundingClientRect().height || 0);
         const bannerH = Math.ceil(logoMarqueeEl?.offsetHeight || 0);
@@ -672,7 +662,7 @@
               promoteId: 'label'
             });
 
-            // Thames fill/outline
+            // Thames
             map.addLayer({
               id: 'thames-fill',
               type: 'fill',
@@ -699,7 +689,7 @@
               }
             });
 
-            // Subdistrict polygons
+            // Fills
             map.addLayer({
               id: 'subdistrict-fills',
               type: 'fill',
@@ -745,45 +735,7 @@
               layout: { 'line-join': 'round', 'line-cap': 'round' }
             });
 
-            // NEW: Always-on subdistrict labels (hide on hover)
-            map.addLayer({
-              id: 'subdistrict-labels',
-              type: 'symbol',
-              source: 'subdistricts',
-              filter: ['!=', ['get', 'label'], 'River Thames'],
-              layout: {
-                'symbol-placement': 'point',
-                'text-field': ['get', 'label'],
-                'text-font': ['Open Sans Regular','Open Sans Bold'],
-                'text-size': [
-                  'interpolate', ['linear'], ['zoom'],
-                  10, 10,
-                  12, 12,
-                  14, 14,
-                  16, 18
-                ],
-                'text-justify': 'center',
-                'text-anchor': 'center',
-                'text-max-width': 12,
-                'text-line-height': 1.1,
-                'text-letter-spacing': 0.05,
-                'text-allow-overlap': false,
-                'text-padding': 2
-              },
-              paint: {
-                'text-color': '#475569',
-                'text-halo-color': '#FFFFFF',
-                'text-halo-width': 1.25,
-                'text-halo-blur': 0.2,
-                'text-opacity': [
-                  'case',
-                  ['boolean', ['feature-state','hover'], false], 0,
-                  1
-                ]
-              }
-            }, 'subdistrict-hover-outline'); // place below the red hover outline
-
-            // Compute initial bounds once (excluding Thames)
+            // Compute initial bounds (excluding Thames)
             var bounds = new maplibregl.LngLatBounds();
             data.features.forEach(function (feature) {
               if (feature.properties.label === 'River Thames') return;
@@ -795,7 +747,7 @@
             initialBounds = bounds;
             fitToInitialBounds({ duration: 0 });
 
-            // Interaction
+            // Interaction (hover shows popup; no persistent labels)
             function handleMove(e) {
               const features = map.queryRenderedFeatures(e.point, { layers: ['subdistrict-fills'] });
               const feature = features[0];
@@ -861,7 +813,7 @@
           });
       });
 
-      /* === Rents Table: populate + panel behavior (unchanged) === */
+      /* === Rents Table: populate + panel behavior === */
       function buildRentsTable(){
         const tbody = document.querySelector('#rents-table tbody');
         if (!tbody) return;
@@ -943,10 +895,8 @@
       }
 
       /* === Client logos marquee ===
-         Requirement: Load all PNGs from "Client logos" folder in the repo, sort alphabetically,
-         and animate left-to-right. Uses GitHub Contents API (works on GitHub Pages).
+         Loads PNGs from "Client logos" via GitHub Contents API (alphabetical), duplicates strip for seamless LTR scroll.
       */
-
       const LOGO_DIR = "Client logos";
       const BRANCHES = ["main","master"];
       const REPO_HINT = "CharlieCoughlin1/Central_London_Submarkets";
@@ -983,7 +933,6 @@
         const track = document.getElementById('logo-track');
         if (!track) return;
 
-        // Keep only PNGs, sort alphabetically
         const list = srcs
           .filter(src => /\.png$/i.test(src))
           .sort((a,b) => a.toLowerCase().localeCompare(b.toLowerCase()))
@@ -1001,10 +950,9 @@
         }
 
         track.appendChild(makeStrip(nodes));
-        track.appendChild(makeStrip(nodes.map(n => n.cloneNode(true)))); // duplicate for seamless loop
+        track.appendChild(makeStrip(nodes.map(n => n.cloneNode(true))));
         track.style.animationPlayState = 'running';
 
-        // Safety refit after images likely cached
         setTimeout(() => debouncedRefit(), 250);
       }
       function encodePathSegments(path){
@@ -1058,7 +1006,7 @@
         return [];
       }
       async function initLogos(){
-        // Try manifest first (optional optimization)
+        // Try manifest first (optional)
         try{
           const r = await fetch(`${encodePathSegments(LOGO_DIR)}/manifest.json`, { cache: 'no-store' });
           if (r.ok){
@@ -1079,7 +1027,7 @@
         renderLogoMarqueeFromSrcs(pngSrcs);
       }
 
-      /* --- Utilities --- */
+      /* Utilities */
       function debounce(fn, ms){
         let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn.apply(null,args), ms); };
       }
@@ -1099,6 +1047,7 @@
     </script>
   </body>
 </html>
+
 
 
 
