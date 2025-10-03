@@ -23,9 +23,8 @@
       }
 
       html, body {
-        min-height:100%;
-        overflow-y:auto;
-        overflow-x:hidden;
+        height:100%;
+        overflow:hidden; /* RESTORED: page is non-scrollable, map is fixed full-screen */
       }
       body {
         margin:0;
@@ -57,54 +56,18 @@
         color:var(--muted-ink);
       }
       #map{
-        position:relative;
-        margin-top:var(--header-h);
-        height:clamp(320px,58vh,640px);
+        position:fixed;
+        top:var(--header-h);
+        left:0;
+        right:0;
+        bottom:0;
         min-height:320px;
         background:var(--ui);
         padding-bottom:env(safe-area-inset-bottom);
         box-sizing:border-box;
       }
-      .map-footer-actions{
-        display:flex;
-        justify-content:center;
-        padding:16px 12px 0;
-      }
-      .table-toggle{
-        display:inline-flex;
-        align-items:center;
-        gap:8px;
-        background:var(--brand);
-        color:var(--surface);
-        border:none;
-        border-radius:999px;
-        padding:10px 18px;
-        font-size:.95rem;
-        font-weight:700;
-        letter-spacing:.4px;
-        text-transform:uppercase;
-        cursor:pointer;
-        box-shadow:0 6px 16px rgba(204,32,48,0.2);
-        transition:background .18s ease, box-shadow .18s ease, transform .18s ease;
-      }
-      .table-toggle:focus-visible{
-        outline:3px solid rgba(204,32,48,0.3);
-        outline-offset:2px;
-      }
-      .table-toggle:hover{box-shadow:0 8px 18px rgba(204,32,48,0.26); transform:translateY(-1px);}
-      .table-toggle:active{transform:translateY(0); box-shadow:0 4px 12px rgba(204,32,48,0.22);}
-      .table-toggle.is-open{background:var(--ink); box-shadow:0 6px 16px rgba(15,23,42,0.18);}
-      .table-toggle .toggle-label{line-height:1;}
-      .table-toggle .chevron{
-        width:12px;
-        height:12px;
-        border-right:2px solid currentColor;
-        border-bottom:2px solid currentColor;
-        transform:rotate(45deg);
-        transition:transform .18s ease;
-        margin-top:-2px;
-      }
-      .table-toggle.is-open .chevron{transform:rotate(-135deg);}
+
+      /* Existing small PSF note */
       .psf-control{
         position:absolute;
         bottom:8px;
@@ -115,82 +78,97 @@
         padding:4px 8px;
         font-size:.7rem;
         color:var(--muted-ink);
+        z-index:3;
       }
 
-      .custom-popup{pointer-events:none; opacity:0; transform:translateY(2px); transition:opacity .16s ease, transform .16s ease;}
-      .custom-popup.active{opacity:1; transform:translateY(0);}
-      .custom-popup *{pointer-events:none;user-select:none;}
-      .custom-popup .maplibregl-popup-content{
-        background:rgba(255,255,255,.85);
+      /* NEW: Right-side panel toggle + panel (overlays, does not change map) */
+      .panel-controls{
+        position:absolute;
+        top:12px;
+        right:12px;
+        display:flex;
+        flex-direction:column;
+        align-items:flex-end;
+        gap:8px;
+        z-index:6; /* above map overlays/popups */
+      }
+      .table-toggle{
+        appearance:none;
+        border:1px solid var(--stroke);
+        background:rgba(255,255,255,.92);
+        border-radius:var(--radius-1);
+        box-shadow:var(--shadow-1);
+        color:var(--ink);
+        font-weight:700;
+        letter-spacing:.3px;
+        padding:8px 10px;
+        font-size:.85rem;
+        cursor:pointer;
+        transition:background .12s ease, transform .06s ease;
+      }
+      .table-toggle:hover{ background:#fff; }
+      .table-toggle:active{ transform:translateY(1px); }
+
+      .table-panel{
+        position:absolute;
+        top:calc(100% + 8px); /* directly under the toggle button */
+        right:0;
+        width:min(520px, 95vw);
+        max-height:min(62vh, 640px);
+        background:var(--surface);
         border:1px solid var(--stroke);
         border-radius:10px;
         box-shadow:var(--shadow-1);
-        padding:8px 10px 10px;
-        margin:0;
-        text-align:center;
-        box-sizing:border-box;
-        white-space:normal;
-        overflow-wrap:anywhere;
-        word-break:break-word;
-        max-width:min(90vw, 260px);
-        font-family:"DIN Pro","DINPro",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-        font-variant-numeric:tabular-nums;
-        position:relative;
+        overflow:hidden; /* header + scroller inside */
+        opacity:0;
+        transform:translateY(6px);
+        visibility:hidden;
+        transition:opacity .18s ease, transform .18s ease, visibility 0s linear .18s;
       }
-      .custom-popup .maplibregl-popup-content::before{
-        content:"";
-        position:absolute;
-        top:0; left:0; right:0;
-        height:3px;
-        background:var(--popup-accent);
-        border-top-left-radius:10px;
-        border-top-right-radius:10px;
+      .table-panel.open{
+        opacity:1;
+        transform:translateY(0);
+        visibility:visible;
+        transition:opacity .18s ease, transform .18s ease;
       }
-      .custom-popup .maplibregl-popup-tip{display:none;}
-      .pop-inner{opacity:1; transform:translateY(0); transition:opacity .14s ease, transform .14s ease;}
-      .pop-inner.is-out{opacity:0; transform:translateY(4px);}
-      .pop-inner.is-in{opacity:1; transform:translateY(0);}
-      .popup-title-row{display:flex; align-items:center; justify-content:center; gap:8px; margin:2px 0 4px;}
-      .popup-title{color:var(--ink); font-weight:700; font-size:1rem; letter-spacing:.3px; line-height:1.2; margin:0; padding:0 2px; text-transform:uppercase;}
-      .popup-prices{margin-top:6px; display:flex; justify-content:center; gap:8px; flex-wrap:wrap;}
-      .price-box{border:1px solid var(--stroke); background:#FAFAFB; border-radius:8px; padding:4px 6px; min-width:72px; line-height:1.2;}
-      .price-box .grade{display:block; color:var(--muted-ink); font-size:.85rem; font-weight:700; letter-spacing:.2px;}
-      .price-box .price{display:block; color:var(--ink); font-size:1rem; font-weight:600;}
-
-      .table-wrap{
-        margin:28px auto 64px;
-        padding:0 12px 32px;
-        max-width:min(1100px,95vw);
-      }
-      .table-wrap[hidden]{display:none;}
-      .table-wrap h2{
-        margin:0 0 16px;
-        font-weight:800;
-        letter-spacing:1px;
-        text-transform:uppercase;
-        font-size:1rem;
-        color:var(--ink);
-        position:relative;
-        display:inline-block;
-        padding-top:6px;
-      }
-      .table-wrap h2::after{
-        content:"";
-        position:absolute;
-        top:0;
-        left:0;
-        width:100%;
+      .table-panel .panel-accent{
         height:3px;
         background:var(--brand);
-        border-radius:4px;
       }
+      .panel-header{
+        display:flex; align-items:center; justify-content:space-between;
+        padding:10px 12px 8px;
+      }
+      .panel-title{
+        margin:0;
+        font-weight:800;
+        letter-spacing:.8px;
+        text-transform:uppercase;
+        font-size:.95rem;
+        color:var(--ink);
+      }
+      .panel-close{
+        appearance:none;
+        border:1px solid var(--stroke);
+        background:#fff;
+        border-radius:8px;
+        font-size:1rem;
+        line-height:1;
+        padding:4px 8px;
+        cursor:pointer;
+        color:var(--muted-ink);
+        transition:background .12s ease;
+      }
+      .panel-close:hover{ background:#FAFAFB; }
+
       .table-scroller{
         overflow:auto;
+        max-height:calc(62vh - 54px); /* tune to keep header visible */
+        border-top:1px solid var(--stroke);
         background:var(--surface);
-        border:1px solid var(--stroke);
-        border-radius:var(--radius-2);
-        box-shadow:0 4px 10px rgba(0,0,0,.08);
       }
+
+      /* Professional table styling aligned with app */
       .rent-table{
         width:100%;
         border-collapse:separate;
@@ -219,42 +197,92 @@
         padding:12px 14px;
         border-bottom:1px solid #F1F2F4;
       }
-      .rent-table tbody tr:nth-child(even){
-        background:#FAFAFB;
-      }
-      .rent-table tbody tr:hover{
-        background:rgba(204,32,48,0.06);
-      }
+      .rent-table tbody tr:nth-child(even){ background:#FAFAFB; }
+      .rent-table tbody tr:hover{ background:rgba(204,32,48,0.06); }
       .rent-table a{
         font-weight:700;
         color:var(--ink);
         text-decoration:none;
-        transition:text-shadow .18s ease, text-decoration-color .18s ease;
       }
-      .rent-table a:hover{
-        text-decoration:underline;
-        text-decoration-color:var(--brand);
-        text-shadow:0 1px 0 rgba(204,32,48,0.18);
-      }
+      .rent-table a:hover{ text-decoration:underline; text-decoration-color:var(--brand); }
       .rent-table .no-link{
         color:var(--muted-ink);
-        font-weight:600;
-        opacity:.9;
+        font-weight:700;
         cursor:default;
+      }
+
+      /* Popup (unchanged) */
+      .custom-popup{pointer-events:none; opacity:0; transform:translateY(2px); transition:opacity .16s ease, transform .16s ease;}
+      .custom-popup.active{opacity:1; transform:translateY(0);}
+      .custom-popup *{pointer-events:none;user-select:none;}
+      .custom-popup .maplibregl-popup-content{
+        background:rgba(255,255,255,.85);
+        border:1px solid var(--stroke);
+        border-radius:10px;
+        box-shadow:var(--shadow-1);
+        padding:8px 10px 10px;
+        margin:0;
+        text-align:center;
+        box-sizing:border-box;
+        white-space:normal;
+        overflow-wrap:anywhere;
+        word-break:break-word;
+        max-width:min(90vw, 260px);
+        font-family:"DIN Pro","DINPro",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+        font-variant-numeric:tabular-nums;
+        position:relative;
+      }
+      /* thin brand accent bar */
+      .custom-popup .maplibregl-popup-content::before{
+        content:"";
+        position:absolute;
+        top:0; left:0; right:0;
+        height:3px;
+        background:var(--popup-accent);
+        border-top-left-radius:10px;
+        border-top-right-radius:10px;
+      }
+      .custom-popup .maplibregl-popup-tip{display:none;}
+      .pop-inner{opacity:1; transform:translateY(0); transition:opacity .14s ease, transform .14s ease;}
+      .pop-inner.is-out{opacity:0; transform:translateY(4px);}
+      .pop-inner.is-in{opacity:1; transform:translateY(0);}
+      .popup-title-row{
+        display:flex; align-items:center; justify-content:center; gap:8px;
+        margin:2px 0 4px;
+      }
+      .popup-title{
+        color:var(--ink);
+        font-weight:700; font-size:1rem; letter-spacing:.3px;
+        line-height:1.2; margin:0; padding:0 2px;
+        text-transform:uppercase;
+      }
+      .popup-prices{
+        margin-top:6px;
+        display:flex; justify-content:center; gap:8px; flex-wrap:wrap;
+      }
+      .price-box{
+        border:1px solid var(--stroke);
+        background:#FAFAFB;
+        border-radius:8px;
+        padding:4px 6px;
+        min-width:72px;
+        line-height:1.2;
+      }
+      .price-box .grade{
+        display:block; color:var(--muted-ink); font-size:.85rem; font-weight:700; letter-spacing:.2px;
+      }
+      .price-box .price{
+        display:block; color:var(--ink); font-size:1rem; font-weight:600;
       }
 
       @media (max-width:480px){
         .site-header{padding:10px 12px 0;}
         h1{font-size:1.6rem;}
-        #map{height:clamp(280px,52vh,520px);}
-        .map-footer-actions{padding:12px 12px 0;}
-        .table-toggle{padding:9px 16px; font-size:.9rem;}
         .custom-popup .maplibregl-popup-content{max-width:calc(100vw - 24px); padding:6px 8px 8px;}
         .popup-title{font-size:.92rem;}
         .price-box{min-width:65px; padding:4px 6px;}
-        .rent-table thead th,
-        .rent-table tbody td{padding:10px 12px; font-size:.95rem;}
-        .rent-table caption{text-align:left; padding:10px 10px;}
+        .rent-table thead th, .rent-table tbody td{ padding:10px 12px; }
+        .table-panel{ width:calc(100vw - 24px); right:0; }
       }
       @media (prefers-reduced-motion: reduce){
         *{transition:none!important;}
@@ -268,35 +296,38 @@
     </header>
 
     <div id="map">
+      <!-- Right-side toggle and drop-down panel for the table -->
+      <div class="panel-controls">
+        <button class="table-toggle" type="button" aria-expanded="false" aria-controls="rents-panel" title="Open rents table">Rents Table</button>
+
+        <aside id="rents-panel" class="table-panel" role="dialog" aria-labelledby="rents-panel-title" aria-hidden="true">
+          <div class="panel-accent" aria-hidden="true"></div>
+          <div class="panel-header">
+            <h2 id="rents-panel-title" class="panel-title">Central London Office Rents</h2>
+            <button class="panel-close" type="button" aria-label="Close rents table">&times;</button>
+          </div>
+          <div class="table-scroller">
+            <table id="rents-table" class="rent-table" aria-describedby="rents-caption">
+              <caption id="rents-caption">*All prices are per sq ft</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Submarket</th>
+                  <th scope="col">Grade A</th>
+                  <th scope="col">Grade B</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </aside>
+      </div>
+
       <div class="psf-control">*All prices are per sq ft</div>
     </div>
 
-    <div class="map-footer-actions">
-      <button type="button" id="toggle-table" class="table-toggle" aria-expanded="false" aria-controls="rents-section">
-        <span class="toggle-label">View rent table</span>
-        <span class="chevron" aria-hidden="true"></span>
-      </button>
-    </div>
-
-    <section id="rents-section" class="table-wrap" aria-labelledby="rents-heading" hidden>
-      <h2 id="rents-heading">Central London Office Rents</h2>
-      <div class="table-scroller">
-        <table id="rents-table" class="rent-table" aria-describedby="rents-caption">
-          <caption id="rents-caption">*All prices are per sq ft</caption>
-          <thead>
-            <tr>
-              <th scope="col">Submarket</th>
-              <th scope="col">Grade A</th>
-              <th scope="col">Grade B</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </section>
-
     <script src="https://unpkg.com/maplibre-gl@3.3.1/dist/maplibre-gl.js"></script>
     <script>
+      /* === DATA (unchanged) === */
       var priceData = {
         Camden: { A: "£63.00", B: "£42.50" },
         "Euston & Kings Cross": { A: "£89.00", B: "£60.00" },
@@ -325,17 +356,13 @@
         "Noho / Fitzrovia": "https://infogram.com/noho-fitzrovia-1hmr6g8ye03yz2n"
       };
 
+      /* === MAP (RESTORED original behavior) === */
       const root = document.documentElement;
       const headerEl = document.querySelector('.site-header');
 
       const map = new maplibregl.Map({
         container: 'map',
-        style: {
-          version: 8,
-          glyphs: 'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf',
-          sources: {},
-          layers: [{ id: 'background', type: 'background', paint: { 'background-color': '#ffffff' } }]
-        },
+        style: { version: 8, sources: {}, layers: [{ id: 'background', type: 'background', paint: { 'background-color': '#ffffff' } }] },
         center: [-0.1278, 51.5074],
         zoom: 11,
         canvasContextAttributes: { antialias: true },
@@ -352,18 +379,11 @@
       map.getCanvas().style.cursor = 'default';
 
       const mapContainer = document.getElementById('map');
-      if (mapContainer && window.ResizeObserver) {
-        const mapObserver = new ResizeObserver(() => map.resize());
-        mapObserver.observe(mapContainer);
-      }
+      new ResizeObserver(() => map.resize()).observe(mapContainer);
       window.addEventListener('resize', () => map.resize());
-      window.addEventListener('orientationchange', () => {
-        map.resize();
-        updateHeaderHeight();
-      });
+      window.addEventListener('orientationchange', () => map.resize());
 
       async function updateHeaderHeight(){
-        if (!headerEl) return;
         if (document.fonts && document.fonts.ready) {
           try { await document.fonts.ready; } catch(e){}
         }
@@ -372,12 +392,8 @@
         map.resize();
       }
       updateHeaderHeight();
-      if (headerEl && window.ResizeObserver) {
-        const headerRO = new ResizeObserver(() => updateHeaderHeight());
-        headerRO.observe(headerEl);
-      } else if (headerEl) {
-        window.addEventListener('resize', updateHeaderHeight);
-      }
+      const headerRO = new ResizeObserver(() => updateHeaderHeight());
+      headerRO.observe(headerEl);
       map.once('load', () => map.resize());
 
       let hoveredId = null;
@@ -439,6 +455,7 @@
         const isOpen = popup.isOpen();
         clearTimeout(popupFadeTimer);
 
+        // Open if closed
         if (!isOpen) {
           popup.setLngLat(center).setHTML(nextHtml).addTo(map);
           requestAnimationFrame(() => popup.getElement().classList.add('active'));
@@ -448,6 +465,7 @@
         const el = popup.getElement();
         if (el) el.classList.add('active');
 
+        // If open and same label: only move location; keep content
         const current = popup.getElement().querySelector('.pop-inner');
         const currentLabel = current ? current.getAttribute('data-label') : '';
         const nextLabel = (label || '').toUpperCase();
@@ -457,6 +475,7 @@
           return;
         }
 
+        // Cross-fade content swap
         if (current) current.classList.add('is-out');
         setTimeout(() => {
           popup.setLngLat(center).setHTML(nextHtml);
@@ -480,70 +499,6 @@
       function scheduleClearHover() {
         clearTimeout(hoverLeaveTimer);
         hoverLeaveTimer = setTimeout(removeHover, 100);
-      }
-
-      function buildRentsTable(){
-        const tbody = document.querySelector('#rents-table tbody');
-        const labels = Object.keys(priceData).filter(label => label !== 'River Thames').sort((a, b) => a.localeCompare(b));
-        const frag = document.createDocumentFragment();
-
-        for (const label of labels){
-          const tr = document.createElement('tr');
-
-          const tdLabel = document.createElement('td');
-          const url = labelToUrl[label];
-          if (url){
-            const a = document.createElement('a');
-            a.href = url;
-            a.target = '_blank';
-            a.rel = 'noopener';
-            a.textContent = label;
-            a.title = `Open ${label} dashboard`;
-            tdLabel.appendChild(a);
-          } else {
-            const span = document.createElement('span');
-            span.textContent = label;
-            span.className = 'no-link';
-            tdLabel.appendChild(span);
-          }
-
-          const tdA = document.createElement('td');
-          tdA.textContent = priceData[label]?.A || '—';
-
-          const tdB = document.createElement('td');
-          tdB.textContent = priceData[label]?.B || '—';
-
-          tr.appendChild(tdLabel);
-          tr.appendChild(tdA);
-          tr.appendChild(tdB);
-          frag.appendChild(tr);
-        }
-
-        tbody.innerHTML = '';
-        tbody.appendChild(frag);
-      }
-
-      const tableSection = document.getElementById('rents-section');
-      const tableToggleButton = document.getElementById('toggle-table');
-      const tableToggleLabel = tableToggleButton ? tableToggleButton.querySelector('.toggle-label') : null;
-
-      function setTableVisibility(shouldShow) {
-        if (!tableSection || !tableToggleButton || !tableToggleLabel) return;
-        tableSection.hidden = !shouldShow;
-        tableToggleButton.setAttribute('aria-expanded', shouldShow ? 'true' : 'false');
-        tableToggleButton.classList.toggle('is-open', shouldShow);
-        tableToggleLabel.textContent = shouldShow ? 'Hide rent table' : 'View rent table';
-      }
-
-      if (tableToggleButton) {
-        setTableVisibility(false);
-        tableToggleButton.addEventListener('click', () => {
-          const nextState = tableSection ? tableSection.hidden : true;
-          setTableVisibility(nextState);
-          if (nextState && tableSection && tableSection.scrollIntoView) {
-            requestAnimationFrame(() => tableSection.scrollIntoView({ behavior: 'smooth', block: 'start' }));
-          }
-        });
       }
 
       map.on('load', function () {
@@ -589,11 +544,10 @@
               filter: ['==', ['get', 'label'], 'River Thames'],
               paint: {
                 'line-color': waterStroke,
-                'line-width': 1.2
-              },
-              layout: {
+                'line-width': 1.2,
                 'line-join': 'round',
-                'line-cap': 'round'
+                'line-cap': 'round',
+                'line-smooth': 0.6
               }
             });
 
@@ -627,36 +581,6 @@
               layout: { 'line-join': 'round', 'line-cap': 'round' }
             });
 
-            // Always-on submarket labels (hidden on hover via feature-state)
-            map.addLayer({
-              id: 'subdistrict-labels',
-              type: 'symbol',
-              source: 'subdistricts',
-              filter: ['!=', ['get', 'label'], 'River Thames'],
-              layout: {
-                'symbol-placement': 'point',
-                'text-field': ['get', 'label'],
-                'text-font': ['Open Sans Semibold', 'Open Sans Regular'],
-                'text-size': ['interpolate', ['linear'], ['zoom'], 10, 10, 12, 12, 14, 14],
-                'text-letter-spacing': 0.05,
-                'text-padding': 2,
-                'text-allow-overlap': false,
-                'text-optional': true
-              },
-              paint: {
-                'text-color': 'rgba(15, 23, 42, 0.86)',
-                'text-halo-color': 'rgba(255,255,255,0.95)',
-                'text-halo-width': 1.2,
-                'text-halo-blur': 0.5,
-                'text-opacity': [
-                  'case',
-                  ['boolean', ['feature-state', 'hover'], false],
-                  0,
-                  0.88
-                ]
-              }
-            });
-
             map.addLayer({
               id: 'subdistrict-hover-outline',
               type: 'line',
@@ -680,6 +604,7 @@
               }
             });
             map.fitBounds(bounds, { padding: { top: 10, right: 20, bottom: 20, left: 20 } });
+
 
             function handleMove(e) {
               const features = map.queryRenderedFeatures(e.point, { layers: ['subdistrict-fills'] });
@@ -717,8 +642,6 @@
               }
             });
 
-            map.on('mouseleave', 'subdistrict-fills', scheduleClearHover);
-
             map.on('click', function (e) {
               const features = map.queryRenderedFeatures(e.point, { layers: ['subdistrict-fills'] });
               const feature = features[0];
@@ -748,11 +671,97 @@
           });
       });
 
+      /* === Rents Table: populate + panel behavior === */
+      function buildRentsTable(){
+        const tbody = document.querySelector('#rents-table tbody');
+        if (!tbody) return;
+        const labels = Object.keys(priceData)
+          .filter(l => l !== 'River Thames')
+          .sort((a,b)=> a.localeCompare(b));
+
+        const frag = document.createDocumentFragment();
+        for (const label of labels){
+          const tr = document.createElement('tr');
+
+          const tdLabel = document.createElement('td');
+          const url = labelToUrl[label];
+          if (url){
+            const a = document.createElement('a');
+            a.href = url;
+            a.target = '_blank';
+            a.rel = 'noopener';
+            a.textContent = label;
+            a.title = `Open ${label} dashboard`;
+            tdLabel.appendChild(a);
+          } else {
+            const span = document.createElement('span');
+            span.textContent = label;
+            span.className = 'no-link';
+            tdLabel.appendChild(span);
+          }
+
+          const tdA = document.createElement('td');
+          tdA.textContent = priceData[label]?.A || '—';
+
+          const tdB = document.createElement('td');
+          tdB.textContent = priceData[label]?.B || '—';
+
+          tr.appendChild(tdLabel);
+          tr.appendChild(tdA);
+          tr.appendChild(tdB);
+          frag.appendChild(tr);
+        }
+        tbody.innerHTML = '';
+        tbody.appendChild(frag);
+      }
+
+      function setupPanel(){
+        const toggleBtn = document.querySelector('.table-toggle');
+        const panel = document.getElementById('rents-panel');
+        const closeBtn = document.querySelector('.panel-close');
+
+        if (!toggleBtn || !panel || !closeBtn) return;
+
+        function openPanel(){
+          panel.classList.add('open');
+          toggleBtn.setAttribute('aria-expanded', 'true');
+          panel.setAttribute('aria-hidden', 'false');
+        }
+        function closePanel(){
+          panel.classList.remove('open');
+          toggleBtn.setAttribute('aria-expanded', 'false');
+          panel.setAttribute('aria-hidden', 'true');
+        }
+        function togglePanel(){
+          if (panel.classList.contains('open')) closePanel(); else openPanel();
+        }
+
+        toggleBtn.addEventListener('click', togglePanel);
+        closeBtn.addEventListener('click', closePanel);
+
+        // Close on Escape
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') closePanel();
+        });
+
+        // Close when clicking outside
+        document.addEventListener('click', (e) => {
+          if (!panel.contains(e.target) && !toggleBtn.contains(e.target)) {
+            closePanel();
+          }
+        });
+      }
+
       if (document.readyState !== 'loading') {
         buildRentsTable();
+        setupPanel();
       } else {
-        document.addEventListener('DOMContentLoaded', buildRentsTable);
+        document.addEventListener('DOMContentLoaded', () => {
+          buildRentsTable();
+          setupPanel();
+        });
       }
     </script>
   </body>
 </html>
+
