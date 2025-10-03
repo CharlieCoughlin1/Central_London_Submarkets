@@ -24,7 +24,7 @@
 
       html, body {
         height:100%;
-        overflow:hidden; /* RESTORED: page is non-scrollable, map is fixed full-screen */
+        overflow:hidden; /* Keep original full-screen map layout */
       }
       body {
         margin:0;
@@ -67,7 +67,7 @@
         box-sizing:border-box;
       }
 
-      /* Existing small PSF note */
+      /* Existing small PSF note (unchanged) */
       .psf-control{
         position:absolute;
         bottom:8px;
@@ -81,7 +81,7 @@
         z-index:3;
       }
 
-      /* NEW: Right-side panel toggle + panel (overlays, does not change map) */
+      /* Right-side rents table button + panel (unchanged from last version) */
       .panel-controls{
         position:absolute;
         top:12px;
@@ -90,7 +90,7 @@
         flex-direction:column;
         align-items:flex-end;
         gap:8px;
-        z-index:6; /* above map overlays/popups */
+        z-index:6;
       }
       .table-toggle{
         appearance:none;
@@ -111,7 +111,7 @@
 
       .table-panel{
         position:absolute;
-        top:calc(100% + 8px); /* directly under the toggle button */
+        top:calc(100% + 8px);
         right:0;
         width:min(520px, 95vw);
         max-height:min(62vh, 640px);
@@ -119,7 +119,7 @@
         border:1px solid var(--stroke);
         border-radius:10px;
         box-shadow:var(--shadow-1);
-        overflow:hidden; /* header + scroller inside */
+        overflow:hidden;
         opacity:0;
         transform:translateY(6px);
         visibility:hidden;
@@ -163,12 +163,11 @@
 
       .table-scroller{
         overflow:auto;
-        max-height:calc(62vh - 54px); /* tune to keep header visible */
+        max-height:calc(62vh - 54px);
         border-top:1px solid var(--stroke);
         background:var(--surface);
       }
 
-      /* Professional table styling aligned with app */
       .rent-table{
         width:100%;
         border-collapse:separate;
@@ -211,6 +210,110 @@
         cursor:default;
       }
 
+      /* --- NEW: Client logo banner at the bottom of the map --- */
+      .logo-marquee{
+        position:absolute;
+        left:12px;
+        right:12px;
+        bottom:12px;
+        z-index:2; /* below PSF control and table button */
+        background:rgba(255,255,255,0.88);
+        border:1px solid var(--stroke);
+        border-radius:12px;
+        box-shadow:var(--shadow-1);
+        pointer-events:none; /* do not block map interaction */
+        backdrop-filter:saturate(120%) blur(4px);
+      }
+      .logo-marquee .logo-accent{
+        height:3px;
+        background:var(--brand);
+        border-top-left-radius:12px;
+        border-top-right-radius:12px;
+      }
+      .logo-banner-inner{
+        padding:6px 8px 8px;
+      }
+      .banner-subtitle{
+        margin:0 6px 2px;
+        text-align:center;
+        color:var(--muted-ink);
+        font-weight:800;
+        letter-spacing:.6px;
+        text-transform:uppercase;
+        font-size:.78rem;
+      }
+      .logo-viewport{
+        position:relative;
+        overflow:hidden;
+        padding:6px 6px 8px;
+      }
+      .logo-viewport::before,
+      .logo-viewport::after{
+        content:"";
+        position:absolute;
+        top:0; bottom:0;
+        width:40px;
+        pointer-events:none;
+        z-index:1;
+      }
+      .logo-viewport::before{
+        left:0;
+        background:linear-gradient(to right, rgba(255,255,255,0.92), rgba(255,255,255,0));
+      }
+      .logo-viewport::after{
+        right:0;
+        background:linear-gradient(to left, rgba(255,255,255,0.92), rgba(255,255,255,0));
+      }
+      .logo-track{
+        display:flex;
+        align-items:center;
+        width:max-content; /* allow content to define width */
+        animation: marquee-rtl 55s linear infinite reverse; /* left-to-right */
+      }
+      @keyframes marquee-rtl{
+        0%   { transform: translateX(0); }
+        100% { transform: translateX(-50%); } /* two strips -> half width loop */
+      }
+      .logo-strip{
+        display:flex;
+        align-items:center;
+        gap:28px; /* space between logos */
+        list-style:none;
+        margin:0;
+        padding:0 10px 2px;
+        flex:0 0 auto;
+      }
+      .logo-strip li{
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        flex:0 0 auto;
+      }
+      .logo-strip img{
+        display:block;
+        height:24px;
+        max-width:140px;
+        object-fit:contain;
+        opacity:.95;
+        filter:none; /* keep brand colours */
+      }
+
+      @media (max-width:480px){
+        .site-header{padding:10px 12px 0;}
+        h1{font-size:1.6rem;}
+        .custom-popup .maplibregl-popup-content{max-width:calc(100vw - 24px); padding:6px 8px 8px;}
+        .popup-title{font-size:.92rem;}
+        .price-box{min-width:65px; padding:4px 6px;}
+        .rent-table thead th, .rent-table tbody td{ padding:10px 12px; }
+        .table-panel{ width:calc(100vw - 24px); right:0; }
+        .banner-subtitle{ font-size:.72rem; }
+        .logo-strip img{ height:20px; max-width:120px; }
+      }
+      @media (prefers-reduced-motion: reduce){
+        *{transition:none!important;}
+        .logo-track{ animation:none!important; }
+      }
+
       /* Popup (unchanged) */
       .custom-popup{pointer-events:none; opacity:0; transform:translateY(2px); transition:opacity .16s ease, transform .16s ease;}
       .custom-popup.active{opacity:1; transform:translateY(0);}
@@ -232,7 +335,6 @@
         font-variant-numeric:tabular-nums;
         position:relative;
       }
-      /* thin brand accent bar */
       .custom-popup .maplibregl-popup-content::before{
         content:"";
         position:absolute;
@@ -274,19 +376,6 @@
       .price-box .price{
         display:block; color:var(--ink); font-size:1rem; font-weight:600;
       }
-
-      @media (max-width:480px){
-        .site-header{padding:10px 12px 0;}
-        h1{font-size:1.6rem;}
-        .custom-popup .maplibregl-popup-content{max-width:calc(100vw - 24px); padding:6px 8px 8px;}
-        .popup-title{font-size:.92rem;}
-        .price-box{min-width:65px; padding:4px 6px;}
-        .rent-table thead th, .rent-table tbody td{ padding:10px 12px; }
-        .table-panel{ width:calc(100vw - 24px); right:0; }
-      }
-      @media (prefers-reduced-motion: reduce){
-        *{transition:none!important;}
-      }
     </style>
   </head>
   <body>
@@ -296,7 +385,7 @@
     </header>
 
     <div id="map">
-      <!-- Right-side toggle and drop-down panel for the table -->
+      <!-- Right-side toggle and drop-down panel for the table (unchanged) -->
       <div class="panel-controls">
         <button class="table-toggle" type="button" aria-expanded="false" aria-controls="rents-panel" title="Open rents table">Rents Table</button>
 
@@ -320,6 +409,19 @@
             </table>
           </div>
         </aside>
+      </div>
+
+      <!-- NEW: Client logos banner at the bottom of the map -->
+      <div class="logo-marquee" id="logo-marquee" role="region" aria-label="Clients we work with">
+        <div class="logo-accent" aria-hidden="true"></div>
+        <div class="logo-banner-inner">
+          <p class="banner-subtitle">Trusted by leading London office occupiers</p>
+          <div class="logo-viewport">
+            <div class="logo-track" id="logo-track">
+              <!-- JS will inject two identical strips for a seamless left-to-right scroll -->
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="psf-control">*All prices are per sq ft</div>
@@ -356,7 +458,7 @@
         "Noho / Fitzrovia": "https://infogram.com/noho-fitzrovia-1hmr6g8ye03yz2n"
       };
 
-      /* === MAP (RESTORED original behavior) === */
+      /* === MAP (restored original behavior) === */
       const root = document.documentElement;
       const headerEl = document.querySelector('.site-header');
 
@@ -455,7 +557,6 @@
         const isOpen = popup.isOpen();
         clearTimeout(popupFadeTimer);
 
-        // Open if closed
         if (!isOpen) {
           popup.setLngLat(center).setHTML(nextHtml).addTo(map);
           requestAnimationFrame(() => popup.getElement().classList.add('active'));
@@ -465,7 +566,6 @@
         const el = popup.getElement();
         if (el) el.classList.add('active');
 
-        // If open and same label: only move location; keep content
         const current = popup.getElement().querySelector('.pop-inner');
         const currentLabel = current ? current.getAttribute('data-label') : '';
         const nextLabel = (label || '').toUpperCase();
@@ -475,7 +575,6 @@
           return;
         }
 
-        // Cross-fade content swap
         if (current) current.classList.add('is-out');
         setTimeout(() => {
           popup.setLngLat(center).setHTML(nextHtml);
@@ -605,7 +704,6 @@
             });
             map.fitBounds(bounds, { padding: { top: 10, right: 20, bottom: 20, left: 20 } });
 
-
             function handleMove(e) {
               const features = map.queryRenderedFeatures(e.point, { layers: ['subdistrict-fills'] });
               const feature = features[0];
@@ -671,7 +769,7 @@
           });
       });
 
-      /* === Rents Table: populate + panel behavior === */
+      /* === Rents Table: populate + panel behavior (unchanged) === */
       function buildRentsTable(){
         const tbody = document.querySelector('#rents-table tbody');
         if (!tbody) return;
@@ -752,16 +850,85 @@
         });
       }
 
+      /* === NEW: Client logos marquee builder ===
+         Place your logo files in the "Client logos" folder.
+         Option A (recommended): create "Client logos/manifest.json" with an array of filenames or {src, alt} objects.
+           Example manifest.json:
+             ["client1.svg","client2.png", {"src":"client3.svg","alt":"Client 3"}]
+         Option B: edit the clientLogos array below.
+         Any image that fails to load will be removed gracefully.
+      */
+      const clientLogos = [
+        // Example placeholders — replace with your actual filenames or use manifest.json
+        // { src: "Client logos/Client1.svg", alt: "Client 1" },
+        // { src: "Client logos/Client2.png", alt: "Client 2" },
+        // { src: "Client logos/Client3.svg", alt: "Client 3" }
+      ];
+
+      function deriveAltFromPath(path){
+        try {
+          const name = path.split('/').pop().split('.').slice(0,-1).join('.');
+          return name.replace(/[-_]+/g,' ').replace(/\s+/g,' ').trim();
+        } catch(e){ return 'Client logo'; }
+      }
+
+      function buildLogoMarquee(list){
+        const track = document.getElementById('logo-track');
+        const banner = document.getElementById('logo-marquee');
+        if (!track || !banner) return;
+
+        const items = Array.isArray(list) ? list.slice() : [];
+        if (!items.length){
+          // If still empty, hide the banner shell
+          banner.style.display = 'none';
+          return;
+        }
+
+        const makeStrip = () => {
+          const ul = document.createElement('ul');
+          ul.className = 'logo-strip';
+          for (const item of items){
+            const obj = (typeof item === 'string') ? { src: 'Client logos/' + item, alt: deriveAltFromPath(item) } : item;
+            const li = document.createElement('li');
+            const img = document.createElement('img');
+            img.loading = 'lazy';
+            img.decoding = 'async';
+            img.alt = obj.alt || deriveAltFromPath(obj.src || '');
+            img.src = obj.src || '';
+            img.onerror = () => { li.remove(); };
+            li.appendChild(img);
+            ul.appendChild(li);
+          }
+          return ul;
+        };
+
+        track.innerHTML = '';
+        track.appendChild(makeStrip());
+        track.appendChild(makeStrip()); // duplicate for seamless loop
+      }
+
+      function initLogos(){
+        // Try to fetch a manifest first
+        fetch('Client logos/manifest.json', { cache: 'no-store' })
+          .then(r => r.ok ? r.json() : Promise.reject())
+          .then(json => buildLogoMarquee(json))
+          .catch(() => buildLogoMarquee(clientLogos));
+      }
+
+      // DOM init
       if (document.readyState !== 'loading') {
         buildRentsTable();
         setupPanel();
+        initLogos();
       } else {
         document.addEventListener('DOMContentLoaded', () => {
           buildRentsTable();
           setupPanel();
+          initLogos();
         });
       }
     </script>
   </body>
 </html>
+
 
