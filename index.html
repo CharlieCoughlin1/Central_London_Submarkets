@@ -210,14 +210,13 @@
         cursor:default;
       }
 
-      /* --- NEW: Client logo banner (moved OUTSIDE #map and fixed to viewport) --- */
+      /* --- Client logo banner (outside #map, fixed to viewport) --- */
       .logo-marquee{
         position:fixed;
         left:12px;
         right:12px;
-        /* keep clear of the iOS home indicator */
         bottom:calc(env(safe-area-inset-bottom) + 12px);
-        z-index:4; /* Above map layers; below table panel and its toggle (z:6) and leaves PSF note visible (z:3) due to stacking order */
+        z-index:2; /* Below PSF note (z:3), below table button (z:6), above map */
         background:rgba(255,255,255,0.9);
         border:1px solid var(--stroke);
         border-radius:12px;
@@ -270,7 +269,7 @@
         align-items:center;
         width:max-content; /* content defines natural width */
         will-change:transform;
-        animation: marquee-ltr 55s linear infinite;
+        animation: marquee-ltr 55s linear infinite; /* left-to-right */
       }
       /* Left-to-right continuous loop:
          We render two identical strips (A + B). Moving from -50% to 0% shows B -> A smoothly. */
@@ -295,11 +294,11 @@
       }
       .logo-strip img{
         display:block;
-        height:24px;
-        max-width:160px;
+        height:28px;       /* tuned to be readable without obstructing map */
+        max-width:180px;
         object-fit:contain;
         opacity:.95;
-        filter:none; /* keep brand colours */
+        filter:none;
       }
 
       @media (max-width:480px){
@@ -311,7 +310,7 @@
         .rent-table thead th, .rent-table tbody td{ padding:10px 12px; }
         .table-panel{ width:calc(100vw - 24px); right:0; }
         .banner-subtitle{ font-size:.72rem; }
-        .logo-strip img{ height:20px; max-width:120px; }
+        .logo-strip img{ height:22px; max-width:140px; }
       }
       @media (prefers-reduced-motion: reduce){
         *{transition:none!important;}
@@ -418,14 +417,14 @@
       <div class="psf-control">*All prices are per sq ft</div>
     </div>
 
-    <!-- NEW: Client logos banner (outside #map so MapLibre never hides it) -->
+    <!-- Client logos banner (outside #map so MapLibre cannot hide it) -->
     <div class="logo-marquee" id="logo-marquee" role="region" aria-label="Clients we work with">
       <div class="logo-accent" aria-hidden="true"></div>
       <div class="logo-banner-inner">
         <p class="banner-subtitle">Trusted by leading London office occupiers</p>
         <div class="logo-viewport">
           <div class="logo-track" id="logo-track">
-            <!-- JS will inject two identical strips for a seamless left‑to‑right scroll -->
+            <!-- JS injects two identical strips for a seamless left‑to‑right scroll -->
           </div>
         </div>
       </div>
@@ -855,16 +854,16 @@
       }
 
       /* === Client logos marquee ===
-         It will:
-         1) Try to load "Client logos/manifest.json" (array of filenames OR {src,alt} objects).
-         2) If not found and no hardcoded list, it will try a gentle numeric scan: "Client logos/1.svg|png|webp|jpg|jpeg", ... up to 20.
-         3) Never hides the banner even if no logos are found (prevents the "flash then disappear" issue).
+         Requirement: Load all PNGs from "Client logos" folder in the repo, sort alphabetically,
+         and animate them left-to-right. Works on GitHub Pages by using the GitHub Contents API.
+         If you fork or rename the repo, this code tries multiple discovery strategies automatically.
       */
-      const clientLogos = [
-        // Optional hardcoded entries (uncomment and adjust if you prefer not to use a manifest):
-        // { src: "Client logos/Acme.svg", alt: "Acme" },
-        // { src: "Client logos/Contoso.png", alt: "Contoso" },
-      ];
+
+      const LOGO_DIR = "Client logos";
+      const BRANCHES = ["main","master"];
+
+      // If you know the repo, set a hint here (owner/repo). This matches your GeoJSON fallback repo.
+      const REPO_HINT = "CharlieCoughlin1/Central_London_Submarkets";
 
       function deriveAltFromPath(path){
         try {
@@ -882,9 +881,7 @@
 
       function buildNodesFromList(list){
         const nodes = [];
-        for (const item of list){
-          const obj = (typeof item === 'string') ? { src: 'Client logos/' + item, alt: deriveAltFromPath(item) } : item;
-          if (!obj || !obj.src) continue;
+        for (const obj of list){
           const li = document.createElement('li');
           const img = document.createElement('img');
           img.loading = 'lazy';
@@ -898,18 +895,19 @@
         return nodes;
       }
 
-      function renderLogoMarquee(list){
+      function renderLogoMarqueeFromSrcs(srcs){
         const track = document.getElementById('logo-track');
         if (!track) return;
 
-        // Build nodes and duplicate for seamless loop
+        const list = srcs.map(src => ({ src, alt: deriveAltFromPath(src) }));
+        // Sort alphabetically by filename (case-insensitive)
+        list.sort((a,b) => a.src.toLowerCase().localeCompare(b.src.toLowerCase()));
+
         const nodes = buildNodesFromList(list);
         track.innerHTML = '';
-        track.style.animationPlayState = 'paused'; // pause while we construct
 
-        // If nothing resolved, leave the banner visible, just no logos (no hiding).
         if (!nodes.length){
-          // Keep an empty strip so height remains tidy
+          // Keep banner visible even if empty (so it never "disappears")
           track.appendChild(makeStrip([]));
           track.appendChild(makeStrip([]));
           track.style.animationPlayState = 'paused';
@@ -917,63 +915,99 @@
         }
 
         track.appendChild(makeStrip(nodes));
-        track.appendChild(makeStrip(nodes.map(n => n.cloneNode(true))));
-        // Start animation once DOM is ready
-        requestAnimationFrame(() => { track.style.animationPlayState = 'running'; });
+        // Duplicate for seamless loop
+        const cloneNodes = nodes.map(n => n.cloneNode(true));
+        track.appendChild(makeStrip(cloneNodes));
+
+        // Start animation
+        track.style.animationPlayState = 'running';
       }
 
-      async function gentleNumericScan(max = 20){
-        const EXTS = ['svg','png','webp','jpg','jpeg'];
-        const guesses = [];
-        for (let i=1;i<=max;i++){
-          for (const ext of EXTS){
-            guesses.push({ src: `Client logos/${i}.${ext}` });
-          }
-          for (const ext of EXTS){
-            guesses.push({ src: `Client logos/logo-${i}.${ext}` });
+      function encodePathSegments(path){
+        return path.split('/').map(encodeURIComponent).join('/');
+      }
+
+      function guessRepoFromPage(){
+        const { hostname, pathname } = window.location;
+        // e.g., https://username.github.io/reponame/...
+        if (hostname.endsWith('github.io')){
+          const owner = hostname.split('.')[0];
+          const seg = pathname.split('/').filter(Boolean);
+          const repo = seg.length ? seg[0] : '';
+          if (owner && repo) return `${owner}/${repo}`;
+        }
+        return null;
+      }
+
+      async function fetchGithubDirPngs(ownerRepo, branch){
+        const [owner, repo] = ownerRepo.split('/');
+        const encodedDir = encodePathSegments(LOGO_DIR);
+        const url = `https://api.github.com/repos/${owner}/${repo}/contents/${encodedDir}?ref=${encodeURIComponent(branch)}`;
+        const r = await fetch(url, { cache: 'no-store' });
+        if (!r.ok) throw new Error('No listing');
+        const json = await r.json();
+        if (!Array.isArray(json)) throw new Error('Unexpected');
+        // Filter PNGs only
+        const pngs = json
+          .filter(item => item && item.type === 'file' && /\.png$/i.test(item.name))
+          .sort((a,b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+        // Prefer download_url; if missing, synthesize a raw URL
+        return pngs.map(item => item.download_url || `https://raw.githubusercontent.com/${owner}/${repo}/${encodeURIComponent(branch)}/${encodedDir}/${encodeURIComponent(item.name)}`);
+      }
+
+      async function discoverLogoPngs(){
+        const candidates = new Set();
+        const fromHint = REPO_HINT && REPO_HINT.includes('/') ? REPO_HINT : null;
+        const fromPage = guessRepoFromPage();
+
+        if (fromHint) candidates.add(fromHint);
+        if (fromPage) candidates.add(fromPage);
+
+        // Try each repo candidate across likely branches
+        for (const repo of candidates){
+          for (const ref of BRANCHES){
+            try {
+              const urls = await fetchGithubDirPngs(repo, ref);
+              if (urls && urls.length) return urls;
+            } catch(e){ /* try next */ }
           }
         }
 
-        // Probe images and keep the ones that load
-        const probes = guesses.map(g => new Promise(resolve => {
-          const img = new Image();
-          img.onload = () => resolve(g.src);
-          img.onerror = () => resolve(null);
-          img.src = g.src + `?v=${Date.now()}`; // cache-bust
-        }));
+        // Final fallback: try current page repo (if we didn't already) on 'gh-pages'
+        if (fromPage){
+          try {
+            const urls = await fetchGithubDirPngs(fromPage, 'gh-pages');
+            if (urls && urls.length) return urls;
+          } catch(e){ /* ignore */ }
+        }
 
-        const results = await Promise.all(probes);
-        const found = results.filter(Boolean).map(src => ({ src, alt: deriveAltFromPath(src) }));
-        return found;
+        // If everything fails, return empty and keep banner visible (no hiding).
+        return [];
       }
 
       async function initLogos(){
-        // Priority 1: manifest.json
+        // 1) Try local manifest first (optional power users)
         try{
-          const r = await fetch('Client logos/manifest.json', { cache: 'no-store' });
+          const r = await fetch(`${encodePathSegments(LOGO_DIR)}/manifest.json`, { cache: 'no-store' });
           if (r.ok){
             const json = await r.json();
             if (Array.isArray(json) && json.length){
-              renderLogoMarquee(json);
+              // Keep only PNGs, sort by filename
+              const srcs = json
+                .map(x => (typeof x === 'string' ? `${LOGO_DIR}/${x}` : x.src))
+                .filter(Boolean)
+                .filter(src => /\.png$/i.test(src))
+                .map(src => src.replace(/\\/g,'/'));
+              srcs.sort((a,b)=> a.toLowerCase().localeCompare(b.toLowerCase()));
+              renderLogoMarqueeFromSrcs(srcs);
               return;
             }
           }
-        } catch(e){ /* ignore */ }
+        } catch(e){ /* continue to GitHub API path */ }
 
-        // Priority 2: hardcoded array (if provided)
-        if (Array.isArray(clientLogos) && clientLogos.length){
-          renderLogoMarquee(clientLogos);
-          return;
-        }
-
-        // Priority 3: gentle numeric scan (no directory listing required)
-        try{
-          const discovered = await gentleNumericScan(20);
-          renderLogoMarquee(discovered);
-        } catch(e){
-          // Even if scan fails, keep banner visible (empty track).
-          renderLogoMarquee([]);
-        }
+        // 2) GitHub Contents API (works on GitHub Pages)
+        const pngSrcs = await discoverLogoPngs();
+        renderLogoMarqueeFromSrcs(pngSrcs);
       }
 
       // DOM init
@@ -991,6 +1025,7 @@
     </script>
   </body>
 </html>
+
 
 
 
