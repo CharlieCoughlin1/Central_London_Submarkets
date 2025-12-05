@@ -285,7 +285,7 @@
         display:none;
       }
       .logo-banner-inner{
-        padding:10px 8px 8px;
+        padding:8px 6px 6px;
       }
       .banner-subtitle{
         margin:0 6px 2px;
@@ -299,7 +299,7 @@
       .logo-viewport{
         position:relative;
         overflow:hidden;
-        padding:6px 6px 8px;
+        padding:4px 4px 6px;
       }
       .logo-viewport::before,
       .logo-viewport::after{
@@ -333,10 +333,10 @@
       .logo-strip{
         display:flex;
         align-items:center;
-        gap:14px; /* reduced gap */
+        gap:12px; /* reduced gap */
         list-style:none;
         margin:0;
-        padding:0 10px 2px;
+        padding:0 8px 2px;
         flex:0 0 auto;
       }
       .logo-strip li{
@@ -347,11 +347,12 @@
       }
       .logo-strip img{
         display:block;
-        height:56px;       /* larger logos */
+        height:64px;       /* larger logos */
         max-width:220px;
         object-fit:contain;
         opacity:.98;
         filter:none;
+        clip-path:inset(1px round 3px);
       }
 
       @media (max-width:480px){
@@ -363,8 +364,10 @@
         .rent-table thead th, .rent-table tbody td{ padding:10px 12px; }
         .table-panel{ width:calc(100vw - 24px); right:0; }
         .banner-subtitle{ font-size:.72rem; }
-        .logo-strip{ gap:10px; }
-        .logo-strip img{ height:38px; max-width:180px; }
+        .logo-banner-inner{ padding:7px 6px 6px; }
+        .logo-viewport{ padding:3px 4px 5px; }
+        .logo-strip{ gap:10px; padding:0 6px 2px; }
+        .logo-strip img{ height:44px; max-width:190px; clip-path:inset(.8px round 2px); }
       }
       @media (max-width:960px){
         body.table-open{ --table-offset: 0px; }
