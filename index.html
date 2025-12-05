@@ -576,9 +576,9 @@
       let popupFadeTimer = null;
 
       const brand = getComputedStyle(document.documentElement).getPropertyValue('--brand').trim();
-      const ink = getComputedStyle(document.documentElement).getPropertyValue('--ink').trim();
       const water = getComputedStyle(document.documentElement).getPropertyValue('--water').trim();
       const waterStroke = getComputedStyle(document.documentElement).getPropertyValue('--water-stroke').trim();
+      const labelMarkers = [];
       let geojsonFeatures = null;
       let closePanelForDesktop = null;
       let openPanelForDesktop = null;
@@ -608,7 +608,11 @@
 
       function setLabelVisibility(label, isVisible){
         if (!label) return;
-        map.setFeatureState({ source: 'subdistricts', id: label }, { labelHidden: !isVisible });
+        const entry = labelMarkers.find(item => item.label === label);
+        const el = entry?.marker?.getElement?.();
+        if (el) {
+          el.style.opacity = isVisible ? '1' : '0';
+        }
       }
 
       function renderPopup(label, dataInfo){
@@ -715,16 +719,42 @@
       }
       const debouncedRefit = debounce(() => fitToInitialBounds({ duration: 0 }), 120);
 
+      function clearLabels(){
+        while(labelMarkers.length){
+          const entry = labelMarkers.pop();
+          if (entry?.marker) entry.marker.remove();
+        }
+      }
+
+      function addLabels(features){
+        clearLabels();
+        if (!isDesktopView() || !Array.isArray(features)) return;
+        features
+          .filter(f => f?.properties?.label && f.properties.label !== 'River Thames')
+          .forEach(feature => {
+            const coords = getFeatureBoundsCenter(feature.geometry.coordinates);
+            const el = document.createElement('div');
+            el.className = 'polygon-label';
+            el.textContent = feature.properties.label;
+            if (activeHoverLabel === feature.properties.label) {
+              el.style.opacity = '0';
+            }
+            const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
+              .setLngLat(coords)
+              .addTo(map);
+            labelMarkers.push({ label: feature.properties.label, marker });
+          });
+      }
+
       function syncDesktopMode(){
         const desktop = isDesktopView();
         document.body.classList.toggle('is-desktop', desktop);
-        const labelLayerExists = map.getLayer('subdistrict-labels');
         if (!desktop){
-          if (labelLayerExists) map.setLayoutProperty('subdistrict-labels', 'visibility', 'none');
+          clearLabels();
           if (closePanelForDesktop) closePanelForDesktop({ reason: 'media' });
         } else {
-          if (labelLayerExists) map.setLayoutProperty('subdistrict-labels', 'visibility', 'visible');
           if (openPanelForDesktop) openPanelForDesktop();
+          if (geojsonFeatures) addLabels(geojsonFeatures);
         }
       }
 
@@ -848,36 +878,6 @@
                 'line-blur': 0
               },
               layout: { 'line-join': 'round', 'line-cap': 'round' }
-            });
-
-            map.addLayer({
-              id: 'subdistrict-labels',
-              type: 'symbol',
-              source: 'subdistricts',
-              filter: ['!=', ['get', 'label'], 'River Thames'],
-              layout: {
-                'symbol-placement': 'point',
-                'text-field': ['upcase', ['get', 'label']],
-                'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
-                'text-size': 12,
-                'text-justify': 'center',
-                'text-line-height': 1.1,
-                'text-variable-anchor': ['center'],
-                'text-padding': 6,
-                'visibility': isDesktopView() ? 'visible' : 'none'
-              },
-              paint: {
-                'text-color': ink || '#0F172A',
-                'text-halo-color': 'rgba(255,255,255,0.92)',
-                'text-halo-width': 2.2,
-                'text-halo-blur': 0.5,
-                'text-opacity': [
-                  'case',
-                  ['boolean', ['feature-state', 'hover'], false], 0,
-                  ['boolean', ['feature-state', 'labelHidden'], false], 0,
-                  1
-                ]
-              }
             });
 
             // Compute initial bounds (excluding Thames)
