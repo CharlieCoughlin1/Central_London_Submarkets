@@ -67,6 +67,26 @@
         box-sizing:border-box;
       }
 
+      .polygon-label{
+        pointer-events:none;
+        display:inline-block;
+        padding:4px 8px;
+        border:1px solid var(--stroke);
+        border-radius:8px;
+        background:rgba(255,255,255,0.88);
+        box-shadow:0 6px 16px rgba(15,23,42,0.12);
+        color:var(--ink);
+        font-family:"DIN Pro","DINPro",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+        font-weight:800;
+        font-size:.82rem;
+        letter-spacing:.3px;
+        text-transform:uppercase;
+        text-align:center;
+        max-width:180px;
+        line-height:1.2;
+        white-space:normal;
+      }
+
       /* PSF note */
       .psf-control{
         position:absolute;
@@ -430,6 +450,7 @@
       </div>
     </div>
 
+    <script src="https://unpkg.com/@turf/turf@6.5.0/turf.min.js"></script>
     <script src="https://unpkg.com/maplibre-gl@3.3.1/dist/maplibre-gl.js"></script>
     <script>
       /* === DATA === */
@@ -520,6 +541,7 @@
       const brand = getComputedStyle(document.documentElement).getPropertyValue('--brand').trim();
       const water = getComputedStyle(document.documentElement).getPropertyValue('--water').trim();
       const waterStroke = getComputedStyle(document.documentElement).getPropertyValue('--water-stroke').trim();
+      const labelMarkers = [];
 
       function setHover(id, isHovering) {
         map.setFeatureState({ source: 'subdistricts', id }, { hover: isHovering });
@@ -638,6 +660,37 @@
       }
       const debouncedRefit = debounce(() => fitToInitialBounds({ duration: 0 }), 120);
 
+      function clearLabels(){
+        while(labelMarkers.length){
+          const marker = labelMarkers.pop();
+          if (marker) marker.remove();
+        }
+      }
+
+      function computeLabelPoint(feature){
+        try {
+          const centerFeature = turf.centerOfMass(feature);
+          if (centerFeature?.geometry?.coordinates) return centerFeature.geometry.coordinates;
+        } catch(e){}
+        return getFeatureBoundsCenter(feature.geometry.coordinates);
+      }
+
+      function addLabels(features){
+        clearLabels();
+        features
+          .filter(f => f?.properties?.label && f.properties.label !== 'River Thames')
+          .forEach(feature => {
+            const coords = computeLabelPoint(feature);
+            const el = document.createElement('div');
+            el.className = 'polygon-label';
+            el.textContent = feature.properties.label;
+            const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
+              .setLngLat(coords)
+              .addTo(map);
+            labelMarkers.push(marker);
+          });
+      }
+
       map.on('load', function () {
         var cacheBuster = '?v=' + Date.now();
         var localUrl = 'final_poly.geojson' + cacheBuster;
@@ -746,6 +799,7 @@
             });
             initialBounds = bounds;
             fitToInitialBounds({ duration: 0 });
+            addLabels(data.features);
 
             // Interaction (hover shows popup; no persistent labels)
             function handleMove(e) {
