@@ -20,7 +20,7 @@
         --shadow-1:0 4px 12px rgba(0,0,0,.12);
         --popup-accent: var(--brand);
         --header-h: 0px;
-        --table-w: 420px;
+        --table-w: clamp(300px, 32vw, 420px);
         --table-offset: 0px;
         --table-gap: 12px;
       }
@@ -79,7 +79,7 @@
         color:var(--ink);
         font-family:"DIN Pro","DINPro",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
         font-weight:800;
-        font-size:.82rem;
+        font-size:clamp(.7rem, 1vw + .44rem, .86rem);
         letter-spacing:.3px;
         text-transform:uppercase;
         text-align:center;
@@ -347,6 +347,16 @@
         .banner-subtitle{ font-size:.72rem; }
         .logo-strip{ gap:10px; }
         .logo-strip img{ height:38px; max-width:180px; }
+      }
+      @media (max-width:960px){
+        body.table-open{ --table-offset: 0px; }
+        .panel-controls{ width:calc(100vw - 24px); left:12px; }
+        .table-toggle{ text-align:center; }
+        .polygon-label{ font-size:clamp(.68rem, 1.8vw, .8rem); padding:3px 6px; }
+      }
+      @media (max-width:720px){
+        .polygon-label{ display:none; }
+        .logo-marquee{ left:10px; right:10px; }
       }
       @media (prefers-reduced-motion: reduce){
         *{transition:none!important;}
@@ -1034,6 +1044,8 @@
         const toggleBtn = document.querySelector('.table-toggle');
         const panel = document.getElementById('rents-panel');
         const closeBtn = document.querySelector('.panel-close');
+        const compactMedia = window.matchMedia('(max-width: 960px)');
+        let collapsedByMedia = false;
 
         if (!toggleBtn || !panel || !closeBtn) return;
 
@@ -1043,6 +1055,7 @@
         }
 
         function openPanel(){
+          collapsedByMedia = false;
           document.body.classList.add('table-open');
           document.body.classList.remove('table-collapsed');
           panel.setAttribute('aria-hidden', 'false');
@@ -1051,7 +1064,8 @@
           toggleBtn.title = 'Collapse rents table';
           syncMapLayout();
         }
-        function closePanel(){
+        function closePanel(opts = {}){
+          collapsedByMedia = opts.reason === 'media';
           document.body.classList.remove('table-open');
           document.body.classList.add('table-collapsed');
           panel.setAttribute('aria-hidden', 'true');
@@ -1065,6 +1079,15 @@
           if (isHidden) openPanel(); else closePanel();
         }
 
+        function applyMediaState(e){
+          const matches = e ? e.matches : compactMedia.matches;
+          if (matches){
+            closePanel({ reason: 'media' });
+          } else if (collapsedByMedia){
+            openPanel();
+          }
+        }
+
         toggleBtn.addEventListener('click', togglePanel);
         closeBtn.addEventListener('click', closePanel);
 
@@ -1074,6 +1097,12 @@
 
         // Open by default on load
         openPanel();
+        applyMediaState();
+        if (compactMedia.addEventListener) {
+          compactMedia.addEventListener('change', applyMediaState);
+        } else if (compactMedia.addListener) {
+          compactMedia.addListener(applyMediaState);
+        }
       }
 
       /* === Client logos marquee ===
