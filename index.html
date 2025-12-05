@@ -2,6 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Central London Offices Guide</title>
     <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@3.3.1/dist/maplibre-gl.css" />
     <link rel="stylesheet" href="https://fonts.cdnfonts.com/css/din-pro" />
@@ -86,6 +87,7 @@
         max-width:180px;
         line-height:1.2;
         white-space:normal;
+        word-break:break-word;
       }
 
       /* PSF note */
@@ -355,7 +357,12 @@
         .polygon-label{ font-size:clamp(.68rem, 1.8vw, .8rem); padding:3px 6px; }
       }
       @media (max-width:720px){
-        .polygon-label{ display:none; }
+        :root{ --table-gap: 10px; }
+        #map{ top:calc(var(--header-h) + 4px); }
+        .panel-controls{ left:10px; right:10px; width:auto; gap:10px; }
+        .table-toggle{ text-align:center; border-radius:12px; }
+        .table-panel{ width:100%; border-radius:14px; box-shadow:0 10px 24px rgba(15,23,42,0.18); }
+        .table-scroller{ max-height:calc(58vh - 54px); }
         .logo-marquee{ left:10px; right:10px; }
       }
       @media (prefers-reduced-motion: reduce){
@@ -476,7 +483,6 @@
       </div>
     </div>
 
-    <script src="https://unpkg.com/@turf/turf@6.5.0/turf.min.js"></script>
     <script src="https://unpkg.com/maplibre-gl@3.3.1/dist/maplibre-gl.js"></script>
     <script>
       /* === DATA === */
@@ -517,6 +523,7 @@
         container: 'map',
         style: {
           version: 8,
+          glyphs: 'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf',
           sources: {},
           layers: [{ id: 'background', type: 'background', paint: { 'background-color': '#ffffff' } }]
         },
@@ -538,25 +545,6 @@
 
       const mapContainer = document.getElementById('map');
 
-      // Keep map sized & fitted when UI changes
-      new ResizeObserver(() => { map.resize(); debouncedRefit(); }).observe(mapContainer);
-      window.addEventListener('resize', () => { map.resize(); debouncedRefit(); });
-      window.addEventListener('orientationchange', () => { map.resize(); debouncedRefit(); });
-
-      async function updateHeaderHeight(){
-        if (document.fonts && document.fonts.ready) {
-          try { await document.fonts.ready; } catch(e){}
-        }
-        const h = Math.ceil(headerEl.getBoundingClientRect().height);
-        root.style.setProperty('--header-h', h + 'px');
-        map.resize();
-        debouncedRefit();
-      }
-      updateHeaderHeight();
-      const headerRO = new ResizeObserver(() => updateHeaderHeight());
-      headerRO.observe(headerEl);
-      map.once('load', () => map.resize());
-
       let hoveredId = null;
       const popup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, className: 'custom-popup', maxWidth: '260px' });
       popup.on('open', () => popup.getElement().style.pointerEvents = 'none');
@@ -568,18 +556,9 @@
       const water = getComputedStyle(document.documentElement).getPropertyValue('--water').trim();
       const waterStroke = getComputedStyle(document.documentElement).getPropertyValue('--water-stroke').trim();
       const labelMarkers = [];
-      const labelMarkerMap = new Map();
-
-      function setLabelVisibility(label, isVisible){
-        const marker = labelMarkerMap.get(label);
-        if (!marker) return;
-        const el = marker.getElement();
-        if (el) el.style.visibility = isVisible ? 'visible' : 'hidden';
-      }
 
       function setHover(id, isHovering) {
         map.setFeatureState({ source: 'subdistricts', id }, { hover: isHovering });
-        setLabelVisibility(id, !isHovering);
       }
 
       function getFeatureBoundsCenter(coords) {
@@ -694,21 +673,13 @@
         });
       }
       const debouncedRefit = debounce(() => fitToInitialBounds({ duration: 0 }), 120);
+      const debouncedResolveCollisions = debounce(() => resolveLabelCollisions(), 80);
 
       function clearLabels(){
         while(labelMarkers.length){
-          const marker = labelMarkers.pop();
-          if (marker) marker.remove();
+          const entry = labelMarkers.pop();
+          if (entry?.marker) entry.marker.remove();
         }
-        labelMarkerMap.clear();
-      }
-
-      function computeLabelPoint(feature){
-        try {
-          const centerFeature = turf.centerOfMass(feature);
-          if (centerFeature?.geometry?.coordinates) return centerFeature.geometry.coordinates;
-        } catch(e){}
-        return getFeatureBoundsCenter(feature.geometry.coordinates);
       }
 
       function addLabels(features){
@@ -716,17 +687,112 @@
         features
           .filter(f => f?.properties?.label && f.properties.label !== 'River Thames')
           .forEach(feature => {
-            const coords = computeLabelPoint(feature);
+            const coords = getFeatureBoundsCenter(feature.geometry.coordinates);
             const el = document.createElement('div');
             el.className = 'polygon-label';
             el.textContent = feature.properties.label;
             const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
               .setLngLat(coords)
               .addTo(map);
-            labelMarkers.push(marker);
-            labelMarkerMap.set(feature.properties.label, marker);
+            labelMarkers.push({ label: feature.properties.label, marker });
           });
+        resolveLabelCollisions();
+        setTimeout(resolveLabelCollisions, 160);
       }
+
+      function computeBaseLabelSize(){
+        const containerW = mapContainer?.clientWidth || window.innerWidth;
+        const w = Math.max(containerW, 320);
+        if (w <= 420) return 10.5;
+        if (w <= 640) return 11.5;
+        if (w <= 900) return 12.5;
+        return 13.5;
+      }
+
+      function applyLabelSizing(sizeMap){
+        labelMarkers.forEach(entry => {
+          const size = sizeMap.get(entry.marker) || computeBaseLabelSize();
+          const el = entry.marker.getElement();
+          const paddingY = Math.max(3, Math.round(size * 0.32));
+          const paddingX = Math.max(6, Math.round(size * 0.6));
+          const radius = Math.max(6, Math.round(size * 0.75));
+          el.style.fontSize = `${size}px`;
+          el.style.padding = `${paddingY}px ${paddingX}px`;
+          el.style.borderRadius = `${radius}px`;
+        });
+      }
+
+      function resolveLabelCollisions(){
+        if (!labelMarkers.length) return;
+        const baseSize = computeBaseLabelSize();
+        const minSize = 9;
+        const sizeMap = new Map();
+        labelMarkers.forEach(entry => sizeMap.set(entry.marker, baseSize));
+        applyLabelSizing(sizeMap);
+
+        const containerRect = mapContainer.getBoundingClientRect();
+        let iterations = 0;
+        while (iterations < 50){
+          const positions = labelMarkers.map(entry => {
+            const rect = entry.marker.getElement().getBoundingClientRect();
+            return {
+              marker: entry.marker,
+              rect: {
+                left: rect.left - containerRect.left,
+                top: rect.top - containerRect.top,
+                right: rect.right - containerRect.left,
+                bottom: rect.bottom - containerRect.top
+              }
+            };
+          });
+
+          let adjusted = false;
+          for (let i = 0; i < positions.length; i++){
+            for (let j = i + 1; j < positions.length; j++){
+              const a = positions[i].rect;
+              const b = positions[j].rect;
+              const overlapping = !(a.right <= b.left || a.left >= b.right || a.bottom <= b.top || a.top >= b.bottom);
+              if (overlapping){
+                const markerA = positions[i].marker;
+                const markerB = positions[j].marker;
+                const sizeA = sizeMap.get(markerA);
+                const sizeB = sizeMap.get(markerB);
+                const targetMarker = sizeA >= sizeB ? markerA : markerB;
+                const currentSize = sizeMap.get(targetMarker);
+                if (currentSize <= minSize) continue;
+                sizeMap.set(targetMarker, currentSize - 0.8);
+                adjusted = true;
+                break;
+              }
+            }
+            if (adjusted) break;
+          }
+
+          if (!adjusted) break;
+          applyLabelSizing(sizeMap);
+          iterations++;
+        }
+      }
+
+      // Keep map sized & fitted when UI changes
+      new ResizeObserver(() => { map.resize(); debouncedRefit(); debouncedResolveCollisions(); }).observe(mapContainer);
+      window.addEventListener('resize', () => { map.resize(); debouncedRefit(); debouncedResolveCollisions(); });
+      window.addEventListener('orientationchange', () => { map.resize(); debouncedRefit(); debouncedResolveCollisions(); });
+
+      async function updateHeaderHeight(){
+        if (document.fonts && document.fonts.ready) {
+          try { await document.fonts.ready; } catch(e){}
+        }
+        const h = Math.ceil(headerEl.getBoundingClientRect().height);
+        root.style.setProperty('--header-h', h + 'px');
+        map.resize();
+        debouncedRefit();
+        debouncedResolveCollisions();
+      }
+      updateHeaderHeight();
+      const headerRO = new ResizeObserver(() => updateHeaderHeight());
+      headerRO.observe(headerEl);
+      map.once('load', () => map.resize());
 
       map.on('load', function () {
         var cacheBuster = '?v=' + Date.now();
