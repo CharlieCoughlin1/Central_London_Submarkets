@@ -20,18 +20,19 @@
         --shadow-1:0 4px 12px rgba(0,0,0,.12);
         --popup-accent: var(--brand);
         --header-h: 0px;
+        --table-w: 420px;
+        --table-offset: 0px;
+        --table-gap: 12px;
       }
 
-      html, body {
-        height:100%;
-        overflow:hidden; /* Full-screen map layout */
-      }
+      html, body { height:100%; }
       body {
         margin:0;
         display:block;
         background:var(--surface);
         color:var(--ink);
         font-family:"DIN Pro","DINPro",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+        overflow:hidden;
       }
       .site-header{
         position:fixed;
@@ -58,7 +59,7 @@
       #map{
         position:fixed;
         top:var(--header-h);
-        left:0;
+        left:var(--table-offset);
         right:0;
         bottom:0;
         min-height:320px;
@@ -103,14 +104,16 @@
 
       /* Right-side rents table button + panel */
       .panel-controls{
-        position:absolute;
-        top:12px;
-        right:12px;
+        position:fixed;
+        top:calc(var(--header-h) + 12px);
+        left:12px;
         display:flex;
         flex-direction:column;
-        align-items:flex-end;
+        align-items:stretch;
         gap:8px;
         z-index:6;
+        width:var(--table-w);
+        max-width:95vw;
       }
       .table-toggle{
         appearance:none;
@@ -125,32 +128,22 @@
         font-size:.85rem;
         cursor:pointer;
         transition:background .12s ease, transform .06s ease;
+        text-align:left;
       }
       .table-toggle:hover{ background:#fff; }
       .table-toggle:active{ transform:translateY(1px); }
 
       .table-panel{
-        position:absolute;
-        top:calc(100% + 8px);
-        right:0;
-        width:min(520px, 95vw);
-        max-height:min(62vh, 640px);
+        position:relative;
+        width:100%;
+        max-height:calc(100vh - var(--header-h) - 40px);
         background:var(--surface);
         border:1px solid var(--stroke);
         border-radius:10px;
         box-shadow:var(--shadow-1);
         overflow:hidden;
-        opacity:0;
-        transform:translateY(6px);
-        visibility:hidden;
-        transition:opacity .18s ease, transform .18s ease, visibility 0s linear .18s;
       }
-      .table-panel.open{
-        opacity:1;
-        transform:translateY(0);
-        visibility:visible;
-        transition:opacity .18s ease, transform .18s ease;
-      }
+      .table-panel[aria-hidden="true"]{ display:none; }
       .table-panel .panel-accent{
         height:3px;
         background:var(--brand);
@@ -194,6 +187,29 @@
         border-spacing:0;
         font-variant-numeric:tabular-nums;
       }
+      body.table-open{ --table-offset: calc(var(--table-w) + var(--table-gap)); }
+      body.table-collapsed{ --table-offset: 0px; }
+
+      .sort-button{
+        appearance:none;
+        background:none;
+        border:none;
+        padding:0;
+        color:inherit;
+        font:inherit;
+        font-weight:800;
+        display:inline-flex;
+        align-items:center;
+        gap:6px;
+        cursor:pointer;
+      }
+      .sort-button .sort-indicator{
+        font-size:.8rem;
+        color:var(--muted-ink);
+        opacity:.6;
+        transition:opacity .12s ease;
+      }
+      .sort-button:hover .sort-indicator{ opacity:1; }
       .rent-table caption{
         caption-side:bottom;
         text-align:right;
@@ -257,10 +273,10 @@
         margin:0 6px 2px;
         text-align:center;
         color:var(--muted-ink);
-        font-weight:800;
+        font-weight:900;
         letter-spacing:.6px;
         text-transform:uppercase;
-        font-size:.78rem;
+        font-size:.9rem;
       }
       .logo-viewport{
         position:relative;
@@ -313,7 +329,7 @@
       }
       .logo-strip img{
         display:block;
-        height:50px;       /* larger logos */
+        height:56px;       /* larger logos */
         max-width:220px;
         object-fit:contain;
         opacity:.98;
@@ -410,9 +426,9 @@
     <div id="map">
       <!-- Right-side toggle and drop-down panel for the table -->
       <div class="panel-controls">
-        <button class="table-toggle" type="button" aria-expanded="false" aria-controls="rents-panel" title="Open rents table">Rents Table</button>
+        <button class="table-toggle" type="button" aria-expanded="true" aria-controls="rents-panel" title="Collapse rents table">Collapse Rents Table</button>
 
-        <aside id="rents-panel" class="table-panel" role="dialog" aria-labelledby="rents-panel-title" aria-hidden="true">
+        <aside id="rents-panel" class="table-panel" role="dialog" aria-labelledby="rents-panel-title" aria-hidden="false">
           <div class="panel-accent" aria-hidden="true"></div>
           <div class="panel-header">
             <h2 id="rents-panel-title" class="panel-title">Central London Office Rents</h2>
@@ -423,9 +439,9 @@
               <caption id="rents-caption">*All prices are per sq ft</caption>
               <thead>
                 <tr>
-                  <th scope="col">Submarket</th>
-                  <th scope="col">Grade A</th>
-                  <th scope="col">Grade B</th>
+                  <th scope="col"><button class="sort-button" type="button" data-sort="submarket" aria-sort="ascending">Submarket <span class="sort-indicator">⇅</span></button></th>
+                  <th scope="col"><button class="sort-button" type="button" data-sort="priceA" aria-sort="none">Grade A <span class="sort-indicator">⇅</span></button></th>
+                  <th scope="col"><button class="sort-button" type="button" data-sort="priceB" aria-sort="none">Grade B <span class="sort-indicator">⇅</span></button></th>
                 </tr>
               </thead>
               <tbody></tbody>
@@ -441,7 +457,7 @@
     <div class="logo-marquee" id="logo-marquee" role="region" aria-label="Clients we work with">
       <div class="logo-accent" aria-hidden="true"></div>
       <div class="logo-banner-inner">
-        <p class="banner-subtitle">Trusted by leading London office occupiers</p>
+        <p class="banner-subtitle">TRUSTED BY LEADING OFFICE OCCUPIERS</p>
         <div class="logo-viewport">
           <div class="logo-track" id="logo-track">
             <!-- JS injects two identical strips for a seamless left-to-right scroll -->
@@ -542,9 +558,18 @@
       const water = getComputedStyle(document.documentElement).getPropertyValue('--water').trim();
       const waterStroke = getComputedStyle(document.documentElement).getPropertyValue('--water-stroke').trim();
       const labelMarkers = [];
+      const labelMarkerMap = new Map();
+
+      function setLabelVisibility(label, isVisible){
+        const marker = labelMarkerMap.get(label);
+        if (!marker) return;
+        const el = marker.getElement();
+        if (el) el.style.visibility = isVisible ? 'visible' : 'hidden';
+      }
 
       function setHover(id, isHovering) {
         map.setFeatureState({ source: 'subdistricts', id }, { hover: isHovering });
+        setLabelVisibility(id, !isHovering);
       }
 
       function getFeatureBoundsCenter(coords) {
@@ -665,6 +690,7 @@
           const marker = labelMarkers.pop();
           if (marker) marker.remove();
         }
+        labelMarkerMap.clear();
       }
 
       function computeLabelPoint(feature){
@@ -688,6 +714,7 @@
               .setLngLat(coords)
               .addTo(map);
             labelMarkers.push(marker);
+            labelMarkerMap.set(feature.properties.label, marker);
           });
       }
 
@@ -868,47 +895,139 @@
       });
 
       /* === Rents Table: populate + panel behavior === */
-      function buildRentsTable(){
+      const tableState = { sortKey: 'submarket', direction: 'asc' };
+
+      function priceToNumber(value){
+        if (typeof value !== 'string') return null;
+        const cleaned = parseFloat(value.replace(/[^0-9.]/g, ''));
+        return Number.isFinite(cleaned) ? cleaned : null;
+      }
+
+      function getTableRows(){
+        return Object.keys(priceData)
+          .filter(label => label !== 'River Thames')
+          .map(label => ({
+            submarket: label,
+            priceAText: priceData[label]?.A || '—',
+            priceBText: priceData[label]?.B || '—',
+            priceA: priceToNumber(priceData[label]?.A),
+            priceB: priceToNumber(priceData[label]?.B),
+            url: labelToUrl[label] || ''
+          }));
+      }
+
+      function applySort(rows){
+        const dir = tableState.direction === 'desc' ? -1 : 1;
+        const key = tableState.sortKey;
+        const fallback = dir === -1 ? -Infinity : Infinity;
+
+        return rows.sort((a, b) => {
+          let cmp = 0;
+          if (key === 'submarket') {
+            cmp = a.submarket.localeCompare(b.submarket);
+          } else {
+            const aVal = typeof a[key] === 'number' ? a[key] : fallback;
+            const bVal = typeof b[key] === 'number' ? b[key] : fallback;
+            cmp = aVal === bVal ? 0 : (aVal < bVal ? -1 : 1);
+          }
+          return cmp * dir;
+        });
+      }
+
+      function updateSortIndicators(){
+        document.querySelectorAll('.sort-button').forEach(btn => {
+          const key = btn.getAttribute('data-sort');
+          const th = btn.closest('th');
+          const indicator = btn.querySelector('.sort-indicator');
+          const isActive = key === tableState.sortKey;
+          const dir = tableState.direction;
+
+          const ariaValue = isActive ? (dir === 'desc' ? 'descending' : 'ascending') : 'none';
+          btn.setAttribute('aria-sort', ariaValue);
+          if (th) th.setAttribute('aria-sort', ariaValue);
+          if (indicator) indicator.textContent = isActive ? (dir === 'desc' ? '↓' : '↑') : '⇅';
+        });
+      }
+
+      function enforceVisibleRows(){
+        const scroller = document.querySelector('.table-scroller');
+        const tbody = document.querySelector('#rents-table tbody');
+        const thead = document.querySelector('#rents-table thead');
+        if (!scroller || !tbody) return;
+        const firstRow = tbody.querySelector('tr');
+        const rowH = firstRow ? firstRow.getBoundingClientRect().height : 0;
+        const headH = thead ? thead.getBoundingClientRect().height : 0;
+        if (rowH) {
+          scroller.style.maxHeight = `${headH + rowH * 8}px`;
+        }
+      }
+
+      function renderTable(){
         const tbody = document.querySelector('#rents-table tbody');
         if (!tbody) return;
-        const labels = Object.keys(priceData)
-          .filter(l => l !== 'River Thames')
-          .sort((a,b)=> a.localeCompare(b));
-
         const frag = document.createDocumentFragment();
-        for (const label of labels){
+        const rows = applySort(getTableRows());
+
+        rows.forEach(row => {
           const tr = document.createElement('tr');
 
           const tdLabel = document.createElement('td');
-          const url = labelToUrl[label];
-          if (url){
+          if (row.url){
             const a = document.createElement('a');
-            a.href = url;
+            a.href = row.url;
             a.target = '_blank';
             a.rel = 'noopener';
-            a.textContent = label;
-            a.title = `Open ${label} dashboard`;
+            a.textContent = row.submarket;
+            a.title = `Open ${row.submarket} dashboard`;
             tdLabel.appendChild(a);
           } else {
             const span = document.createElement('span');
-            span.textContent = label;
+            span.textContent = row.submarket;
             span.className = 'no-link';
             tdLabel.appendChild(span);
           }
 
           const tdA = document.createElement('td');
-          tdA.textContent = priceData[label]?.A || '—';
+          tdA.textContent = row.priceAText;
 
           const tdB = document.createElement('td');
-          tdB.textContent = priceData[label]?.B || '—';
+          tdB.textContent = row.priceBText;
 
           tr.appendChild(tdLabel);
           tr.appendChild(tdA);
           tr.appendChild(tdB);
           frag.appendChild(tr);
-        }
+        });
         tbody.innerHTML = '';
         tbody.appendChild(frag);
+        requestAnimationFrame(enforceVisibleRows);
+      }
+
+      function setupSorting(){
+        document.querySelectorAll('.sort-button').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const key = btn.getAttribute('data-sort');
+            if (!key) return;
+            if (tableState.sortKey === key) {
+              tableState.direction = tableState.direction === 'desc' ? 'asc' : 'desc';
+            } else {
+              tableState.sortKey = key;
+              tableState.direction = key === 'submarket' ? 'asc' : 'desc';
+            }
+            updateSortIndicators();
+            renderTable();
+          });
+        });
+        updateSortIndicators();
+      }
+
+      function buildRentsTable(){
+        renderTable();
+        setupSorting();
+        window.addEventListener('resize', enforceVisibleRows);
+        if (document.fonts && document.fonts.ready) {
+          document.fonts.ready.then(enforceVisibleRows).catch(() => {});
+        }
       }
 
       function setupPanel(){
@@ -918,34 +1037,43 @@
 
         if (!toggleBtn || !panel || !closeBtn) return;
 
+        function syncMapLayout(){
+          map.resize();
+          debouncedRefit();
+        }
+
         function openPanel(){
-          panel.classList.add('open');
-          toggleBtn.setAttribute('aria-expanded', 'true');
+          document.body.classList.add('table-open');
+          document.body.classList.remove('table-collapsed');
           panel.setAttribute('aria-hidden', 'false');
+          toggleBtn.setAttribute('aria-expanded', 'true');
+          toggleBtn.textContent = 'Collapse Rents Table';
+          toggleBtn.title = 'Collapse rents table';
+          syncMapLayout();
         }
         function closePanel(){
-          panel.classList.remove('open');
-          toggleBtn.setAttribute('aria-expanded', 'false');
+          document.body.classList.remove('table-open');
+          document.body.classList.add('table-collapsed');
           panel.setAttribute('aria-hidden', 'true');
+          toggleBtn.setAttribute('aria-expanded', 'false');
+          toggleBtn.textContent = 'Show Rents Table';
+          toggleBtn.title = 'Show rents table';
+          syncMapLayout();
         }
         function togglePanel(){
-          if (panel.classList.contains('open')) closePanel(); else openPanel();
+          const isHidden = panel.getAttribute('aria-hidden') === 'true';
+          if (isHidden) openPanel(); else closePanel();
         }
 
         toggleBtn.addEventListener('click', togglePanel);
         closeBtn.addEventListener('click', closePanel);
 
-        // Close on Escape
         document.addEventListener('keydown', (e) => {
           if (e.key === 'Escape') closePanel();
         });
 
-        // Close when clicking outside
-        document.addEventListener('click', (e) => {
-          if (!panel.contains(e.target) && !toggleBtn.contains(e.target)) {
-            closePanel();
-          }
-        });
+        // Open by default on load
+        openPanel();
       }
 
       /* === Client logos marquee ===
