@@ -80,7 +80,7 @@
         color:var(--ink);
         font-family:"DIN Pro","DINPro",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
         font-weight:800;
-        font-size:clamp(.7rem, 1vw + .44rem, .86rem);
+        font-size:0.85rem;
         letter-spacing:.3px;
         text-transform:uppercase;
         text-align:center;
@@ -102,6 +102,13 @@
         font-size:.7rem;
         color:var(--muted-ink);
         z-index:3;
+      }
+
+      /* Hide table + labels in non-desktop views */
+      body:not(.is-desktop) .panel-controls,
+      body:not(.is-desktop) .psf-control,
+      body:not(.is-desktop) .polygon-label{
+        display:none !important;
       }
 
       /* Right-side rents table button + panel */
@@ -354,7 +361,6 @@
         body.table-open{ --table-offset: 0px; }
         .panel-controls{ width:calc(100vw - 24px); left:12px; }
         .table-toggle{ text-align:center; }
-        .polygon-label{ font-size:clamp(.68rem, 1.8vw, .8rem); padding:3px 6px; }
       }
       @media (max-width:720px){
         :root{ --table-gap: 10px; }
@@ -544,6 +550,7 @@
       map.getCanvas().style.cursor = 'default';
 
       const mapContainer = document.getElementById('map');
+      const desktopMedia = window.matchMedia('(min-width: 1200px)');
 
       let hoveredId = null;
       const popup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, className: 'custom-popup', maxWidth: '260px' });
@@ -556,6 +563,13 @@
       const water = getComputedStyle(document.documentElement).getPropertyValue('--water').trim();
       const waterStroke = getComputedStyle(document.documentElement).getPropertyValue('--water-stroke').trim();
       const labelMarkers = [];
+      let geojsonFeatures = null;
+      let closePanelForDesktop = null;
+      let openPanelForDesktop = null;
+
+      function isDesktopView(){
+        return desktopMedia.matches;
+      }
 
       function setHover(id, isHovering) {
         map.setFeatureState({ source: 'subdistricts', id }, { hover: isHovering });
@@ -673,7 +687,6 @@
         });
       }
       const debouncedRefit = debounce(() => fitToInitialBounds({ duration: 0 }), 120);
-      const debouncedResolveCollisions = debounce(() => resolveLabelCollisions(), 80);
 
       function clearLabels(){
         while(labelMarkers.length){
@@ -684,6 +697,7 @@
 
       function addLabels(features){
         clearLabels();
+        if (!isDesktopView() || !Array.isArray(features)) return;
         features
           .filter(f => f?.properties?.label && f.properties.label !== 'River Thames')
           .forEach(feature => {
@@ -696,88 +710,29 @@
               .addTo(map);
             labelMarkers.push({ label: feature.properties.label, marker });
           });
-        resolveLabelCollisions();
-        setTimeout(resolveLabelCollisions, 160);
       }
 
-      function computeBaseLabelSize(){
-        const containerW = mapContainer?.clientWidth || window.innerWidth;
-        const w = Math.max(containerW, 320);
-        if (w <= 420) return 10.5;
-        if (w <= 640) return 11.5;
-        if (w <= 900) return 12.5;
-        return 13.5;
-      }
-
-      function applyLabelSizing(sizeMap){
-        labelMarkers.forEach(entry => {
-          const size = sizeMap.get(entry.marker) || computeBaseLabelSize();
-          const el = entry.marker.getElement();
-          const paddingY = Math.max(3, Math.round(size * 0.32));
-          const paddingX = Math.max(6, Math.round(size * 0.6));
-          const radius = Math.max(6, Math.round(size * 0.75));
-          el.style.fontSize = `${size}px`;
-          el.style.padding = `${paddingY}px ${paddingX}px`;
-          el.style.borderRadius = `${radius}px`;
-        });
-      }
-
-      function resolveLabelCollisions(){
-        if (!labelMarkers.length) return;
-        const baseSize = computeBaseLabelSize();
-        const minSize = 9;
-        const sizeMap = new Map();
-        labelMarkers.forEach(entry => sizeMap.set(entry.marker, baseSize));
-        applyLabelSizing(sizeMap);
-
-        const containerRect = mapContainer.getBoundingClientRect();
-        let iterations = 0;
-        while (iterations < 50){
-          const positions = labelMarkers.map(entry => {
-            const rect = entry.marker.getElement().getBoundingClientRect();
-            return {
-              marker: entry.marker,
-              rect: {
-                left: rect.left - containerRect.left,
-                top: rect.top - containerRect.top,
-                right: rect.right - containerRect.left,
-                bottom: rect.bottom - containerRect.top
-              }
-            };
-          });
-
-          let adjusted = false;
-          for (let i = 0; i < positions.length; i++){
-            for (let j = i + 1; j < positions.length; j++){
-              const a = positions[i].rect;
-              const b = positions[j].rect;
-              const overlapping = !(a.right <= b.left || a.left >= b.right || a.bottom <= b.top || a.top >= b.bottom);
-              if (overlapping){
-                const markerA = positions[i].marker;
-                const markerB = positions[j].marker;
-                const sizeA = sizeMap.get(markerA);
-                const sizeB = sizeMap.get(markerB);
-                const targetMarker = sizeA >= sizeB ? markerA : markerB;
-                const currentSize = sizeMap.get(targetMarker);
-                if (currentSize <= minSize) continue;
-                sizeMap.set(targetMarker, currentSize - 0.8);
-                adjusted = true;
-                break;
-              }
-            }
-            if (adjusted) break;
-          }
-
-          if (!adjusted) break;
-          applyLabelSizing(sizeMap);
-          iterations++;
+      function syncDesktopMode(){
+        const desktop = isDesktopView();
+        document.body.classList.toggle('is-desktop', desktop);
+        if (!desktop){
+          clearLabels();
+          if (closePanelForDesktop) closePanelForDesktop({ reason: 'media' });
+        } else {
+          if (openPanelForDesktop) openPanelForDesktop();
+          if (geojsonFeatures) addLabels(geojsonFeatures);
         }
       }
 
       // Keep map sized & fitted when UI changes
-      new ResizeObserver(() => { map.resize(); debouncedRefit(); debouncedResolveCollisions(); }).observe(mapContainer);
-      window.addEventListener('resize', () => { map.resize(); debouncedRefit(); debouncedResolveCollisions(); });
-      window.addEventListener('orientationchange', () => { map.resize(); debouncedRefit(); debouncedResolveCollisions(); });
+      new ResizeObserver(() => { map.resize(); debouncedRefit(); syncDesktopMode(); }).observe(mapContainer);
+      window.addEventListener('resize', () => { map.resize(); debouncedRefit(); syncDesktopMode(); });
+      window.addEventListener('orientationchange', () => { map.resize(); debouncedRefit(); syncDesktopMode(); });
+      if (desktopMedia.addEventListener) {
+        desktopMedia.addEventListener('change', syncDesktopMode);
+      } else if (desktopMedia.addListener) {
+        desktopMedia.addListener(syncDesktopMode);
+      }
 
       async function updateHeaderHeight(){
         if (document.fonts && document.fonts.ready) {
@@ -787,7 +742,7 @@
         root.style.setProperty('--header-h', h + 'px');
         map.resize();
         debouncedRefit();
-        debouncedResolveCollisions();
+        syncDesktopMode();
       }
       updateHeaderHeight();
       const headerRO = new ResizeObserver(() => updateHeaderHeight());
@@ -902,7 +857,8 @@
             });
             initialBounds = bounds;
             fitToInitialBounds({ duration: 0 });
-            addLabels(data.features);
+            geojsonFeatures = data.features;
+            syncDesktopMode();
 
             // Interaction (hover shows popup; no persistent labels)
             function handleMove(e) {
@@ -1154,6 +1110,9 @@
           }
         }
 
+        closePanelForDesktop = closePanel;
+        openPanelForDesktop = openPanel;
+
         toggleBtn.addEventListener('click', togglePanel);
         closeBtn.addEventListener('click', closePanel);
 
@@ -1313,11 +1272,13 @@
       if (document.readyState !== 'loading') {
         buildRentsTable();
         setupPanel();
+        syncDesktopMode();
         initLogos();
       } else {
         document.addEventListener('DOMContentLoaded', () => {
           buildRentsTable();
           setupPanel();
+          syncDesktopMode();
           initLogos();
         });
       }
