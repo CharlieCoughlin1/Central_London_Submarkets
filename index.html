@@ -87,6 +87,7 @@
         min-height:calc(200vh);
         background:var(--ui);
         margin-top:-220px;
+        overflow:hidden;
       }
 
       #map{
@@ -94,6 +95,8 @@
         top:0;
         left:0;
         right:0;
+        width:calc(100% + 32px);
+        margin-left:-16px;
         height:calc(100vh + var(--header-h));
         min-height:880px;
         background:var(--ui);
@@ -299,9 +302,9 @@
         text-align:left;
         color:#E8EEF9;
         font-weight:900;
-        letter-spacing:.5px;
-        text-transform:uppercase;
-        font-size:.8rem;
+        letter-spacing:.25px;
+        text-transform:none;
+        font-size:1rem;
       }
       .logo-viewport{
         position:relative;
@@ -314,17 +317,17 @@
         content:"";
         position:absolute;
         top:0; bottom:0;
-        width:22px;
+        width:0;
         pointer-events:none;
         z-index:1;
       }
       .logo-viewport::before{
         left:0;
-        background:linear-gradient(to right, rgba(12,16,32,0.96), rgba(12,16,32,0));
+        background:none;
       }
       .logo-viewport::after{
         right:0;
-        background:linear-gradient(to left, rgba(12,16,32,0.96), rgba(12,16,32,0));
+        background:none;
       }
       .logo-track{
         display:flex;
@@ -490,6 +493,19 @@
       </div>
     </section>
 
+    <!-- Client logos banner (outside #map so MapLibre cannot hide it) -->
+    <div class="logo-marquee" id="logo-marquee" role="region" aria-label="Clients we work with">
+      <div class="logo-accent" aria-hidden="true"></div>
+      <div class="logo-banner-inner">
+        <p class="banner-subtitle">Trusted by Leading Office Occupiers:</p>
+        <div class="logo-viewport">
+          <div class="logo-track" id="logo-track">
+            <!-- JS injects two identical strips for a seamless left-to-right scroll -->
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="data-view" id="data-view" aria-hidden="false">
       <aside id="rents-panel" class="table-panel" role="dialog" aria-labelledby="rents-panel-title" aria-hidden="false">
         <div class="panel-accent" aria-hidden="true"></div>
@@ -504,31 +520,14 @@
                 <tr>
                   <th scope="col"><button class="sort-button" type="button" data-sort="submarket" aria-sort="none">Submarket <span class="sort-indicator">⇅</span></button></th>
                   <th scope="col"><button class="sort-button" type="button" data-sort="priceA" aria-sort="descending">Grade A <span class="sort-indicator">⇅</span></button></th>
-                  <th scope="col"><button class="sort-button" type="button" data-sort="totalCost" aria-sort="none">Total office costs <span class="sort-indicator">⇅</span></button></th>
-                  <th scope="col"><button class="sort-button" type="button" data-sort="availability" aria-sort="none">Availability <span class="sort-indicator">⇅</span></button></th>
-                  <th scope="col"><button class="sort-button" type="button" data-sort="stock" aria-sort="none">Stock <span class="sort-indicator">⇅</span></button></th>
-                  <th scope="col"><button class="sort-button" type="button" data-sort="connectivityScore" aria-sort="none">Connectivity score <span class="sort-indicator">⇅</span></button></th>
-                  <th scope="col"><button class="sort-button" type="button" data-sort="amenityScore" aria-sort="none">Amenity score <span class="sort-indicator">⇅</span></button></th>
-                  <th scope="col"><button class="sort-button" type="button" data-sort="vitalityScore" aria-sort="none">Vitality score <span class="sort-indicator">⇅</span></button></th>
+                  <th scope="col"><button class="sort-button" type="button" data-sort="totalCost" aria-sort="none">Total cost: Rent, Rates and Service Charge <span class="sort-indicator">⇅</span></button></th>
+                  <th scope="col"><button class="sort-button" type="button" data-sort="totalCostChange" aria-sort="none">Total Cost Percentage Change (Last 12-months, %) <span class="sort-indicator">⇅</span></button></th>
                 </tr>
             </thead>
             <tbody></tbody>
           </table>
         </div>
       </aside>
-    </div>
-
-    <!-- Client logos banner (outside #map so MapLibre cannot hide it) -->
-    <div class="logo-marquee" id="logo-marquee" role="region" aria-label="Clients we work with">
-      <div class="logo-accent" aria-hidden="true"></div>
-      <div class="logo-banner-inner">
-        <p class="banner-subtitle">TRUSTED BY LEADING OFFICE OCCUPIERS</p>
-        <div class="logo-viewport">
-          <div class="logo-track" id="logo-track">
-            <!-- JS injects two identical strips for a seamless left-to-right scroll -->
-          </div>
-        </div>
-      </div>
     </div>
 
     <script src="vendor/maplibre-gl/maplibre-gl.js"></script>
@@ -560,11 +559,7 @@
 
       const defaultMetrics = {
         totalCost: '',
-        availability: '—',
-        stock: '—',
-        connectivityScore: '—',
-        amenityScore: '—',
-        vitalityScore: '—'
+        totalCostChange: ''
       };
 
       const submarketMetrics = {
@@ -1217,16 +1212,8 @@
               priceA: priceToNumber(priceData[label]?.A),
               totalCostText: (submarketMetrics[label]?.totalCost ?? defaultMetrics.totalCost),
               totalCost: metricToNumber(submarketMetrics[label]?.totalCost ?? defaultMetrics.totalCost),
-              availabilityText: (submarketMetrics[label]?.availability ?? defaultMetrics.availability),
-              availability: metricToNumber(submarketMetrics[label]?.availability ?? defaultMetrics.availability),
-              stockText: (submarketMetrics[label]?.stock ?? defaultMetrics.stock),
-              stock: metricToNumber(submarketMetrics[label]?.stock ?? defaultMetrics.stock),
-              connectivityScoreText: (submarketMetrics[label]?.connectivityScore ?? defaultMetrics.connectivityScore),
-              connectivityScore: metricToNumber(submarketMetrics[label]?.connectivityScore ?? defaultMetrics.connectivityScore),
-              amenityScoreText: (submarketMetrics[label]?.amenityScore ?? defaultMetrics.amenityScore),
-              amenityScore: metricToNumber(submarketMetrics[label]?.amenityScore ?? defaultMetrics.amenityScore),
-              vitalityScoreText: (submarketMetrics[label]?.vitalityScore ?? defaultMetrics.vitalityScore),
-              vitalityScore: metricToNumber(submarketMetrics[label]?.vitalityScore ?? defaultMetrics.vitalityScore),
+              totalCostChangeText: (submarketMetrics[label]?.totalCostChange ?? defaultMetrics.totalCostChange),
+              totalCostChange: metricToNumber(submarketMetrics[label]?.totalCostChange ?? defaultMetrics.totalCostChange)
             }));
         }
 
@@ -1287,21 +1274,21 @@
             const tr = document.createElement('tr');
             tr.dataset.label = row.submarket;
 
-          const tdLabel = document.createElement('td');
-          if (row.url){
-            const a = document.createElement('a');
-            a.href = row.url;
-            a.target = '_blank';
-            a.rel = 'noopener';
-            a.textContent = row.submarket;
-            a.title = `Open ${row.submarket} dashboard`;
-            tdLabel.appendChild(a);
-          } else {
-            const span = document.createElement('span');
-            span.textContent = row.submarket;
-            span.className = 'no-link';
-            tdLabel.appendChild(span);
-          }
+            const tdLabel = document.createElement('td');
+            if (row.url){
+              const a = document.createElement('a');
+              a.href = row.url;
+              a.target = '_blank';
+              a.rel = 'noopener';
+              a.textContent = row.submarket;
+              a.title = `Open ${row.submarket} dashboard`;
+              tdLabel.appendChild(a);
+            } else {
+              const span = document.createElement('span');
+              span.textContent = row.submarket;
+              span.className = 'no-link';
+              tdLabel.appendChild(span);
+            }
 
             const tdA = document.createElement('td');
             tdA.textContent = row.priceAText;
@@ -1309,29 +1296,13 @@
             const tdTotal = document.createElement('td');
             tdTotal.textContent = row.totalCostText;
 
-            const tdAvailability = document.createElement('td');
-            tdAvailability.textContent = row.availabilityText;
-
-            const tdStock = document.createElement('td');
-            tdStock.textContent = row.stockText;
-
-            const tdConnectivity = document.createElement('td');
-            tdConnectivity.textContent = row.connectivityScoreText;
-
-            const tdAmenity = document.createElement('td');
-            tdAmenity.textContent = row.amenityScoreText;
-
-            const tdVitality = document.createElement('td');
-            tdVitality.textContent = row.vitalityScoreText;
+            const tdTotalChange = document.createElement('td');
+            tdTotalChange.textContent = row.totalCostChangeText;
 
             tr.appendChild(tdLabel);
             tr.appendChild(tdA);
             tr.appendChild(tdTotal);
-            tr.appendChild(tdAvailability);
-            tr.appendChild(tdStock);
-            tr.appendChild(tdConnectivity);
-            tr.appendChild(tdAmenity);
-            tr.appendChild(tdVitality);
+            tr.appendChild(tdTotalChange);
             frag.appendChild(tr);
           });
         tbody.innerHTML = '';
