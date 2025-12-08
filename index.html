@@ -78,6 +78,7 @@
       .stat-card h3{ margin:0 0 6px; font-size:.92rem; letter-spacing:.35px; text-transform:uppercase; }
       .stat-card .stat-value{ font-size:1.6rem; font-weight:900; display:block; letter-spacing:.4px; }
       .stat-card small{ display:block; color:#E4E8F1; opacity:.82; line-height:1.35; }
+      .stat-subtext{ font-size:.88rem; opacity:.85; }
       .stat-stack{ display:grid; gap:8px; }
       .glow-ring{ position:absolute; inset:-22% -8% -32% auto; width:240px; height:240px; background:radial-gradient(circle, rgba(255,86,102,0.32), rgba(204,32,48,0)); filter:blur(16px); opacity:.8; pointer-events:none; }
 
@@ -85,7 +86,7 @@
         position:relative;
         min-height:calc(200vh);
         background:var(--ui);
-        margin-top:-140px;
+        margin-top:-220px;
       }
 
       #map{
@@ -239,9 +240,9 @@
       }
       .sort-button:hover .sort-indicator{ opacity:1; }
       .rent-table caption{
-        caption-side:bottom;
-        text-align:right;
-        padding:10px 12px;
+        caption-side:top;
+        text-align:left;
+        padding:12px 14px 8px;
         color:var(--muted-ink);
         font-size:.85rem;
       }
@@ -280,25 +281,27 @@
         inset:auto;
         width:100%;
         z-index:5; /* Below PSF note (z:3) & table UI (z:6); above the map */
-        background:#3f4040;
+        background:transparent;
         border:none;
         border-radius:0;
         box-shadow:none;
         pointer-events:none; /* never block map interactions */
         backdrop-filter:none;
-        padding:0;
-        margin:0;
+        padding:8px 0 12px;
+        margin:8px 0 0;
+        display:flex;
+        justify-content:center;
       }
       .logo-marquee .logo-accent{ display:none; }
-      .logo-banner-inner{ padding:18px 22px; max-width:1240px; margin:0 auto; }
+      .logo-banner-inner{ padding:12px 16px; max-width:1240px; margin:0 auto; background:#3f4040; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,0.18); }
       .banner-subtitle{
-        margin:0 0 8px;
+        margin:0 0 6px;
         text-align:left;
         color:#E8EEF9;
         font-weight:900;
         letter-spacing:.5px;
         text-transform:uppercase;
-        font-size:.85rem;
+        font-size:.8rem;
       }
       .logo-viewport{
         position:relative;
@@ -461,7 +464,7 @@
         <div class="hero-copy">
           <span class="eyebrow">Central London office submarkets</span>
           <h1 class="hero-title">Find the right location for your next London office</h1>
-          <p class="hero-lede">Quickly assess each submarket with an interactive map, verified rental benchmarks, and availability detail tailored for occupiers.</p>
+          <p class="hero-lede">Select a submarket on the map below to explore tailored benchmarks, availability, and occupier-ready detail.</p>
           <div class="cta-row" role="group" aria-label="Toggle between map and data views">
             <button class="btn btn-toggle is-active" type="button" data-action="show-map" aria-pressed="true">Explore the map</button>
             <button class="btn btn-toggle" type="button" data-action="show-data" aria-pressed="false">View office costs</button>
@@ -472,8 +475,9 @@
           <div class="stat-stack">
             <div class="stat-card">
               <h3>Recent headline event</h3>
+              <small class="stat-subtext">Visa relocating European headquarters to Canary Wharf, leasing</small>
               <span class="stat-value">300,000 sq ft</span>
-              <small><strong>Visa</strong> relocating European headquarters to Canary Wharf, leasing<br><strong>300,000 sq ft</strong><br>at <strong>One Canada Square</strong></small>
+              <small class="stat-subtext">at <strong>One Canada Square</strong></small>
             </div>
           </div>
         </div>
@@ -497,11 +501,16 @@
           <table id="rents-table" class="rent-table" aria-describedby="rents-caption">
             <caption id="rents-caption">*All prices are per sq ft</caption>
             <thead>
-              <tr>
-                <th scope="col"><button class="sort-button" type="button" data-sort="submarket" aria-sort="ascending">Submarket <span class="sort-indicator">⇅</span></button></th>
-                <th scope="col"><button class="sort-button" type="button" data-sort="priceA" aria-sort="none">Grade A <span class="sort-indicator">⇅</span></button></th>
-                <th scope="col"><button class="sort-button" type="button" data-sort="priceB" aria-sort="none">Grade B <span class="sort-indicator">⇅</span></button></th>
-              </tr>
+                <tr>
+                  <th scope="col"><button class="sort-button" type="button" data-sort="submarket" aria-sort="none">Submarket <span class="sort-indicator">⇅</span></button></th>
+                  <th scope="col"><button class="sort-button" type="button" data-sort="priceA" aria-sort="descending">Grade A <span class="sort-indicator">⇅</span></button></th>
+                  <th scope="col"><button class="sort-button" type="button" data-sort="totalCost" aria-sort="none">Total office costs <span class="sort-indicator">⇅</span></button></th>
+                  <th scope="col"><button class="sort-button" type="button" data-sort="availability" aria-sort="none">Availability <span class="sort-indicator">⇅</span></button></th>
+                  <th scope="col"><button class="sort-button" type="button" data-sort="stock" aria-sort="none">Stock <span class="sort-indicator">⇅</span></button></th>
+                  <th scope="col"><button class="sort-button" type="button" data-sort="connectivityScore" aria-sort="none">Connectivity score <span class="sort-indicator">⇅</span></button></th>
+                  <th scope="col"><button class="sort-button" type="button" data-sort="amenityScore" aria-sort="none">Amenity score <span class="sort-indicator">⇅</span></button></th>
+                  <th scope="col"><button class="sort-button" type="button" data-sort="vitalityScore" aria-sort="none">Vitality score <span class="sort-indicator">⇅</span></button></th>
+                </tr>
             </thead>
             <tbody></tbody>
           </table>
@@ -547,6 +556,19 @@
         "White City / Shepherd's Bush": { A: "£58.00", B: "£40.00" },
         Hammersmith: { A: "£58.00", B: "£40.00" },
         "Knightsbridge / Belgravia": { A: "£90.00", B: "£60.00" }
+      };
+
+      const defaultMetrics = {
+        totalCost: '',
+        availability: '—',
+        stock: '—',
+        connectivityScore: '—',
+        amenityScore: '—',
+        vitalityScore: '—'
+      };
+
+      const submarketMetrics = {
+        // Add future submarket-specific metrics here. Defaults are used otherwise.
       };
 
       const labelToUrl = {
@@ -1168,7 +1190,7 @@
       });
 
       /* === Rents Table: populate + panel behavior === */
-      const tableState = { sortKey: 'submarket', direction: 'asc' };
+      const tableState = { sortKey: 'priceA', direction: 'desc' };
 
       function priceToNumber(value){
         if (typeof value !== 'string') return null;
@@ -1176,36 +1198,63 @@
         return Number.isFinite(cleaned) ? cleaned : null;
       }
 
-      function getTableRows(){
-        return Object.keys(priceData)
-          .filter(label => label !== 'River Thames')
-          .map(label => ({
-            submarket: label,
-            priceAText: priceData[label]?.A || '—',
-            priceBText: priceData[label]?.B || '—',
-            priceA: priceToNumber(priceData[label]?.A),
-            priceB: priceToNumber(priceData[label]?.B),
-            url: labelToUrl[label] || ''
-          }));
+      function metricToNumber(value){
+        if (typeof value === 'number') return Number.isFinite(value) ? value : null;
+        if (typeof value !== 'string') return null;
+        const trimmed = value.trim();
+        if (!trimmed) return null;
+        const cleaned = parseFloat(trimmed.replace(/[^0-9.]/g, ''));
+        return Number.isFinite(cleaned) ? cleaned : null;
       }
 
-      function applySort(rows){
-        const dir = tableState.direction === 'desc' ? -1 : 1;
-        const key = tableState.sortKey;
-        const fallback = dir === -1 ? -Infinity : Infinity;
+        function getTableRows(){
+          return Object.keys(priceData)
+            .filter(label => label !== 'River Thames')
+            .map(label => ({
+              submarket: label,
+              url: labelToUrl[label] || '',
+              priceAText: priceData[label]?.A || '—',
+              priceA: priceToNumber(priceData[label]?.A),
+              totalCostText: (submarketMetrics[label]?.totalCost ?? defaultMetrics.totalCost),
+              totalCost: metricToNumber(submarketMetrics[label]?.totalCost ?? defaultMetrics.totalCost),
+              availabilityText: (submarketMetrics[label]?.availability ?? defaultMetrics.availability),
+              availability: metricToNumber(submarketMetrics[label]?.availability ?? defaultMetrics.availability),
+              stockText: (submarketMetrics[label]?.stock ?? defaultMetrics.stock),
+              stock: metricToNumber(submarketMetrics[label]?.stock ?? defaultMetrics.stock),
+              connectivityScoreText: (submarketMetrics[label]?.connectivityScore ?? defaultMetrics.connectivityScore),
+              connectivityScore: metricToNumber(submarketMetrics[label]?.connectivityScore ?? defaultMetrics.connectivityScore),
+              amenityScoreText: (submarketMetrics[label]?.amenityScore ?? defaultMetrics.amenityScore),
+              amenityScore: metricToNumber(submarketMetrics[label]?.amenityScore ?? defaultMetrics.amenityScore),
+              vitalityScoreText: (submarketMetrics[label]?.vitalityScore ?? defaultMetrics.vitalityScore),
+              vitalityScore: metricToNumber(submarketMetrics[label]?.vitalityScore ?? defaultMetrics.vitalityScore),
+            }));
+        }
 
-        return rows.sort((a, b) => {
-          let cmp = 0;
-          if (key === 'submarket') {
-            cmp = a.submarket.localeCompare(b.submarket);
-          } else {
-            const aVal = typeof a[key] === 'number' ? a[key] : fallback;
-            const bVal = typeof b[key] === 'number' ? b[key] : fallback;
-            cmp = aVal === bVal ? 0 : (aVal < bVal ? -1 : 1);
-          }
-          return cmp * dir;
-        });
-      }
+        function applySort(rows){
+          const dir = tableState.direction === 'desc' ? -1 : 1;
+          const key = tableState.sortKey;
+
+          return rows.sort((a, b) => {
+            let cmp = 0;
+            const aVal = a[key];
+            const bVal = b[key];
+
+            if (typeof aVal === 'number' && typeof bVal === 'number') {
+              cmp = aVal === bVal ? 0 : (aVal < bVal ? -1 : 1);
+            } else if (typeof aVal === 'string' && typeof bVal === 'string') {
+              cmp = aVal.localeCompare(bVal);
+            } else if (aVal == null && bVal == null) {
+              cmp = 0;
+            } else if (aVal == null) {
+              cmp = 1;
+            } else if (bVal == null) {
+              cmp = -1;
+            } else {
+              cmp = aVal < bVal ? -1 : 1;
+            }
+            return cmp * dir;
+          });
+        }
 
       function updateSortIndicators(){
         document.querySelectorAll('.sort-button').forEach(btn => {
@@ -1234,9 +1283,9 @@
         const frag = document.createDocumentFragment();
         const rows = applySort(getTableRows());
 
-        rows.forEach(row => {
-          const tr = document.createElement('tr');
-          tr.dataset.label = row.submarket;
+          rows.forEach(row => {
+            const tr = document.createElement('tr');
+            tr.dataset.label = row.submarket;
 
           const tdLabel = document.createElement('td');
           if (row.url){
@@ -1254,17 +1303,37 @@
             tdLabel.appendChild(span);
           }
 
-          const tdA = document.createElement('td');
-          tdA.textContent = row.priceAText;
+            const tdA = document.createElement('td');
+            tdA.textContent = row.priceAText;
 
-          const tdB = document.createElement('td');
-          tdB.textContent = row.priceBText;
+            const tdTotal = document.createElement('td');
+            tdTotal.textContent = row.totalCostText;
 
-          tr.appendChild(tdLabel);
-          tr.appendChild(tdA);
-          tr.appendChild(tdB);
-          frag.appendChild(tr);
-        });
+            const tdAvailability = document.createElement('td');
+            tdAvailability.textContent = row.availabilityText;
+
+            const tdStock = document.createElement('td');
+            tdStock.textContent = row.stockText;
+
+            const tdConnectivity = document.createElement('td');
+            tdConnectivity.textContent = row.connectivityScoreText;
+
+            const tdAmenity = document.createElement('td');
+            tdAmenity.textContent = row.amenityScoreText;
+
+            const tdVitality = document.createElement('td');
+            tdVitality.textContent = row.vitalityScoreText;
+
+            tr.appendChild(tdLabel);
+            tr.appendChild(tdA);
+            tr.appendChild(tdTotal);
+            tr.appendChild(tdAvailability);
+            tr.appendChild(tdStock);
+            tr.appendChild(tdConnectivity);
+            tr.appendChild(tdAmenity);
+            tr.appendChild(tdVitality);
+            frag.appendChild(tr);
+          });
         tbody.innerHTML = '';
         tbody.appendChild(frag);
         requestAnimationFrame(enforceVisibleRows);
