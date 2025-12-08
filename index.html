@@ -83,7 +83,7 @@
 
       .map-stage{
         position:relative;
-        min-height:calc(166vh);
+        min-height:calc(190vh);
         background:var(--ui);
       }
 
@@ -92,8 +92,8 @@
         top:0;
         left:0;
         right:0;
-        height:calc(66vh + var(--header-h));
-        min-height:560px;
+        height:calc(78vh + var(--header-h));
+        min-height:640px;
         background:var(--ui);
         padding-bottom:env(safe-area-inset-bottom);
         box-sizing:border-box;
@@ -101,8 +101,8 @@
       }
 
       body.map-expanded #map{
-        height:calc(100vh - var(--header-h));
-        min-height:700px;
+        height:calc(100vh - var(--header-h) + 20px);
+        min-height:760px;
       }
 
       body.header-hidden .site-header{ transform:translateY(-105%); opacity:0; box-shadow:none; }
@@ -381,8 +381,8 @@
         .hero-visual{ justify-items:start; }
       }
       @media (max-width:720px){
-        #map{ top:0; min-height:520px; }
-        body.map-expanded #map{ min-height:620px; }
+        #map{ top:0; min-height:560px; height:calc(82vh + var(--header-h)); }
+        body.map-expanded #map{ min-height:680px; }
         .table-panel{ width:100%; border-radius:14px; box-shadow:0 10px 24px rgba(15,23,42,0.18); }
         .logo-marquee{ right:10px; left:10px; }
         .btn{ width:100%; justify-content:center; }
@@ -831,10 +831,11 @@
         const headerH = Math.ceil(headerEl?.getBoundingClientRect()?.height || 0);
         const bannerH = Math.ceil(logoMarqueeEl?.offsetHeight || 0);
         const safeBottom = 10;
+        const northBias = 70;
         return {
-          top: headerH + 10,
+          top: Math.max(0, headerH + 4),
           right: 20,
-          bottom: bannerH + safeBottom + 10,
+          bottom: bannerH + safeBottom + northBias,
           left: 20
         };
       }
