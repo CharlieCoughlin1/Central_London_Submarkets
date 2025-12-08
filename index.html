@@ -72,22 +72,23 @@
       .polygon-label{
         pointer-events:none;
         display:inline-block;
-        padding:4px 8px;
+        padding:6px 10px;
         border:1px solid var(--stroke);
-        border-radius:8px;
-        background:rgba(255,255,255,0.88);
-        box-shadow:0 6px 16px rgba(15,23,42,0.12);
+        border-radius:10px;
+        background:rgba(255,255,255,0.9);
+        box-shadow:0 10px 28px rgba(15,23,42,0.14);
         color:var(--ink);
         font-family:"DIN Pro","DINPro",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
         font-weight:800;
-        font-size:0.85rem;
-        letter-spacing:.3px;
+        font-size:0.82rem;
+        letter-spacing:.25px;
         text-transform:uppercase;
         text-align:center;
-        max-width:180px;
-        line-height:1.2;
+        max-width:160px;
+        line-height:1.25;
         white-space:normal;
         word-break:break-word;
+        transform:translate3d(0,0,0);
       }
 
       /* PSF note */
@@ -606,6 +607,93 @@
         return [(minX + maxX) / 2, (minY + maxY) / 2];
       }
 
+      function centroidForRing(ring){
+        let area = 0;
+        let cx = 0;
+        let cy = 0;
+        for (let i = 0; i < ring.length - 1; i++) {
+          const [x0, y0] = ring[i];
+          const [x1, y1] = ring[i + 1];
+          const cross = (x0 * y1) - (x1 * y0);
+          area += cross;
+          cx += (x0 + x1) * cross;
+          cy += (y0 + y1) * cross;
+        }
+        area = area / 2;
+        if (!area) return null;
+        return { point: [cx / (6 * area), cy / (6 * area)], area };
+      }
+
+      function centroidForPolygon(coords){
+        if (!Array.isArray(coords) || !coords.length) return null;
+        const outerRing = coords[0];
+        if (!Array.isArray(outerRing)) return null;
+        const ringCentroid = centroidForRing(outerRing);
+        if (ringCentroid) return ringCentroid.point;
+        const flat = outerRing.flat();
+        const len = flat.length;
+        if (!len) return null;
+        let sumX = 0, sumY = 0;
+        for (let i = 0; i < len; i += 2) {
+          sumX += flat[i];
+          sumY += flat[i + 1];
+        }
+        return [sumX / (len / 2), sumY / (len / 2)];
+      }
+
+      function getFeatureLabelCenter(geometry){
+        if (!geometry) return null;
+        const { type, coordinates } = geometry;
+        if (type === 'Polygon') {
+          const centroid = centroidForPolygon(coordinates);
+          return centroid || getFeatureBoundsCenter(coordinates);
+        }
+        if (type === 'MultiPolygon') {
+          let weightedX = 0, weightedY = 0, totalArea = 0;
+          for (const poly of coordinates) {
+            const ring = Array.isArray(poly) && Array.isArray(poly[0]) ? poly[0] : null;
+            const ringData = ring ? centroidForRing(ring) : null;
+            const centroid = centroidForPolygon(poly);
+            const weight = Math.abs(ringData?.area || 0);
+            if (centroid) {
+              const weightToUse = weight || 1;
+              weightedX += centroid[0] * weightToUse;
+              weightedY += centroid[1] * weightToUse;
+              totalArea += weightToUse;
+            }
+          }
+          if (totalArea) return [weightedX / totalArea, weightedY / totalArea];
+          if (Array.isArray(coordinates[0])) return getFeatureBoundsCenter(coordinates.flat(1));
+        }
+        if (type === 'Point') return coordinates;
+        if (type === 'LineString') return coordinates[Math.floor(coordinates.length / 2)];
+        return Array.isArray(coordinates) ? getFeatureBoundsCenter(coordinates) : null;
+      }
+
+      function formatLabelText(label){
+        if (!label) return '';
+        const words = String(label).split(' ').filter(Boolean);
+        if (words.length <= 1) return label;
+        let bestSplit = 1;
+        let smallestDiff = Infinity;
+        for (let i = 1; i < words.length; i++) {
+          const lineA = words.slice(0, i).join(' ');
+          const lineB = words.slice(i).join(' ');
+          const diff = Math.abs(lineA.length - lineB.length);
+          if (diff < smallestDiff) {
+            smallestDiff = diff;
+            bestSplit = i;
+          }
+        }
+        const line1 = words.slice(0, bestSplit).join(' ');
+        const line2 = words.slice(bestSplit).join(' ');
+        return `${line1}\n${line2}`;
+      }
+
+      function boxesOverlap(a, b){
+        return !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom);
+      }
+
       function setLabelVisibility(label, isVisible){
         if (!label) return;
         const entry = labelMarkers.find(item => item.label === label);
@@ -729,19 +817,45 @@
       function addLabels(features){
         clearLabels();
         if (!isDesktopView() || !Array.isArray(features)) return;
+        const occupied = [];
         features
           .filter(f => f?.properties?.label && f.properties.label !== 'River Thames')
           .forEach(feature => {
-            const coords = getFeatureBoundsCenter(feature.geometry.coordinates);
+            const coords = getFeatureLabelCenter(feature.geometry);
+            if (!coords || !Number.isFinite(coords[0]) || !Number.isFinite(coords[1])) return;
             const el = document.createElement('div');
             el.className = 'polygon-label';
-            el.textContent = feature.properties.label;
+            el.innerHTML = formatLabelText(feature.properties.label).replace(/\n/g, '<br>');
             if (activeHoverLabel === feature.properties.label) {
               el.style.opacity = '0';
             }
-            const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
-              .setLngLat(coords)
-              .addTo(map);
+            const marker = new maplibregl.Marker({ element: el, anchor: 'center' }).setLngLat(coords).addTo(map);
+            const offsets = [
+              [0, 0],
+              [0, -18],
+              [0, 18],
+              [18, 0],
+              [-18, 0],
+              [14, 14],
+              [-14, 14],
+              [14, -14],
+              [-14, -14]
+            ];
+
+            let placed = false;
+            for (const offset of offsets) {
+              marker.setOffset(offset);
+              const rect = el.getBoundingClientRect();
+              const hasCollision = occupied.some(existing => boxesOverlap(existing, rect));
+              if (!hasCollision) {
+                occupied.push(rect);
+                placed = true;
+                break;
+              }
+            }
+            if (!placed) {
+              occupied.push(el.getBoundingClientRect());
+            }
             labelMarkers.push({ label: feature.properties.label, marker });
           });
       }
@@ -913,7 +1027,7 @@
                 setHover(hoveredId, true);
               }
 
-              const center = getFeatureBoundsCenter(feature.geometry.coordinates);
+              const center = getFeatureLabelCenter(feature.geometry);
               const label = feature.properties.label;
               if (label && label !== activeHoverLabel) {
                 if (activeHoverLabel) setLabelVisibility(activeHoverLabel, true);
@@ -953,7 +1067,7 @@
                 setHover(hoveredId, true);
               }
 
-              const center = getFeatureBoundsCenter(feature.geometry.coordinates);
+              const center = getFeatureLabelCenter(feature.geometry);
               if (label && label !== activeHoverLabel) {
                 if (activeHoverLabel) setLabelVisibility(activeHoverLabel, true);
                 setLabelVisibility(label, false);
