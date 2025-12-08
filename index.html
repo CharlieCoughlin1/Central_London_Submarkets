@@ -22,9 +22,6 @@
         --popup-accent: var(--brand);
         --header-h: 0px;
         --marquee-h: 0px;
-        --table-w: clamp(300px, 32vw, 420px);
-        --table-offset: 0px;
-        --table-gap: 12px;
       }
 
       html, body { height:100%; }
@@ -68,6 +65,10 @@
       .btn-primary:hover{ box-shadow:0 14px 36px rgba(204,32,48,0.45); }
       .btn-ghost{ background:rgba(255,255,255,0.08); color:#E8EEF9; border:1px solid rgba(255,255,255,0.22); }
       .btn-ghost:hover{ background:rgba(255,255,255,0.12); }
+      .btn-toggle{ background:rgba(255,255,255,0.12); color:#E8EEF9; border:1px solid rgba(255,255,255,0.28); }
+      .btn-toggle:not(.is-active){ box-shadow:none; }
+      .btn-toggle.is-active{ background:var(--brand); color:#fff; border-color:rgba(255,255,255,0.3); box-shadow:0 14px 32px rgba(204,32,48,0.4); }
+      .btn-toggle:not(.is-active):hover{ background:rgba(255,255,255,0.18); }
       .hero-meta{ display:flex; flex-wrap:wrap; gap:10px; margin-top:2px; }
       .meta-chip{ background:rgba(255,255,255,0.08); color:#E4E8F1; border:1px solid rgba(255,255,255,0.2); border-radius:10px; padding:10px 12px; font-weight:800; letter-spacing:.2px; display:flex; align-items:center; gap:8px; box-shadow:0 10px 22px rgba(0,0,0,0.16); }
       .meta-chip strong{ color:#fff; font-size:1.05rem; }
@@ -83,14 +84,16 @@
       #map{
         position:fixed;
         top:var(--header-h);
-        left:var(--table-offset);
+        left:0;
         right:0;
         bottom:0;
-        min-height:320px;
+        min-height:520px;
         background:var(--ui);
         padding-bottom:env(safe-area-inset-bottom);
         box-sizing:border-box;
       }
+
+      body.mode-data #map{ display:none; }
 
       .map-spacer{ height:calc(100vh + var(--header-h)); pointer-events:none; }
 
@@ -131,65 +134,35 @@
         color:var(--muted-ink);
         z-index:3;
       }
+      body.mode-data .psf-control{ display:none; }
 
       /* Hide table + labels in non-desktop views */
-      body:not(.is-desktop) .panel-controls,
       body:not(.is-desktop) .psf-control,
       body:not(.is-desktop) .polygon-label{
         display:none !important;
       }
 
-      /* Right-side rents table button + panel */
-      .panel-controls{
+      .data-view{
         position:fixed;
-        top:calc(var(--header-h) + 12px);
-        left:12px;
-        display:flex;
-        flex-direction:column;
-        align-items:flex-start;
-        gap:8px;
+        inset:calc(var(--header-h)) 0 0 0;
+        background:linear-gradient(180deg, rgba(248,250,252,0.95), rgba(248,250,252,0.98));
         z-index:6;
-        width:var(--table-w);
-        max-width:95vw;
+        padding:18px 18px calc(18px + env(safe-area-inset-bottom));
+        display:none;
+        overflow:auto;
+        box-sizing:border-box;
       }
-      .table-toggle{
-        appearance:none;
-        border:1px solid rgba(204,32,48,0.18);
-        background:linear-gradient(140deg, rgba(255,255,255,.96), rgba(246,248,252,.96));
-        border-radius:var(--radius-1);
-        box-shadow:var(--shadow-1);
-        color:var(--ink);
-        font-weight:700;
-        letter-spacing:.3px;
-        padding:8px 12px;
-        font-size:.85rem;
-        display:inline-flex;
-        align-items:center;
-        gap:8px;
-        width:auto;
-        min-width:0;
-        align-self:flex-start;
-        cursor:pointer;
-        transition:background .12s ease, transform .06s ease;
-        text-align:left;
-      }
-      .table-toggle:hover{ background:#fff; }
-      .table-toggle:active{ transform:translateY(1px); }
-      .table-toggle .toggle-icon{
-        color:var(--muted-ink);
-        font-size:.9rem;
-        line-height:1;
-      }
-      .table-toggle .toggle-label{ white-space:nowrap; }
-
+      .data-view.is-visible{ display:flex; justify-content:center; }
       .table-panel{
         position:relative;
-        width:100%;
-        max-height:calc(100vh - var(--header-h) - var(--marquee-h) - 32px);
+        width:min(1200px, calc(100% - 36px));
+        max-width:1200px;
+        height:100%;
+        max-height:none;
         background:var(--surface);
         border:1px solid var(--stroke);
-        border-radius:10px;
-        box-shadow:var(--shadow-1);
+        border-radius:14px;
+        box-shadow:0 14px 32px rgba(15,23,42,0.16);
         overflow:hidden;
         display:flex;
         flex-direction:column;
@@ -230,6 +203,7 @@
         flex:1;
         border-top:1px solid var(--stroke);
         background:var(--surface);
+        min-height:0;
       }
 
       .rent-table{
@@ -238,8 +212,6 @@
         border-spacing:0;
         font-variant-numeric:tabular-nums;
       }
-      body.table-open{ --table-offset: calc(var(--table-w) + var(--table-gap)); }
-      body.table-collapsed{ --table-offset: 0px; }
 
       .sort-button{
         appearance:none;
@@ -300,53 +272,53 @@
       /* --- Client logo banner (outside #map, fixed to viewport) --- */
       .logo-marquee{
         position:fixed;
-        left:12px;
+        top:calc(var(--header-h) + 12px);
         right:12px;
-        bottom:calc(env(safe-area-inset-bottom) + 12px);
-        z-index:2; /* Below PSF note (z:3) & table UI (z:6); above the map */
-        background:#3F4040;
-        border:1px solid #3F4040;
-        border-radius:12px;
-        box-shadow:var(--shadow-1);
+        left:auto;
+        bottom:auto;
+        width:min(340px, calc(100vw - 32px));
+        z-index:5; /* Below PSF note (z:3) & table UI (z:6); above the map */
+        background:linear-gradient(145deg, rgba(12,16,32,0.94), rgba(28,33,52,0.96));
+        border:1px solid rgba(255,255,255,0.08);
+        border-radius:14px;
+        box-shadow:0 16px 32px rgba(0,0,0,0.32);
         pointer-events:none; /* never block map interactions */
-        backdrop-filter:saturate(120%) blur(4px);
+        backdrop-filter:saturate(120%) blur(6px);
+        padding:12px 12px 10px;
       }
-      .logo-marquee .logo-accent{
-        display:none;
-      }
-      .logo-banner-inner{
-        padding:8px 6px 6px;
-      }
+      .logo-marquee .logo-accent{ display:none; }
+      .logo-banner-inner{ padding:0; }
       .banner-subtitle{
-        margin:0 6px 2px;
-        text-align:center;
-        color:#fff;
+        margin:0 0 8px;
+        text-align:left;
+        color:#E8EEF9;
         font-weight:900;
-        letter-spacing:.6px;
+        letter-spacing:.5px;
         text-transform:uppercase;
-        font-size:.9rem;
+        font-size:.82rem;
       }
       .logo-viewport{
         position:relative;
         overflow:hidden;
-        padding:4px 4px 6px;
+        padding:0;
+        border-radius:10px;
       }
       .logo-viewport::before,
       .logo-viewport::after{
         content:"";
         position:absolute;
         top:0; bottom:0;
-        width:40px;
+        width:22px;
         pointer-events:none;
         z-index:1;
       }
       .logo-viewport::before{
         left:0;
-        background:linear-gradient(to right, rgba(63,64,64,0.96), rgba(63,64,64,0));
+        background:linear-gradient(to right, rgba(12,16,32,0.96), rgba(12,16,32,0));
       }
       .logo-viewport::after{
         right:0;
-        background:linear-gradient(to left, rgba(63,64,64,0.96), rgba(63,64,64,0));
+        background:linear-gradient(to left, rgba(12,16,32,0.96), rgba(12,16,32,0));
       }
       .logo-track{
         display:flex;
@@ -363,10 +335,10 @@
       .logo-strip{
         display:flex;
         align-items:center;
-        gap:12px; /* reduced gap */
+        gap:10px;
         list-style:none;
         margin:0;
-        padding:0 8px 2px;
+        padding:4px 6px;
         flex:0 0 auto;
       }
       .logo-strip li{
@@ -377,8 +349,8 @@
       }
       .logo-strip img{
         display:block;
-        height:64px;       /* larger logos */
-        max-width:220px;
+        height:48px;
+        max-width:200px;
         object-fit:contain;
         opacity:.98;
         filter:none;
@@ -392,28 +364,21 @@
         .popup-title{font-size:.92rem;}
         .price-box{min-width:65px; padding:4px 6px;}
         .rent-table thead th, .rent-table tbody td{ padding:10px 12px; }
-        .table-panel{ width:calc(100vw - 24px); right:0; }
+        .data-view{ padding:12px 12px calc(14px + env(safe-area-inset-bottom)); }
+        .table-panel{ width:100%; }
         .banner-subtitle{ font-size:.72rem; }
-        .logo-banner-inner{ padding:7px 6px 6px; }
-        .logo-viewport{ padding:3px 4px 5px; }
-        .logo-strip{ gap:10px; padding:0 6px 2px; }
-        .logo-strip img{ height:44px; max-width:190px; clip-path:inset(.8px round 2px); }
+        .logo-marquee{ width:calc(100vw - 20px); right:10px; top:calc(var(--header-h) + 10px); padding:10px 10px 8px; }
+        .logo-viewport::before, .logo-viewport::after{ width:18px; }
+        .logo-strip img{ height:40px; max-width:170px; clip-path:inset(.8px round 2px); }
       }
       @media (max-width:960px){
-        body.table-open{ --table-offset: 0px; }
-        .panel-controls{ width:calc(100vw - 24px); left:12px; }
-        .table-toggle{ text-align:center; }
         .hero-shell{ grid-template-columns:1fr; gap:12px; }
         .hero-visual{ justify-items:start; }
       }
       @media (max-width:720px){
-        :root{ --table-gap: 10px; }
         #map{ top:calc(var(--header-h) + 4px); }
-        .panel-controls{ left:10px; right:10px; width:auto; gap:10px; }
-        .table-toggle{ text-align:center; border-radius:12px; }
         .table-panel{ width:100%; border-radius:14px; box-shadow:0 10px 24px rgba(15,23,42,0.18); }
-        .table-scroller{ max-height:calc(58vh - 54px); }
-        .logo-marquee{ left:10px; right:10px; }
+        .logo-marquee{ right:10px; }
         .btn{ width:100%; justify-content:center; }
         .hero-lede{ max-width:unset; }
       }
@@ -494,8 +459,8 @@
           <h1 class="hero-title">Find the best Central London submarket for your next office</h1>
           <p class="hero-lede">Quickly assess each submarket with an interactive map, verified rental benchmarks, and availability detail tailored for occupiers.</p>
           <div class="cta-row" role="group" aria-label="Toggle between map and data views">
-            <button class="btn btn-ghost is-active" type="button" data-action="show-map" aria-pressed="true">Explore the map</button>
-            <button class="btn btn-primary" type="button" data-action="show-data" aria-pressed="false">View data</button>
+            <button class="btn btn-toggle is-active" type="button" data-action="show-map" aria-pressed="true">Explore the map</button>
+            <button class="btn btn-toggle" type="button" data-action="show-data" aria-pressed="false">View data</button>
           </div>
         </div>
         <div class="hero-visual" aria-hidden="true">
@@ -522,36 +487,30 @@
     </header>
 
     <div id="map">
-      <!-- Right-side toggle and drop-down panel for the table -->
-      <div class="panel-controls">
-        <button class="table-toggle" type="button" aria-expanded="false" aria-controls="rents-panel" title="Show data view">
-          <span class="toggle-icon" aria-hidden="true">▸</span>
-          <span class="toggle-label">View data</span>
-        </button>
-
-        <aside id="rents-panel" class="table-panel" role="dialog" aria-labelledby="rents-panel-title" aria-hidden="true">
-          <div class="panel-accent" aria-hidden="true"></div>
-          <div class="panel-header">
-            <h2 id="rents-panel-title" class="panel-title">Central London Office Rents</h2>
-            <button class="panel-close" type="button" aria-label="Close rents table">&times;</button>
-          </div>
-          <div class="table-scroller">
-            <table id="rents-table" class="rent-table" aria-describedby="rents-caption">
-              <caption id="rents-caption">*All prices are per sq ft</caption>
-              <thead>
-                <tr>
-                  <th scope="col"><button class="sort-button" type="button" data-sort="submarket" aria-sort="ascending">Submarket <span class="sort-indicator">⇅</span></button></th>
-                  <th scope="col"><button class="sort-button" type="button" data-sort="priceA" aria-sort="none">Grade A <span class="sort-indicator">⇅</span></button></th>
-                  <th scope="col"><button class="sort-button" type="button" data-sort="priceB" aria-sort="none">Grade B <span class="sort-indicator">⇅</span></button></th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </aside>
-      </div>
-
       <div class="psf-control">*All prices are per sq ft</div>
+    </div>
+
+    <div class="data-view" id="data-view" aria-hidden="true">
+      <aside id="rents-panel" class="table-panel" role="dialog" aria-labelledby="rents-panel-title" aria-hidden="true">
+        <div class="panel-accent" aria-hidden="true"></div>
+        <div class="panel-header">
+          <h2 id="rents-panel-title" class="panel-title">Central London Office Rents</h2>
+          <button class="panel-close" type="button" aria-label="Close rents table">&times;</button>
+        </div>
+        <div class="table-scroller">
+          <table id="rents-table" class="rent-table" aria-describedby="rents-caption">
+            <caption id="rents-caption">*All prices are per sq ft</caption>
+            <thead>
+              <tr>
+                <th scope="col"><button class="sort-button" type="button" data-sort="submarket" aria-sort="ascending">Submarket <span class="sort-indicator">⇅</span></button></th>
+                <th scope="col"><button class="sort-button" type="button" data-sort="priceA" aria-sort="none">Grade A <span class="sort-indicator">⇅</span></button></th>
+                <th scope="col"><button class="sort-button" type="button" data-sort="priceB" aria-sort="none">Grade B <span class="sort-indicator">⇅</span></button></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </aside>
     </div>
 
     <div class="map-spacer" aria-hidden="true"></div>
@@ -604,6 +563,7 @@
       const root = document.documentElement;
       const headerEl = document.querySelector('.site-header');
       const logoMarqueeEl = document.getElementById('logo-marquee');
+      const dataView = document.getElementById('data-view');
 
       const map = new maplibregl.Map({
         container: 'map',
@@ -646,10 +606,6 @@
       const waterStroke = getComputedStyle(document.documentElement).getPropertyValue('--water-stroke').trim();
       const labelMarkers = [];
       let geojsonFeatures = null;
-      let closePanelForDesktop = null;
-      let openPanelForDesktop = null;
-      let panelUserCollapsed = false;
-      let panelCollapsedByMedia = false;
       let cachedHeaderHeight = 0;
 
       function isDesktopView(){
@@ -957,13 +913,7 @@
         document.body.classList.toggle('is-desktop', desktop);
         if (!desktop){
           clearLabels();
-          if (closePanelForDesktop) closePanelForDesktop({ reason: 'media' });
         } else {
-          if (activeMode === 'data' && openPanelForDesktop) {
-            openPanelForDesktop();
-          } else if (activeMode !== 'data' && closePanelForDesktop) {
-            closePanelForDesktop({ reason: 'user' });
-          }
           if (geojsonFeatures) addLabels(geojsonFeatures);
         }
       }
@@ -1373,16 +1323,13 @@
       }
 
       function setupPanel(){
-        const toggleBtn = document.querySelector('.table-toggle');
         const panel = document.getElementById('rents-panel');
         const closeBtn = document.querySelector('.panel-close');
         const compactMedia = window.matchMedia('(max-width: 960px)');
-        const toggleLabel = toggleBtn?.querySelector('.toggle-label');
-        const toggleIcon = toggleBtn?.querySelector('.toggle-icon');
         const mapToggleBtn = document.querySelector('[data-action="show-map"]');
         const dataToggleBtn = document.querySelector('[data-action="show-data"]');
 
-        if (!toggleBtn || !panel || !closeBtn) return;
+        if (!panel || !closeBtn || !dataView) return;
 
         function syncMapLayout(){
           map.resize();
@@ -1401,77 +1348,53 @@
           }
         }
 
-        function openPanel(){
-          panelUserCollapsed = false;
-          panelCollapsedByMedia = false;
-          document.body.classList.add('table-open');
-          document.body.classList.remove('table-collapsed');
-          panel.setAttribute('aria-hidden', 'false');
-          toggleBtn.setAttribute('aria-expanded', 'true');
-          if (toggleLabel) toggleLabel.textContent = 'Hide data'; else toggleBtn.textContent = 'Hide data';
-          if (toggleIcon) toggleIcon.textContent = '▾';
-          toggleBtn.title = 'Hide data';
+        function showDataView(){
           activeMode = 'data';
+          document.body.classList.add('mode-data');
+          panel.setAttribute('aria-hidden', 'false');
+          dataView.setAttribute('aria-hidden', 'false');
+          dataView.classList.add('is-visible');
           syncHeroToggles();
-          syncMapLayout();
         }
-        function closePanel(opts = {}){
-          panelCollapsedByMedia = opts.reason === 'media';
-          if (!panelCollapsedByMedia) panelUserCollapsed = true;
-          document.body.classList.remove('table-open');
-          document.body.classList.add('table-collapsed');
+
+        function showMapView(){
+          activeMode = 'map';
+          document.body.classList.remove('mode-data');
           panel.setAttribute('aria-hidden', 'true');
-          toggleBtn.setAttribute('aria-expanded', 'false');
-          if (toggleLabel) toggleLabel.textContent = 'View data'; else toggleBtn.textContent = 'View data';
-          if (toggleIcon) toggleIcon.textContent = '▸';
-          toggleBtn.title = 'Show data view';
-          if (!panelCollapsedByMedia) activeMode = 'map';
+          dataView.setAttribute('aria-hidden', 'true');
+          dataView.classList.remove('is-visible');
           syncHeroToggles();
           syncMapLayout();
-        }
-        function togglePanel(){
-          const isHidden = panel.getAttribute('aria-hidden') === 'true';
-          if (isHidden) openPanel(); else closePanel();
         }
 
         function applyMediaState(e){
           const matches = e ? e.matches : compactMedia.matches;
-          if (matches){
-            closePanel({ reason: 'media' });
-          } else if (panelCollapsedByMedia && !panelUserCollapsed){
-            openPanel();
-          } else if (panelUserCollapsed){
-            closePanel({ reason: 'user' });
+          if (matches && activeMode === 'data') {
+            dataView.scrollTop = 0;
           }
         }
 
-        closePanelForDesktop = closePanel;
-        openPanelForDesktop = () => {
-          if (!panelUserCollapsed) openPanel();
-        };
-
         if (mapToggleBtn) {
           mapToggleBtn.addEventListener('click', () => {
-            closePanel({ reason: 'user' });
+            showMapView();
             document.getElementById('map')?.scrollIntoView({ behavior: 'smooth' });
           });
         }
 
         if (dataToggleBtn) {
           dataToggleBtn.addEventListener('click', () => {
-            openPanel();
-            panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            showDataView();
+            dataView.scrollIntoView({ behavior: 'smooth', block: 'start' });
           });
         }
 
-        toggleBtn.addEventListener('click', togglePanel);
-        closeBtn.addEventListener('click', closePanel);
+        closeBtn.addEventListener('click', showMapView);
 
         document.addEventListener('keydown', (e) => {
-          if (e.key === 'Escape') closePanel();
+          if (e.key === 'Escape') showMapView();
         });
 
-        closePanel({ reason: 'user' });
+        showMapView();
         applyMediaState();
         if (compactMedia.addEventListener) {
           compactMedia.addEventListener('change', applyMediaState);
