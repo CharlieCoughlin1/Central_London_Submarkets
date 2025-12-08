@@ -34,12 +34,14 @@
         background:var(--surface);
         color:var(--ink);
         font-family:"DIN Pro","DINPro",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-        overflow:hidden;
+        overflow:auto;
+        min-height:100vh;
+        transition:background .2s ease;
       }
 
       /* --- Hero header --- */
       .site-header{
-        position:fixed;
+        position:sticky;
         inset:0 0 auto 0;
         z-index:8;
         background:radial-gradient(circle at 18% 24%, rgba(255,255,255,0.12), transparent 42%),
@@ -49,6 +51,7 @@
         border-bottom:1px solid rgba(255,255,255,0.18);
         box-shadow:0 14px 32px rgba(12,16,32,0.25);
         padding:18px 22px 20px;
+        transition:transform .2s ease, opacity .2s ease;
       }
       .hero-shell{ max-width:1240px; margin:0 auto; display:grid; grid-template-columns:1fr auto; gap:18px; align-items:center; }
       .hero-copy{ display:flex; flex-direction:column; gap:12px; }
@@ -57,6 +60,8 @@
       .hero-title{ margin:0; font-size:clamp(1.8rem, 2.2vw + 1.2rem, 2.6rem); line-height:1.15; letter-spacing:.3px; font-weight:900; text-shadow:0 8px 22px rgba(0,0,0,0.25); }
       .hero-lede{ margin:0; max-width:720px; color:#E4E8F1; font-size:1rem; line-height:1.55; }
       .cta-row{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+      .cta-row .btn{ border-radius:10px; }
+      .cta-row .btn.is-active{ box-shadow:0 12px 28px rgba(204,32,48,0.28); transform:none; }
       .btn{ appearance:none; border:none; cursor:pointer; font-weight:800; letter-spacing:.3px; border-radius:12px; padding:12px 16px; font-size:.95rem; transition:transform .12s ease, box-shadow .16s ease, background .16s ease, color .16s ease; text-decoration:none; display:inline-flex; align-items:center; gap:8px; }
       .btn:active{ transform:translateY(1px); }
       .btn-primary{ background:linear-gradient(135deg, #FF4356, var(--brand)); color:#fff; box-shadow:0 12px 28px rgba(204,32,48,0.35); border:1px solid rgba(255,255,255,0.24); }
@@ -86,6 +91,10 @@
         padding-bottom:env(safe-area-inset-bottom);
         box-sizing:border-box;
       }
+
+      .map-spacer{ height:calc(100vh + var(--header-h)); pointer-events:none; }
+
+      body.header-hidden .site-header{ transform:translateY(-105%); opacity:0; box-shadow:none; }
 
       .polygon-label{
         pointer-events:none;
@@ -481,31 +490,31 @@
     <header class="site-header">
       <div class="hero-shell">
         <div class="hero-copy">
-          <span class="eyebrow">Central London Offices</span>
-          <h1 class="hero-title">Navigate Central London submarkets with clarity and confidence</h1>
-          <p class="hero-lede">Live Grade A/B benchmarks, a beautiful interactive map, and trusted occupier references – all in one place so your next office move feels effortless.</p>
-          <div class="cta-row">
-            <button class="btn btn-primary" type="button" data-action="open-table">View current rents</button>
-            <a class="btn btn-ghost" href="#map" data-action="focus-map">Explore the map</a>
-          </div>
-          <div class="hero-meta">
-            <span class="meta-chip"><span class="chip-dot"></span><strong>Grade A/B</strong> verified rents</span>
-            <span class="meta-chip"><span class="chip-dot"></span><strong>20+ </strong>Prime submarkets</span>
-            <span class="meta-chip"><span class="chip-dot"></span><strong>Live</strong> occupier intel</span>
+          <span class="eyebrow">Central London office submarkets</span>
+          <h1 class="hero-title">Find the best Central London submarket for your next office</h1>
+          <p class="hero-lede">Quickly assess each submarket with an interactive map, verified rental benchmarks, and availability detail tailored for occupiers.</p>
+          <div class="cta-row" role="group" aria-label="Toggle between map and data views">
+            <button class="btn btn-ghost is-active" type="button" data-action="show-map" aria-pressed="true">Explore the map</button>
+            <button class="btn btn-primary" type="button" data-action="show-data" aria-pressed="false">View data</button>
           </div>
         </div>
         <div class="hero-visual" aria-hidden="true">
           <div class="glow-ring"></div>
           <div class="stat-stack">
             <div class="stat-card">
-              <h3>Midtown Benchmark</h3>
-              <span class="stat-value">£85 psf</span>
-              <small>Grade A headline guided rents</small>
+              <h3>Total Central London office stock</h3>
+              <span class="stat-value">287.5m sq ft</span>
+              <small>Standing inventory</small>
             </div>
             <div class="stat-card">
-              <h3>Mayfair &amp; St James's</h3>
-              <span class="stat-value">£170 psf</span>
-              <small>Premium Grade A positioning</small>
+              <h3>Central London office availability rate</h3>
+              <span class="stat-value">11.3%</span>
+              <small>Headline market availability</small>
+            </div>
+            <div class="stat-card">
+              <h3>Total under construction</h3>
+              <span class="stat-value">13.2m sq ft</span>
+              <small>Pipeline across Central London</small>
             </div>
           </div>
         </div>
@@ -515,12 +524,12 @@
     <div id="map">
       <!-- Right-side toggle and drop-down panel for the table -->
       <div class="panel-controls">
-        <button class="table-toggle" type="button" aria-expanded="true" aria-controls="rents-panel" title="Collapse rents table">
-          <span class="toggle-icon" aria-hidden="true">▾</span>
-          <span class="toggle-label">Collapse Rents Table</span>
+        <button class="table-toggle" type="button" aria-expanded="false" aria-controls="rents-panel" title="Show data view">
+          <span class="toggle-icon" aria-hidden="true">▸</span>
+          <span class="toggle-label">View data</span>
         </button>
 
-        <aside id="rents-panel" class="table-panel" role="dialog" aria-labelledby="rents-panel-title" aria-hidden="false">
+        <aside id="rents-panel" class="table-panel" role="dialog" aria-labelledby="rents-panel-title" aria-hidden="true">
           <div class="panel-accent" aria-hidden="true"></div>
           <div class="panel-header">
             <h2 id="rents-panel-title" class="panel-title">Central London Office Rents</h2>
@@ -544,6 +553,8 @@
 
       <div class="psf-control">*All prices are per sq ft</div>
     </div>
+
+    <div class="map-spacer" aria-hidden="true"></div>
 
     <!-- Client logos banner (outside #map so MapLibre cannot hide it) -->
     <div class="logo-marquee" id="logo-marquee" role="region" aria-label="Clients we work with">
@@ -620,6 +631,7 @@
 
       const mapContainer = document.getElementById('map');
       const desktopMedia = window.matchMedia('(min-width: 1200px)');
+      let activeMode = 'map';
 
       let hoveredId = null;
       let activeHoverLabel = null;
@@ -638,6 +650,7 @@
       let openPanelForDesktop = null;
       let panelUserCollapsed = false;
       let panelCollapsedByMedia = false;
+      let cachedHeaderHeight = 0;
 
       function isDesktopView(){
         return desktopMedia.matches;
@@ -946,7 +959,11 @@
           clearLabels();
           if (closePanelForDesktop) closePanelForDesktop({ reason: 'media' });
         } else {
-          if (openPanelForDesktop) openPanelForDesktop();
+          if (activeMode === 'data' && openPanelForDesktop) {
+            openPanelForDesktop();
+          } else if (activeMode !== 'data' && closePanelForDesktop) {
+            closePanelForDesktop({ reason: 'user' });
+          }
           if (geojsonFeatures) addLabels(geojsonFeatures);
         }
       }
@@ -961,15 +978,28 @@
         desktopMedia.addListener(syncDesktopMode);
       }
 
+      function applyHeaderOffset(height){
+        root.style.setProperty('--header-h', `${Math.max(0, Math.round(height))}px`);
+        map.resize();
+        debouncedRefit();
+        syncDesktopMode();
+      }
+
       async function updateHeaderHeight(){
         if (document.fonts && document.fonts.ready) {
           try { await document.fonts.ready; } catch(e){}
         }
         const h = headerEl ? Math.ceil(headerEl.getBoundingClientRect().height || 0) : 0;
-        root.style.setProperty('--header-h', h + 'px');
-        map.resize();
-        debouncedRefit();
-        syncDesktopMode();
+        cachedHeaderHeight = h;
+        if (!document.body.classList.contains('header-hidden')) {
+          applyHeaderOffset(cachedHeaderHeight);
+        }
+      }
+
+      function setHeaderHidden(isHidden){
+        document.body.classList.toggle('header-hidden', isHidden);
+        const next = isHidden ? 0 : cachedHeaderHeight;
+        applyHeaderOffset(next);
       }
 
       function updateMarqueeHeight(){
@@ -982,6 +1012,9 @@
 
       updateHeaderHeight();
       updateMarqueeHeight();
+      window.addEventListener('scroll', () => {
+        setHeaderHidden(window.scrollY > 24);
+      }, { passive: true });
       if (headerEl) {
         const headerRO = new ResizeObserver(() => updateHeaderHeight());
         headerRO.observe(headerEl);
@@ -1346,12 +1379,26 @@
         const compactMedia = window.matchMedia('(max-width: 960px)');
         const toggleLabel = toggleBtn?.querySelector('.toggle-label');
         const toggleIcon = toggleBtn?.querySelector('.toggle-icon');
+        const mapToggleBtn = document.querySelector('[data-action="show-map"]');
+        const dataToggleBtn = document.querySelector('[data-action="show-data"]');
 
         if (!toggleBtn || !panel || !closeBtn) return;
 
         function syncMapLayout(){
           map.resize();
           debouncedRefit();
+        }
+
+        function syncHeroToggles(){
+          const isData = activeMode === 'data';
+          if (mapToggleBtn) {
+            mapToggleBtn.classList.toggle('is-active', !isData);
+            mapToggleBtn.setAttribute('aria-pressed', String(!isData));
+          }
+          if (dataToggleBtn) {
+            dataToggleBtn.classList.toggle('is-active', isData);
+            dataToggleBtn.setAttribute('aria-pressed', String(isData));
+          }
         }
 
         function openPanel(){
@@ -1361,9 +1408,11 @@
           document.body.classList.remove('table-collapsed');
           panel.setAttribute('aria-hidden', 'false');
           toggleBtn.setAttribute('aria-expanded', 'true');
-          if (toggleLabel) toggleLabel.textContent = 'Collapse Rents Table'; else toggleBtn.textContent = 'Collapse Rents Table';
+          if (toggleLabel) toggleLabel.textContent = 'Hide data'; else toggleBtn.textContent = 'Hide data';
           if (toggleIcon) toggleIcon.textContent = '▾';
-          toggleBtn.title = 'Collapse rents table';
+          toggleBtn.title = 'Hide data';
+          activeMode = 'data';
+          syncHeroToggles();
           syncMapLayout();
         }
         function closePanel(opts = {}){
@@ -1373,9 +1422,11 @@
           document.body.classList.add('table-collapsed');
           panel.setAttribute('aria-hidden', 'true');
           toggleBtn.setAttribute('aria-expanded', 'false');
-          if (toggleLabel) toggleLabel.textContent = 'Show Rents Table'; else toggleBtn.textContent = 'Show Rents Table';
+          if (toggleLabel) toggleLabel.textContent = 'View data'; else toggleBtn.textContent = 'View data';
           if (toggleIcon) toggleIcon.textContent = '▸';
-          toggleBtn.title = 'Show rents table';
+          toggleBtn.title = 'Show data view';
+          if (!panelCollapsedByMedia) activeMode = 'map';
+          syncHeroToggles();
           syncMapLayout();
         }
         function togglePanel(){
@@ -1399,21 +1450,19 @@
           if (!panelUserCollapsed) openPanel();
         };
 
-        document.querySelectorAll('[data-action="open-table"]').forEach(btn => {
-          btn.addEventListener('click', () => {
+        if (mapToggleBtn) {
+          mapToggleBtn.addEventListener('click', () => {
+            closePanel({ reason: 'user' });
+            document.getElementById('map')?.scrollIntoView({ behavior: 'smooth' });
+          });
+        }
+
+        if (dataToggleBtn) {
+          dataToggleBtn.addEventListener('click', () => {
             openPanel();
             panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
           });
-        });
-
-        document.querySelectorAll('[data-action="focus-map"]').forEach(link => {
-          link.addEventListener('click', (e) => {
-            e.preventDefault();
-            document.getElementById('map')?.scrollIntoView({ behavior: 'smooth' });
-            map.resize();
-            debouncedRefit();
-          });
-        });
+        }
 
         toggleBtn.addEventListener('click', togglePanel);
         closeBtn.addEventListener('click', closePanel);
@@ -1422,8 +1471,7 @@
           if (e.key === 'Escape') closePanel();
         });
 
-        // Open by default on load
-        openPanel();
+        closePanel({ reason: 'user' });
         applyMediaState();
         if (compactMedia.addEventListener) {
           compactMedia.addEventListener('change', applyMediaState);
