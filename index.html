@@ -83,9 +83,9 @@
 
       .map-stage{
         position:relative;
-        min-height:calc(210vh);
+        min-height:calc(200vh);
         background:var(--ui);
-        margin-top:-6px;
+        margin-top:-140px;
       }
 
       #map{
@@ -276,23 +276,21 @@
 
       /* --- Client logo banner (outside #map, fixed to viewport) --- */
       .logo-marquee{
-        position:fixed;
-        top:auto;
-        right:12px;
-        left:auto;
-        bottom:16px;
-        width:min(320px, calc(100vw - 32px));
+        position:relative;
+        inset:auto;
+        width:100%;
         z-index:5; /* Below PSF note (z:3) & table UI (z:6); above the map */
-        background:linear-gradient(145deg, rgba(12,16,32,0.94), rgba(28,33,52,0.96));
-        border:1px solid rgba(255,255,255,0.08);
-        border-radius:12px;
-        box-shadow:0 14px 28px rgba(0,0,0,0.32);
+        background:#3f4040;
+        border:none;
+        border-radius:0;
+        box-shadow:none;
         pointer-events:none; /* never block map interactions */
-        backdrop-filter:saturate(120%) blur(6px);
-        padding:10px 10px 8px;
+        backdrop-filter:none;
+        padding:0;
+        margin:0;
       }
       .logo-marquee .logo-accent{ display:none; }
-      .logo-banner-inner{ padding:0; }
+      .logo-banner-inner{ padding:18px 22px; max-width:1240px; margin:0 auto; }
       .banner-subtitle{
         margin:0 0 8px;
         text-align:left;
@@ -300,7 +298,7 @@
         font-weight:900;
         letter-spacing:.5px;
         text-transform:uppercase;
-        font-size:.8rem;
+        font-size:.85rem;
       }
       .logo-viewport{
         position:relative;
@@ -372,7 +370,7 @@
         .data-view{ padding:12px 12px calc(14px + env(safe-area-inset-bottom)); }
         .table-panel{ width:100%; }
         .banner-subtitle{ font-size:.72rem; }
-        .logo-marquee{ width:calc(100vw - 20px); right:10px; left:10px; bottom:12px; top:auto; padding:10px 10px 8px; }
+        .logo-marquee{ padding:0; }
         .logo-viewport::before, .logo-viewport::after{ width:18px; }
         .logo-strip img{ height:40px; max-width:170px; clip-path:inset(.8px round 2px); }
       }
@@ -384,7 +382,7 @@
         #map{ top:0; min-height:760px; height:calc(100vh + var(--header-h)); }
         body.map-expanded #map{ min-height:760px; }
         .table-panel{ width:100%; border-radius:14px; box-shadow:0 10px 24px rgba(15,23,42,0.18); }
-        .logo-marquee{ right:10px; left:10px; }
+        .logo-marquee{ padding:0; }
         .btn{ width:100%; justify-content:center; }
         .hero-lede{ max-width:unset; }
       }
@@ -475,7 +473,7 @@
             <div class="stat-card">
               <h3>Recent headline event</h3>
               <span class="stat-value">300,000 sq ft</span>
-              <small>Visa relocating European headquarters to Canary Wharf, leasing 300,000 sq ft at One Canada Square</small>
+              <small><strong>Visa</strong> relocating European headquarters to Canary Wharf, leasing<br><strong>300,000 sq ft</strong><br>at <strong>One Canada Square</strong></small>
             </div>
           </div>
         </div>
@@ -552,7 +550,27 @@
       };
 
       const labelToUrl = {
-        "Noho / Fitzrovia": "https://infogram.com/noho-fitzrovia-1hmr6g8ye03yz2n"
+        "Mayfair & St James's": "https://infogram.com/1pjzjz9jqmq7qmf6jvdd2zrenqfm9qeygxn",
+        "Aldgate / Whitechapel": "https://infogram.com/aldgate-whitechapel-1hxj48mwox1l52v",
+        "Knightsbridge / Belgravia": "https://infogram.com/knightsbridge-belgravia-1hnp27evnenmn4g",
+        "Old Street / Shoreditch": "https://infogram.com/old-street-shoreditch-hoxton-1hnp27evnm7gn4g",
+        "Vauxhall / Nine Elms & Battersea": "https://infogram.com/vauxhall-nine-elms-battersea-1hmr6g8god0lz2n",
+        "Kensington & Chelsea": "https://infogram.com/kensington-1h7v4pdrpogy84k",
+        "Canary Wharf": "https://infogram.com/canary-wharf-1hmr6g8g1pmro2n",
+        "Camden": "https://infogram.com/camden-1hnq41ow379yp23",
+        "Hammersmith": "https://infogram.com/hammersmith-1h0n25ow3q7nz4p",
+        "Clerkenwell & Farringdon": "https://infogram.com/clerkenwell-farringdon-1h984wvlq5n7d2p",
+        "Southbank": "https://infogram.com/london-bridge-waterloo-1h1749wro1wwl2z",
+        "City (EC2, EC3, EC4)": "https://infogram.com/the-city-1hnq41ow3ydok23",
+        "Noho / Fitzrovia": "https://infogram.com/noho-fitzrovia-1hnp27evo0lkn4g",
+        "White City / Shepherd's Bush": "https://infogram.com/white-city-shepherds-bush-1h9j6q7djg30v4g",
+        "Victoria / Westminster": "https://infogram.com/victoria-1h7v4pdrponmj4k",
+        "Midtown": "https://infogram.com/midtown-1h7v4pdrp8nn84k",
+        "Euston & Kings Cross": "https://infogram.com/kings-cross-euston-1h7v4pdrpl0wj4k",
+        "Covent Garden": "https://infogram.com/covent-garden-1h0n25ow3qkjl4p",
+        "Paddington": "https://infogram.com/paddington-1h7v4pdrp5kwj4k",
+        "Marylebone": "https://infogram.com/marylebone-1h0n25ow3rkmz4p",
+        "Soho": "https://infogram.com/soho-1hnp27evog3nn4g"
       };
 
       /* === MAP (restored to proven working state — no persistent labels) === */
@@ -602,7 +620,6 @@
       const labelMarkers = [];
       let geojsonFeatures = null;
       let cachedHeaderHeight = 0;
-      let mapExpanded = false;
 
       function isDesktopView(){
         return desktopMedia.matches;
@@ -943,12 +960,6 @@
         }
       }
 
-      function setHeaderHidden(isHidden){
-        document.body.classList.toggle('header-hidden', isHidden);
-        const next = isHidden ? 0 : cachedHeaderHeight;
-        applyHeaderOffset(next);
-      }
-
       function updateMarqueeHeight(){
         const h = logoMarqueeEl ? Math.ceil(logoMarqueeEl.getBoundingClientRect().height || 0) : 0;
         root.style.setProperty('--marquee-h', h + 'px');
@@ -957,22 +968,8 @@
         syncDesktopMode();
       }
 
-      function syncMapExpansion(){
-        const shouldExpand = window.scrollY > 8;
-        if (shouldExpand === mapExpanded) return;
-        mapExpanded = shouldExpand;
-        document.body.classList.toggle('map-expanded', shouldExpand);
-        map.resize();
-        debouncedRefit();
-      }
-
       updateHeaderHeight();
       updateMarqueeHeight();
-      syncMapExpansion();
-      window.addEventListener('scroll', () => {
-        setHeaderHidden(window.scrollY > 24);
-        syncMapExpansion();
-      }, { passive: true });
       if (headerEl) {
         const headerRO = new ResizeObserver(() => updateHeaderHeight());
         headerRO.observe(headerEl);
@@ -1301,33 +1298,7 @@
       }
 
       function setupTableHover(){
-        const tbody = document.querySelector('#rents-table tbody');
-        if (!tbody) return;
-
-        function handleEnter(label){
-          if (!label) return;
-          clearTimeout(hoverLeaveTimer);
-          focusFeatureByLabel(label);
-        }
-
-        function handleLeave(){
-          scheduleClearHover();
-        }
-
-        tbody.addEventListener('mouseover', (e) => {
-          const row = e.target.closest('tr');
-          if (!row || !row.dataset.label) return;
-          handleEnter(row.dataset.label);
-        });
-
-        tbody.addEventListener('focusin', (e) => {
-          const row = e.target.closest('tr');
-          if (!row || !row.dataset.label) return;
-          handleEnter(row.dataset.label);
-        });
-
-        tbody.addEventListener('mouseleave', handleLeave);
-        tbody.addEventListener('focusout', handleLeave);
+        /* Hover-linking between the table and map has been intentionally disabled. */
       }
 
       function setupPanel(){
