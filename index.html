@@ -43,7 +43,7 @@
         z-index:8;
         background:radial-gradient(circle at 18% 24%, rgba(255,255,255,0.12), transparent 42%),
                    radial-gradient(circle at 82% 8%, rgba(255,255,255,0.16), transparent 36%),
-                   linear-gradient(115deg, #1C1F2B 8%, #101827 52%, #CC2030 110%);
+                   linear-gradient(115deg, #3D3834 8%, #101827 52%, #CC2030 110%);
         color:#fff;
         border-bottom:1px solid rgba(255,255,255,0.18);
         box-shadow:0 14px 32px rgba(12,16,32,0.25);
@@ -74,10 +74,10 @@
       .meta-chip strong{ color:#fff; font-size:1.05rem; }
       .meta-chip .chip-dot{ width:9px; height:9px; border-radius:50%; background:var(--brand); box-shadow:0 0 0 4px rgba(204,32,48,0.25); }
       .hero-visual{ position:relative; display:grid; gap:10px; align-content:center; justify-items:end; }
-      .stat-card{ background:rgba(255,255,255,0.09); border:1px solid rgba(255,255,255,0.18); border-radius:14px; padding:12px 14px; width:230px; color:#F7F9FD; box-shadow:0 12px 28px rgba(0,0,0,0.22); backdrop-filter:saturate(130%) blur(6px); }
+      .stat-card{ background:rgba(255,255,255,0.09); border:1px solid rgba(255,255,255,0.18); border-radius:14px; padding:12px 14px; width:260px; color:#F7F9FD; box-shadow:0 12px 28px rgba(0,0,0,0.22); backdrop-filter:saturate(130%) blur(6px); }
       .stat-card h3{ margin:0 0 6px; font-size:.92rem; letter-spacing:.35px; text-transform:uppercase; }
       .stat-card .stat-value{ font-size:1.6rem; font-weight:900; display:block; letter-spacing:.4px; }
-      .stat-card small{ color:#E4E8F1; opacity:.82; }
+      .stat-card small{ display:block; color:#E4E8F1; opacity:.82; line-height:1.35; }
       .stat-stack{ display:grid; gap:8px; }
       .glow-ring{ position:absolute; inset:-22% -8% -32% auto; width:240px; height:240px; background:radial-gradient(circle, rgba(255,86,102,0.32), rgba(204,32,48,0)); filter:blur(16px); opacity:.8; pointer-events:none; }
 
@@ -272,19 +272,19 @@
       /* --- Client logo banner (outside #map, fixed to viewport) --- */
       .logo-marquee{
         position:fixed;
-        top:calc(var(--header-h) + 12px);
+        top:auto;
         right:12px;
         left:auto;
-        bottom:auto;
-        width:min(340px, calc(100vw - 32px));
+        bottom:16px;
+        width:min(320px, calc(100vw - 32px));
         z-index:5; /* Below PSF note (z:3) & table UI (z:6); above the map */
         background:linear-gradient(145deg, rgba(12,16,32,0.94), rgba(28,33,52,0.96));
         border:1px solid rgba(255,255,255,0.08);
-        border-radius:14px;
-        box-shadow:0 16px 32px rgba(0,0,0,0.32);
+        border-radius:12px;
+        box-shadow:0 14px 28px rgba(0,0,0,0.32);
         pointer-events:none; /* never block map interactions */
         backdrop-filter:saturate(120%) blur(6px);
-        padding:12px 12px 10px;
+        padding:10px 10px 8px;
       }
       .logo-marquee .logo-accent{ display:none; }
       .logo-banner-inner{ padding:0; }
@@ -295,7 +295,7 @@
         font-weight:900;
         letter-spacing:.5px;
         text-transform:uppercase;
-        font-size:.82rem;
+        font-size:.8rem;
       }
       .logo-viewport{
         position:relative;
@@ -367,7 +367,7 @@
         .data-view{ padding:12px 12px calc(14px + env(safe-area-inset-bottom)); }
         .table-panel{ width:100%; }
         .banner-subtitle{ font-size:.72rem; }
-        .logo-marquee{ width:calc(100vw - 20px); right:10px; top:calc(var(--header-h) + 10px); padding:10px 10px 8px; }
+        .logo-marquee{ width:calc(100vw - 20px); right:10px; left:10px; bottom:12px; top:auto; padding:10px 10px 8px; }
         .logo-viewport::before, .logo-viewport::after{ width:18px; }
         .logo-strip img{ height:40px; max-width:170px; clip-path:inset(.8px round 2px); }
       }
@@ -378,7 +378,7 @@
       @media (max-width:720px){
         #map{ top:0; }
         .table-panel{ width:100%; border-radius:14px; box-shadow:0 10px 24px rgba(15,23,42,0.18); }
-        .logo-marquee{ right:10px; }
+        .logo-marquee{ right:10px; left:10px; }
         .btn{ width:100%; justify-content:center; }
         .hero-lede{ max-width:unset; }
       }
@@ -453,10 +453,10 @@
   </head>
   <body>
     <header class="site-header">
-      <div class="hero-shell">
+          <div class="hero-shell">
         <div class="hero-copy">
           <span class="eyebrow">Central London office submarkets</span>
-          <h1 class="hero-title">Find the best Central London submarket for your next office</h1>
+          <h1 class="hero-title">Find the right location for your next London office</h1>
           <p class="hero-lede">Quickly assess each submarket with an interactive map, verified rental benchmarks, and availability detail tailored for occupiers.</p>
           <div class="cta-row" role="group" aria-label="Toggle between map and data views">
             <button class="btn btn-toggle is-active" type="button" data-action="show-map" aria-pressed="true">Explore the map</button>
@@ -467,19 +467,9 @@
           <div class="glow-ring"></div>
           <div class="stat-stack">
             <div class="stat-card">
-              <h3>Total Central London office stock</h3>
-              <span class="stat-value">287.5m sq ft</span>
-              <small>Standing inventory</small>
-            </div>
-            <div class="stat-card">
-              <h3>Central London office availability rate</h3>
-              <span class="stat-value">11.3%</span>
-              <small>Headline market availability</small>
-            </div>
-            <div class="stat-card">
-              <h3>Total under construction</h3>
-              <span class="stat-value">13.2m sq ft</span>
-              <small>Pipeline across Central London</small>
+              <h3>Recent headline event</h3>
+              <span class="stat-value">300,000 sq ft</span>
+              <small>Visa relocating European headquarters to Canary Wharf, leasing 300,000 sq ft at One Canada Square</small>
             </div>
           </div>
         </div>
