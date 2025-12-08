@@ -43,7 +43,7 @@
         z-index:8;
         background:radial-gradient(circle at 18% 24%, rgba(255,255,255,0.12), transparent 42%),
                    radial-gradient(circle at 82% 8%, rgba(255,255,255,0.16), transparent 36%),
-                   linear-gradient(115deg, #3D3834 8%, #101827 52%, #CC2030 110%);
+                   linear-gradient(115deg, #3D3834 8%, #3D3834 52%, #CC2030 110%);
         color:#fff;
         border-bottom:1px solid rgba(255,255,255,0.18);
         box-shadow:0 14px 32px rgba(12,16,32,0.25);
@@ -81,21 +81,29 @@
       .stat-stack{ display:grid; gap:8px; }
       .glow-ring{ position:absolute; inset:-22% -8% -32% auto; width:240px; height:240px; background:radial-gradient(circle, rgba(255,86,102,0.32), rgba(204,32,48,0)); filter:blur(16px); opacity:.8; pointer-events:none; }
 
+      .map-stage{
+        position:relative;
+        min-height:calc(166vh);
+        background:var(--ui);
+      }
+
       #map{
-        position:fixed;
+        position:sticky;
         top:0;
         left:0;
         right:0;
-        bottom:0;
-        min-height:520px;
+        height:calc(66vh + var(--header-h));
+        min-height:560px;
         background:var(--ui);
         padding-bottom:env(safe-area-inset-bottom);
         box-sizing:border-box;
+        transition:height .24s ease;
       }
 
-      body.mode-data #map{ display:none; }
-
-      .map-spacer{ height:calc(120vh + var(--header-h)); pointer-events:none; }
+      body.map-expanded #map{
+        height:calc(100vh - var(--header-h));
+        min-height:700px;
+      }
 
       body.header-hidden .site-header{ transform:translateY(-105%); opacity:0; box-shadow:none; }
 
@@ -134,7 +142,6 @@
         color:var(--muted-ink);
         z-index:3;
       }
-      body.mode-data .psf-control{ display:none; }
 
       /* Hide table + labels in non-desktop views */
       body:not(.is-desktop) .psf-control,
@@ -143,22 +150,21 @@
       }
 
       .data-view{
-        position:fixed;
-        inset:calc(var(--header-h)) 0 0 0;
+        position:relative;
+        inset:auto;
         background:linear-gradient(180deg, rgba(248,250,252,0.95), rgba(248,250,252,0.98));
-        z-index:6;
-        padding:18px 18px calc(18px + env(safe-area-inset-bottom));
-        display:none;
-        overflow:auto;
+        z-index:1;
+        padding:48px 18px calc(48px + env(safe-area-inset-bottom));
+        display:flex;
+        justify-content:center;
+        overflow:visible;
         box-sizing:border-box;
       }
-      .data-view.is-visible{ display:flex; justify-content:center; }
       .table-panel{
         position:relative;
         width:min(1200px, calc(100% - 36px));
         max-width:1200px;
-        height:100%;
-        max-height:none;
+        height:auto;
         background:var(--surface);
         border:1px solid var(--stroke);
         border-radius:14px;
@@ -167,7 +173,6 @@
         display:flex;
         flex-direction:column;
       }
-      .table-panel[aria-hidden="true"]{ display:none; }
       .table-panel .panel-accent{
         height:3px;
         background:var(--brand);
@@ -376,7 +381,8 @@
         .hero-visual{ justify-items:start; }
       }
       @media (max-width:720px){
-        #map{ top:0; }
+        #map{ top:0; min-height:520px; }
+        body.map-expanded #map{ min-height:620px; }
         .table-panel{ width:100%; border-radius:14px; box-shadow:0 10px 24px rgba(15,23,42,0.18); }
         .logo-marquee{ right:10px; left:10px; }
         .btn{ width:100%; justify-content:center; }
@@ -460,7 +466,7 @@
           <p class="hero-lede">Quickly assess each submarket with an interactive map, verified rental benchmarks, and availability detail tailored for occupiers.</p>
           <div class="cta-row" role="group" aria-label="Toggle between map and data views">
             <button class="btn btn-toggle is-active" type="button" data-action="show-map" aria-pressed="true">Explore the map</button>
-            <button class="btn btn-toggle" type="button" data-action="show-data" aria-pressed="false">View data</button>
+            <button class="btn btn-toggle" type="button" data-action="show-data" aria-pressed="false">View office costs</button>
           </div>
         </div>
         <div class="hero-visual" aria-hidden="true">
@@ -476,12 +482,14 @@
       </div>
     </header>
 
-    <div id="map">
-      <div class="psf-control">*All prices are per sq ft</div>
-    </div>
+    <section class="map-stage" id="map-stage">
+      <div id="map">
+        <div class="psf-control">*All prices are per sq ft</div>
+      </div>
+    </section>
 
-    <div class="data-view" id="data-view" aria-hidden="true">
-      <aside id="rents-panel" class="table-panel" role="dialog" aria-labelledby="rents-panel-title" aria-hidden="true">
+    <div class="data-view" id="data-view" aria-hidden="false">
+      <aside id="rents-panel" class="table-panel" role="dialog" aria-labelledby="rents-panel-title" aria-hidden="false">
         <div class="panel-accent" aria-hidden="true"></div>
         <div class="panel-header">
           <h2 id="rents-panel-title" class="panel-title">Central London Office Rents</h2>
@@ -502,8 +510,6 @@
         </div>
       </aside>
     </div>
-
-    <div class="map-spacer" aria-hidden="true"></div>
 
     <!-- Client logos banner (outside #map so MapLibre cannot hide it) -->
     <div class="logo-marquee" id="logo-marquee" role="region" aria-label="Clients we work with">
@@ -581,7 +587,6 @@
 
       const mapContainer = document.getElementById('map');
       const desktopMedia = window.matchMedia('(min-width: 1200px)');
-      let activeMode = 'map';
 
       let hoveredId = null;
       let activeHoverLabel = null;
@@ -597,6 +602,7 @@
       const labelMarkers = [];
       let geojsonFeatures = null;
       let cachedHeaderHeight = 0;
+      let mapExpanded = false;
 
       function isDesktopView(){
         return desktopMedia.matches;
@@ -950,10 +956,21 @@
         syncDesktopMode();
       }
 
+      function syncMapExpansion(){
+        const shouldExpand = window.scrollY > 8;
+        if (shouldExpand === mapExpanded) return;
+        mapExpanded = shouldExpand;
+        document.body.classList.toggle('map-expanded', shouldExpand);
+        map.resize();
+        debouncedRefit();
+      }
+
       updateHeaderHeight();
       updateMarqueeHeight();
+      syncMapExpansion();
       window.addEventListener('scroll', () => {
         setHeaderHidden(window.scrollY > 24);
+        syncMapExpansion();
       }, { passive: true });
       if (headerEl) {
         const headerRO = new ResizeObserver(() => updateHeaderHeight());
@@ -1315,19 +1332,23 @@
       function setupPanel(){
         const panel = document.getElementById('rents-panel');
         const closeBtn = document.querySelector('.panel-close');
-        const compactMedia = window.matchMedia('(max-width: 960px)');
         const mapToggleBtn = document.querySelector('[data-action="show-map"]');
         const dataToggleBtn = document.querySelector('[data-action="show-data"]');
+        const mapStage = document.getElementById('map-stage');
 
-        if (!panel || !closeBtn || !dataView) return;
+        if (!panel || !dataView) return;
 
-        function syncMapLayout(){
-          map.resize();
-          debouncedRefit();
+        if (dataToggleBtn) {
+          dataToggleBtn.textContent = 'View office costs';
         }
 
-        function syncHeroToggles(){
-          const isData = activeMode === 'data';
+        function scrollToEl(el){
+          if (!el) return;
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function syncHeroToggles(mode){
+          const isData = mode === 'data';
           if (mapToggleBtn) {
             mapToggleBtn.classList.toggle('is-active', !isData);
             mapToggleBtn.setAttribute('aria-pressed', String(!isData));
@@ -1338,59 +1359,35 @@
           }
         }
 
-        function showDataView(){
-          activeMode = 'data';
-          document.body.classList.add('mode-data');
-          panel.setAttribute('aria-hidden', 'false');
-          dataView.setAttribute('aria-hidden', 'false');
-          dataView.classList.add('is-visible');
-          syncHeroToggles();
-        }
-
-        function showMapView(){
-          activeMode = 'map';
-          document.body.classList.remove('mode-data');
-          panel.setAttribute('aria-hidden', 'true');
-          dataView.setAttribute('aria-hidden', 'true');
-          dataView.classList.remove('is-visible');
-          syncHeroToggles();
-          syncMapLayout();
-        }
-
-        function applyMediaState(e){
-          const matches = e ? e.matches : compactMedia.matches;
-          if (matches && activeMode === 'data') {
-            dataView.scrollTop = 0;
-          }
+        function detectActiveSection(){
+          const viewportMid = window.innerHeight * 0.5;
+          const dataRect = dataView.getBoundingClientRect();
+          const mapRect = (mapStage || mapContainer).getBoundingClientRect();
+          const isData = dataRect.top <= viewportMid && dataRect.bottom >= viewportMid;
+          const isMap = mapRect.top <= viewportMid && mapRect.bottom >= viewportMid;
+          const mode = isData ? 'data' : (isMap ? 'map' : 'map');
+          syncHeroToggles(mode);
         }
 
         if (mapToggleBtn) {
-          mapToggleBtn.addEventListener('click', () => {
-            showMapView();
-            document.getElementById('map')?.scrollIntoView({ behavior: 'smooth' });
-          });
+          mapToggleBtn.addEventListener('click', () => scrollToEl(mapStage || mapContainer));
         }
 
         if (dataToggleBtn) {
-          dataToggleBtn.addEventListener('click', () => {
-            showDataView();
-            dataView.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          });
+          dataToggleBtn.addEventListener('click', () => scrollToEl(dataView));
         }
 
-        closeBtn.addEventListener('click', showMapView);
+        if (closeBtn) {
+          closeBtn.addEventListener('click', () => scrollToEl(mapStage || mapContainer));
+        }
 
         document.addEventListener('keydown', (e) => {
-          if (e.key === 'Escape') showMapView();
+          if (e.key === 'Escape') scrollToEl(mapStage || mapContainer);
         });
 
-        showMapView();
-        applyMediaState();
-        if (compactMedia.addEventListener) {
-          compactMedia.addEventListener('change', applyMediaState);
-        } else if (compactMedia.addListener) {
-          compactMedia.addListener(applyMediaState);
-        }
+        detectActiveSection();
+        window.addEventListener('scroll', detectActiveSection, { passive: true });
+        window.addEventListener('resize', detectActiveSection);
       }
 
       /* === Client logos marquee ===
