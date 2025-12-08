@@ -21,6 +21,7 @@
         --shadow-1:0 4px 12px rgba(0,0,0,.12);
         --popup-accent: var(--brand);
         --header-h: 0px;
+        --marquee-h: 0px;
         --table-w: clamp(300px, 32vw, 420px);
         --table-offset: 0px;
         --table-gap: 12px;
@@ -34,28 +35,6 @@
         color:var(--ink);
         font-family:"DIN Pro","DINPro",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
         overflow:hidden;
-      }
-      .site-header{
-        position:fixed;
-        top:0; left:0; right:0;
-        z-index:10;
-        background:var(--surface);
-        border-bottom:1px solid var(--stroke);
-        box-shadow:0 1px 2px rgba(0,0,0,.04);
-        padding:12px 16px 8px;
-        margin:0;
-        text-align:center;
-      }
-      h1{
-        margin:0;
-        letter-spacing:1px;
-        font-weight:700;
-        text-transform:uppercase;
-        color:var(--brand);
-      }
-      .subtitle{
-        margin:4px 0 0;
-        color:var(--muted-ink);
       }
       #map{
         position:fixed;
@@ -158,12 +137,14 @@
       .table-panel{
         position:relative;
         width:100%;
-        max-height:calc(100vh - var(--header-h) - 40px);
+        max-height:calc(100vh - var(--header-h) - var(--marquee-h) - 32px);
         background:var(--surface);
         border:1px solid var(--stroke);
         border-radius:10px;
         box-shadow:var(--shadow-1);
         overflow:hidden;
+        display:flex;
+        flex-direction:column;
       }
       .table-panel[aria-hidden="true"]{ display:none; }
       .table-panel .panel-accent{
@@ -198,7 +179,7 @@
 
       .table-scroller{
         overflow:auto;
-        max-height:calc(62vh - 54px);
+        flex:1;
         border-top:1px solid var(--stroke);
         background:var(--surface);
       }
@@ -454,11 +435,6 @@
     </style>
   </head>
   <body>
-    <header class="site-header">
-      <h1>CENTRAL LONDON OFFICES GUIDE</h1>
-      <p class="subtitle">Click a subdistrict to get started</p>
-    </header>
-
     <div id="map">
       <!-- Right-side toggle and drop-down panel for the table -->
       <div class="panel-controls">
@@ -781,10 +757,36 @@
         hoverLeaveTimer = setTimeout(removeHover, 100);
       }
 
+      function findFeatureByLabel(label){
+        if (!label || !Array.isArray(geojsonFeatures)) return null;
+        return geojsonFeatures.find(feature => feature?.properties?.label === label) || null;
+      }
+
+      function focusFeatureByLabel(label){
+        const feature = findFeatureByLabel(label);
+        if (!feature) return;
+        const featureLabel = feature.properties?.label || label;
+        const id = feature.id || featureLabel;
+
+        if (hoveredId !== id) {
+          if (hoveredId) setHover(hoveredId, false);
+          hoveredId = id;
+          setHover(hoveredId, true);
+        }
+
+        const center = getFeatureLabelCenter(feature.geometry);
+        if (featureLabel && featureLabel !== activeHoverLabel) {
+          if (activeHoverLabel) setLabelVisibility(activeHoverLabel, true);
+          setLabelVisibility(featureLabel, false);
+          activeHoverLabel = featureLabel;
+        }
+        showPopup(center, featureLabel);
+      }
+
       /* Dynamic padding that respects header + logo banner height.
          Ensures the fitted bounds are never hidden behind chrome. */
       function getDynamicFitPadding(){
-        const headerH = Math.ceil(headerEl.getBoundingClientRect().height || 0);
+        const headerH = Math.ceil(headerEl?.getBoundingClientRect()?.height || 0);
         const bannerH = Math.ceil(logoMarqueeEl?.offsetHeight || 0);
         const safeBottom = 10;
         return {
@@ -886,15 +888,31 @@
         if (document.fonts && document.fonts.ready) {
           try { await document.fonts.ready; } catch(e){}
         }
-        const h = Math.ceil(headerEl.getBoundingClientRect().height);
+        const h = headerEl ? Math.ceil(headerEl.getBoundingClientRect().height || 0) : 0;
         root.style.setProperty('--header-h', h + 'px');
         map.resize();
         debouncedRefit();
         syncDesktopMode();
       }
+
+      function updateMarqueeHeight(){
+        const h = logoMarqueeEl ? Math.ceil(logoMarqueeEl.getBoundingClientRect().height || 0) : 0;
+        root.style.setProperty('--marquee-h', h + 'px');
+        map.resize();
+        debouncedRefit();
+        syncDesktopMode();
+      }
+
       updateHeaderHeight();
-      const headerRO = new ResizeObserver(() => updateHeaderHeight());
-      headerRO.observe(headerEl);
+      updateMarqueeHeight();
+      if (headerEl) {
+        const headerRO = new ResizeObserver(() => updateHeaderHeight());
+        headerRO.observe(headerEl);
+      }
+      if (logoMarqueeEl) {
+        const marqueeRO = new ResizeObserver(() => updateMarqueeHeight());
+        marqueeRO.observe(logoMarqueeEl);
+      }
       map.once('load', () => map.resize());
 
       map.on('load', function () {
@@ -1141,15 +1159,8 @@
 
       function enforceVisibleRows(){
         const scroller = document.querySelector('.table-scroller');
-        const tbody = document.querySelector('#rents-table tbody');
-        const thead = document.querySelector('#rents-table thead');
-        if (!scroller || !tbody) return;
-        const firstRow = tbody.querySelector('tr');
-        const rowH = firstRow ? firstRow.getBoundingClientRect().height : 0;
-        const headH = thead ? thead.getBoundingClientRect().height : 0;
-        if (rowH) {
-          scroller.style.maxHeight = `${headH + rowH * 8}px`;
-        }
+        if (!scroller) return;
+        scroller.style.maxHeight = '';
       }
 
       function renderTable(){
@@ -1160,6 +1171,7 @@
 
         rows.forEach(row => {
           const tr = document.createElement('tr');
+          tr.dataset.label = row.submarket;
 
           const tdLabel = document.createElement('td');
           if (row.url){
@@ -1218,6 +1230,36 @@
         if (document.fonts && document.fonts.ready) {
           document.fonts.ready.then(enforceVisibleRows).catch(() => {});
         }
+      }
+
+      function setupTableHover(){
+        const tbody = document.querySelector('#rents-table tbody');
+        if (!tbody) return;
+
+        function handleEnter(label){
+          if (!label) return;
+          clearTimeout(hoverLeaveTimer);
+          focusFeatureByLabel(label);
+        }
+
+        function handleLeave(){
+          scheduleClearHover();
+        }
+
+        tbody.addEventListener('mouseover', (e) => {
+          const row = e.target.closest('tr');
+          if (!row || !row.dataset.label) return;
+          handleEnter(row.dataset.label);
+        });
+
+        tbody.addEventListener('focusin', (e) => {
+          const row = e.target.closest('tr');
+          if (!row || !row.dataset.label) return;
+          handleEnter(row.dataset.label);
+        });
+
+        tbody.addEventListener('mouseleave', handleLeave);
+        tbody.addEventListener('focusout', handleLeave);
       }
 
       function setupPanel(){
@@ -1325,8 +1367,8 @@
           img.decoding = 'async';
           img.alt = obj.alt || deriveAltFromPath(obj.src);
           img.src = obj.src;
-          img.addEventListener('load', () => debouncedRefit()); // refit map when banner height settles
-          img.onerror = () => { li.remove(); debouncedRefit(); };
+          img.addEventListener('load', () => { updateMarqueeHeight(); debouncedRefit(); }); // refit map when banner height settles
+          img.onerror = () => { li.remove(); updateMarqueeHeight(); debouncedRefit(); };
           li.appendChild(img);
           nodes.push(li);
         }
@@ -1348,6 +1390,7 @@
           track.appendChild(makeStrip([]));
           track.appendChild(makeStrip([]));
           track.style.animationPlayState = 'paused';
+          updateMarqueeHeight();
           debouncedRefit();
           return;
         }
@@ -1356,6 +1399,7 @@
         track.appendChild(makeStrip(nodes.map(n => n.cloneNode(true))));
         track.style.animationPlayState = 'running';
 
+        updateMarqueeHeight();
         setTimeout(() => debouncedRefit(), 250);
       }
       function encodePathSegments(path){
@@ -1438,12 +1482,14 @@
       // DOM init
       if (document.readyState !== 'loading') {
         buildRentsTable();
+        setupTableHover();
         setupPanel();
         syncDesktopMode();
         initLogos();
       } else {
         document.addEventListener('DOMContentLoaded', () => {
           buildRentsTable();
+          setupTableHover();
           setupPanel();
           syncDesktopMode();
           initLogos();
