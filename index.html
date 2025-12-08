@@ -83,7 +83,7 @@
 
       #map{
         position:fixed;
-        top:var(--header-h);
+        top:0;
         left:0;
         right:0;
         bottom:0;
@@ -95,7 +95,7 @@
 
       body.mode-data #map{ display:none; }
 
-      .map-spacer{ height:calc(100vh + var(--header-h)); pointer-events:none; }
+      .map-spacer{ height:calc(120vh + var(--header-h)); pointer-events:none; }
 
       body.header-hidden .site-header{ transform:translateY(-105%); opacity:0; box-shadow:none; }
 
@@ -376,7 +376,7 @@
         .hero-visual{ justify-items:start; }
       }
       @media (max-width:720px){
-        #map{ top:calc(var(--header-h) + 4px); }
+        #map{ top:0; }
         .table-panel{ width:100%; border-radius:14px; box-shadow:0 10px 24px rgba(15,23,42,0.18); }
         .logo-marquee{ right:10px; }
         .btn{ width:100%; justify-content:center; }
