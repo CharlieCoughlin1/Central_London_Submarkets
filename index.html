@@ -84,9 +84,9 @@
 
       .map-stage{
         position:relative;
-        min-height:calc(200vh);
+        min-height:calc(100vh + 140px);
         background:var(--ui);
-        margin-top:-220px;
+        margin-top:-200px;
         overflow:hidden;
       }
 
@@ -158,7 +158,7 @@
         inset:auto;
         background:linear-gradient(180deg, rgba(248,250,252,0.95), rgba(248,250,252,0.98));
         z-index:1;
-        padding:48px 18px calc(48px + env(safe-area-inset-bottom));
+        padding:32px 18px calc(48px + env(safe-area-inset-bottom));
         display:flex;
         justify-content:center;
         overflow:visible;
@@ -172,7 +172,7 @@
         background:var(--surface);
         border:1px solid var(--stroke);
         border-radius:14px;
-        box-shadow:0 14px 32px rgba(15,23,42,0.16);
+        box-shadow:0 18px 36px rgba(15,23,42,0.2);
         overflow:hidden;
         display:flex;
         flex-direction:column;
@@ -180,17 +180,20 @@
       .table-panel .panel-accent{
         height:3px;
         background:var(--brand);
+        box-shadow:0 10px 24px rgba(204,32,48,0.25);
       }
       .panel-header{
         display:flex; align-items:center; justify-content:space-between;
-        padding:10px 12px 8px;
+        padding:16px 16px 12px;
+        background:linear-gradient(180deg, #F9FAFB, #FFFFFF);
+        border-bottom:1px solid var(--stroke);
       }
       .panel-title{
         margin:0;
         font-weight:800;
-        letter-spacing:.8px;
+        letter-spacing:.4px;
         text-transform:uppercase;
-        font-size:.95rem;
+        font-size:1rem;
         color:var(--ink);
       }
       .panel-close{
@@ -245,7 +248,7 @@
       .rent-table caption{
         caption-side:top;
         text-align:left;
-        padding:12px 14px 8px;
+        padding:12px 16px 6px;
         color:var(--muted-ink);
         font-size:.85rem;
       }
@@ -253,17 +256,19 @@
         position:sticky;
         top:0;
         z-index:1;
-        background:var(--ui);
+        background:linear-gradient(180deg, #F5F6F8, #F9FAFB);
         color:var(--muted-ink);
         text-align:left;
         font-weight:800;
-        padding:12px 14px;
+        padding:12px 16px;
         border-bottom:1px solid var(--stroke);
+        letter-spacing:.2px;
       }
       .rent-table tbody td{
-        padding:12px 14px;
+        padding:12px 16px;
         border-bottom:1px solid #F1F2F4;
       }
+      .rent-table tbody td:first-child{ font-weight:800; color:var(--ink); letter-spacing:.1px; }
       .rent-table tbody tr:nth-child(even){ background:#FAFAFB; }
       .rent-table tbody tr:hover{ background:rgba(204,32,48,0.06); }
       .rent-table a{
@@ -290,27 +295,31 @@
         box-shadow:none;
         pointer-events:none; /* never block map interactions */
         backdrop-filter:none;
-        padding:8px 0 12px;
-        margin:8px 0 0;
+        padding:0 0 12px;
+        margin:-12px 0 0;
         display:flex;
         justify-content:center;
       }
       .logo-marquee .logo-accent{ display:none; }
-      .logo-banner-inner{ padding:12px 16px; max-width:1240px; margin:0 auto; background:#3f4040; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,0.18); }
+      .logo-banner-inner{ padding:14px 18px; max-width:1240px; margin:0 auto; background:linear-gradient(130deg, #3D3834 6%, #312F2D 38%, #CC2030 120%); border-radius:14px; box-shadow:0 10px 26px rgba(12,16,32,0.22); border:1px solid rgba(255,255,255,0.08); color:#fff; display:flex; flex-direction:column; gap:8px; }
       .banner-subtitle{
-        margin:0 0 6px;
+        margin:0 0 4px;
         text-align:left;
-        color:#E8EEF9;
+        color:#F9FAFB;
         font-weight:900;
         letter-spacing:.25px;
-        text-transform:none;
-        font-size:1rem;
+        text-transform:uppercase;
+        font-size:.95rem;
+        text-shadow:0 6px 18px rgba(0,0,0,0.24);
       }
       .logo-viewport{
         position:relative;
         overflow:hidden;
-        padding:0;
-        border-radius:10px;
+        padding:2px;
+        border-radius:12px;
+        background:rgba(255,255,255,0.08);
+        border:1px solid rgba(255,255,255,0.14);
+        box-shadow:inset 0 0 0 1px rgba(0,0,0,0.08);
       }
       .logo-viewport::before,
       .logo-viewport::after{
@@ -452,6 +461,7 @@
         padding:4px 6px;
         min-width:72px;
         line-height:1.2;
+        box-shadow:0 10px 22px rgba(15,23,42,0.12);
       }
       .price-box .grade{
         display:block; color:var(--muted-ink); font-size:.85rem; font-weight:700; letter-spacing:.2px;
@@ -459,6 +469,10 @@
       .price-box .price{
         display:block; color:var(--ink); font-size:1rem; font-weight:600;
       }
+      .popup-metrics{ margin-top:8px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+      .metric-chip{ padding:8px 10px; border:1px solid var(--stroke); background:#fff; border-radius:10px; box-shadow:0 10px 24px rgba(15,23,42,0.12); text-align:center; min-width:120px; }
+      .metric-chip .label{ display:block; font-size:.82rem; color:var(--muted-ink); letter-spacing:.25px; text-transform:uppercase; font-weight:800; }
+      .metric-chip .value{ display:block; font-weight:900; color:var(--ink); font-size:1rem; }
     </style>
   </head>
   <body>
@@ -519,7 +533,8 @@
             <thead>
                 <tr>
                   <th scope="col"><button class="sort-button" type="button" data-sort="submarket" aria-sort="none">Submarket <span class="sort-indicator">⇅</span></button></th>
-                  <th scope="col"><button class="sort-button" type="button" data-sort="priceA" aria-sort="descending">Grade A <span class="sort-indicator">⇅</span></button></th>
+                  <th scope="col"><button class="sort-button" type="button" data-sort="priceA" aria-sort="descending">Grade A Prime Rent <span class="sort-indicator">⇅</span></button></th>
+                  <th scope="col"><button class="sort-button" type="button" data-sort="priceB" aria-sort="none">Grade B Prime Rent <span class="sort-indicator">⇅</span></button></th>
                   <th scope="col"><button class="sort-button" type="button" data-sort="totalCost" aria-sort="none">Total cost: Rent, Rates and Service Charge <span class="sort-indicator">⇅</span></button></th>
                   <th scope="col"><button class="sort-button" type="button" data-sort="totalCostChange" aria-sort="none">Total Cost Percentage Change (Last 12-months, %) <span class="sort-indicator">⇅</span></button></th>
                 </tr>
@@ -534,36 +549,56 @@
     <script>
       /* === DATA === */
       var priceData = {
-        Camden: { A: "£63.00", B: "£42.50" },
-        "Euston & Kings Cross": { A: "£89.00", B: "£60.00" },
-        "Mayfair & St James's": { A: "£170.00", B: "£87.00" },
-        Soho: { A: "£100.00", B: "£69.50" },
-        "Covent Garden": { A: "£90.00", B: "£62.00" },
-        "Victoria / Westminster": { A: "£95.00", B: "£60.00" },
-        "City (EC2, EC3, EC4)": { A: "£85.00", B: "£52.00" },
-        "Clerkenwell & Farringdon": { A: "£90.00", B: "£65.00" },
-        "Old Street / Shoreditch": { A: "£80.00", B: "£52.00" },
+        Camden: { A: "£63.00", B: "£43.00" },
+        "Euston & Kings Cross": { A: "£100.00", B: "£65.00" },
+        "Mayfair & St James's": { A: "£185.00", B: "£90.00" },
+        Soho: { A: "£115.00", B: "£75.00" },
+        "Covent Garden": { A: "£100.00", B: "£65.00" },
+        "Victoria / Westminster": { A: "£102.50", B: "£65.00" },
+        "City (EC2, EC3, EC4)": { A: "£97.50", B: "£55.00" },
+        "Clerkenwell & Farringdon": { A: "£97.50", B: "£70.00" },
+        "Old Street / Shoreditch": { A: "£87.50", B: "£55.00" },
         "Aldgate / Whitechapel": { A: "£60.00", B: "£40.00" },
-        "Vauxhall / Nine Elms & Battersea": { A: "£63.00", B: "£40.00" },
-        Southbank: { A: "£85.00", B: "£52.00" },
-        Midtown: { A: "£85.00", B: "£55.00" },
-        "Canary Wharf": { A: "£55.00", B: "£32.00" },
-        "Noho / Fitzrovia": { A: "£105.00", B: "£65.00" },
-        Marylebone: { A: "£98.00", B: "£62.50" },
-        Paddington: { A: "£85.00", B: "£50.00" },
-        "Kensington & Chelsea": { A: "£75.00", B: "£42.50" },
-        "White City / Shepherd's Bush": { A: "£58.00", B: "£40.00" },
-        Hammersmith: { A: "£58.00", B: "£40.00" },
-        "Knightsbridge / Belgravia": { A: "£90.00", B: "£60.00" }
+        "Vauxhall / Nine Elms & Battersea": { A: "£65.00", B: "£42.50" },
+        Southbank: { A: "£90.00", B: "£55.00" },
+        Midtown: { A: "£95.00", B: "£57.50" },
+        "Canary Wharf": { A: "£57.50", B: "£32.00" },
+        "Noho / Fitzrovia": { A: "£115.00", B: "£67.50" },
+        Marylebone: { A: "£115.00", B: "£67.50" },
+        Paddington: { A: "£90.00", B: "£52.50" },
+        "Kensington & Chelsea": { A: "£77.50", B: "£43.50" },
+        "White City / Shepherd's Bush": { A: "£60.00", B: "£42.50" },
+        Hammersmith: { A: "£57.50", B: "£40.00" },
+        "Knightsbridge / Belgravia": { A: "£97.50", B: "£65.00" }
       };
 
       const defaultMetrics = {
-        totalCost: '',
-        totalCostChange: ''
+        totalCost: '—',
+        totalCostChange: '—'
       };
 
       const submarketMetrics = {
-        // Add future submarket-specific metrics here. Defaults are used otherwise.
+        "Mayfair & St James's": { totalCost: "£256.34", totalCostChange: "7.9%" },
+        "Knightsbridge / Belgravia": { totalCost: "£158.38", totalCostChange: "5.8%" },
+        Marylebone: { totalCost: "£178.48", totalCostChange: "13.4%" },
+        Soho: { totalCost: "£180.80", totalCostChange: "11.5%" },
+        "Noho / Fitzrovia": { totalCost: "£174.53", totalCostChange: "8.4%" },
+        "Covent Garden": { totalCost: "£159.39", totalCostChange: "7.5%" },
+        "Euston & Kings Cross": { totalCost: "£152.86", totalCostChange: "9.7%" },
+        "Victoria / Westminster": { totalCost: "£157.80", totalCostChange: "7.3%" },
+        "Clerkenwell & Farringdon": { totalCost: "£139.87", totalCostChange: "6.1%" },
+        Midtown: { totalCost: "£143.75", totalCostChange: "10.1%" },
+        "City (EC2, EC3, EC4)": { totalCost: "£150.30", totalCostChange: "8.1%" },
+        Paddington: { totalCost: "£140.42", totalCostChange: "6.4%" },
+        "Old Street / Shoreditch": { totalCost: "£130.77", totalCostChange: "8.8%" },
+        Southbank: { totalCost: "£140.19", totalCostChange: "6.4%" },
+        "Vauxhall / Nine Elms & Battersea": { totalCost: "£102.68", totalCostChange: "5.7%" },
+        "Kensington & Chelsea": { totalCost: "£125.08", totalCostChange: "5.0%" },
+        Camden: { totalCost: "£106.59", totalCostChange: "3.5%" },
+        Hammersmith: { totalCost: "£98.37", totalCostChange: "3.0%" },
+        "Aldgate / Whitechapel": { totalCost: "£103.32", totalCostChange: "0.1%" },
+        "White City / Shepherd's Bush": { totalCost: "£102.07", totalCostChange: "5.2%" },
+        "Canary Wharf": { totalCost: "£106.20", totalCostChange: "4.4%" }
       };
 
       const labelToUrl = {
@@ -757,10 +792,17 @@
 
       function renderPopup(label, dataInfo){
         const title = (label || '').toUpperCase();
+        const metrics = submarketMetrics[label] || defaultMetrics;
+        const hasMetrics = metrics && ((metrics.totalCost && metrics.totalCost !== '—') || (metrics.totalCostChange && metrics.totalCostChange !== '—'));
         const prices = dataInfo ? `
     <div class="popup-prices">
       <div class="price-box"><span class="grade">Grade A</span><span class="price">${dataInfo.A}</span></div>
       <div class="price-box"><span class="grade">Grade B</span><span class="price">${dataInfo.B}</span></div>
+    </div>` : '';
+        const metricsHtml = hasMetrics ? `
+    <div class="popup-metrics">
+      <div class="metric-chip"><span class="label">Total Cost</span><span class="value">${metrics.totalCost}</span></div>
+      <div class="metric-chip"><span class="label">12-mo Change</span><span class="value">${metrics.totalCostChange}</span></div>
     </div>` : '';
         return `
     <div class="pop-inner" data-label="${title}" role="status" aria-live="polite">
@@ -768,6 +810,7 @@
         <h3 class="popup-title">${title}</h3>
       </div>
       ${prices}
+      ${metricsHtml}
     </div>`;
       }
 
@@ -1210,6 +1253,8 @@
               url: labelToUrl[label] || '',
               priceAText: priceData[label]?.A || '—',
               priceA: priceToNumber(priceData[label]?.A),
+              priceBText: priceData[label]?.B || '—',
+              priceB: priceToNumber(priceData[label]?.B),
               totalCostText: (submarketMetrics[label]?.totalCost ?? defaultMetrics.totalCost),
               totalCost: metricToNumber(submarketMetrics[label]?.totalCost ?? defaultMetrics.totalCost),
               totalCostChangeText: (submarketMetrics[label]?.totalCostChange ?? defaultMetrics.totalCostChange),
@@ -1293,6 +1338,9 @@
             const tdA = document.createElement('td');
             tdA.textContent = row.priceAText;
 
+            const tdB = document.createElement('td');
+            tdB.textContent = row.priceBText;
+
             const tdTotal = document.createElement('td');
             tdTotal.textContent = row.totalCostText;
 
@@ -1301,6 +1349,7 @@
 
             tr.appendChild(tdLabel);
             tr.appendChild(tdA);
+            tr.appendChild(tdB);
             tr.appendChild(tdTotal);
             tr.appendChild(tdTotalChange);
             frag.appendChild(tr);
