@@ -532,6 +532,8 @@
                   <th scope="col"><button class="sort-button" type="button" data-sort="submarket" aria-sort="none">Submarket <span class="sort-indicator">⇅</span></button></th>
                   <th scope="col"><button class="sort-button" type="button" data-sort="priceA" aria-sort="descending">Grade A Prime Rent <span class="sort-indicator">⇅</span></button></th>
                   <th scope="col"><button class="sort-button" type="button" data-sort="priceB" aria-sort="none">Grade B Prime Rent <span class="sort-indicator">⇅</span></button></th>
+                  <th scope="col"><button class="sort-button" type="button" data-sort="totalCost" aria-sort="none">Total Cost: Rent, Rates, Service charge <span class="sort-indicator">⇅</span></button></th>
+                  <th scope="col"><button class="sort-button" type="button" data-sort="change" aria-sort="none">Total cost percentage change (last 12-months, %) <span class="sort-indicator">⇅</span></button></th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -565,6 +567,30 @@
         "White City / Shepherd's Bush": { A: "£60.00", B: "£42.50" },
         Hammersmith: { A: "£57.50", B: "£40.00" },
         "Knightsbridge / Belgravia": { A: "£97.50", B: "£65.00" }
+      };
+
+      var totalCostData = {
+        "Mayfair & St James's": { totalCost: "£256.34", change: "7.9%" },
+        "Knightsbridge / Belgravia": { totalCost: "£158.38", change: "5.8%" },
+        Marylebone: { totalCost: "£178.48", change: "13.4%" },
+        Soho: { totalCost: "£180.80", change: "11.5%" },
+        "Noho / Fitzrovia": { totalCost: "£174.53", change: "8.4%" },
+        "Covent Garden": { totalCost: "£159.39", change: "7.5%" },
+        "Euston & Kings Cross": { totalCost: "£152.86", change: "9.7%" },
+        "Victoria / Westminster": { totalCost: "£157.80", change: "7.3%" },
+        "Clerkenwell & Farringdon": { totalCost: "£139.87", change: "6.1%" },
+        Midtown: { totalCost: "£143.75", change: "10.1%" },
+        "City (EC2, EC3, EC4)": { totalCost: "£150.30", change: "8.1%" },
+        Paddington: { totalCost: "£140.42", change: "6.4%" },
+        "Old Street / Shoreditch": { totalCost: "£130.77", change: "8.8%" },
+        Southbank: { totalCost: "£140.19", change: "6.4%" },
+        "Vauxhall / Nine Elms & Battersea": { totalCost: "£102.68", change: "5.7%" },
+        "Kensington & Chelsea": { totalCost: "£125.08", change: "5.0%" },
+        Camden: { totalCost: "£106.59", change: "3.5%" },
+        Hammersmith: { totalCost: "£98.37", change: "3.0%" },
+        "Aldgate / Whitechapel": { totalCost: "£103.32", change: "0.1%" },
+        "White City / Shepherd's Bush": { totalCost: "£102.07", change: "5.2%" },
+        "Canary Wharf": { totalCost: "£106.20", change: "4.4%" }
       };
 
       const labelToUrl = {
@@ -1194,6 +1220,12 @@
         return Number.isFinite(cleaned) ? cleaned : null;
       }
 
+      function percentToNumber(value){
+        if (typeof value !== 'string') return null;
+        const cleaned = parseFloat(value.replace(/[^0-9.+-]/g, ''));
+        return Number.isFinite(cleaned) ? cleaned : null;
+      }
+
         function getTableRows(){
           return Object.keys(priceData)
             .filter(label => label !== 'River Thames')
@@ -1203,7 +1235,11 @@
               priceAText: priceData[label]?.A || '—',
               priceA: priceToNumber(priceData[label]?.A),
               priceBText: priceData[label]?.B || '—',
-              priceB: priceToNumber(priceData[label]?.B)
+              priceB: priceToNumber(priceData[label]?.B),
+              totalCostText: totalCostData[label]?.totalCost || '—',
+              totalCost: priceToNumber(totalCostData[label]?.totalCost),
+              changeText: totalCostData[label]?.change || '—',
+              change: percentToNumber(totalCostData[label]?.change)
             }));
         }
 
@@ -1286,9 +1322,17 @@
             const tdB = document.createElement('td');
             tdB.textContent = row.priceBText;
 
+            const tdTotal = document.createElement('td');
+            tdTotal.textContent = row.totalCostText;
+
+            const tdChange = document.createElement('td');
+            tdChange.textContent = row.changeText;
+
             tr.appendChild(tdLabel);
             tr.appendChild(tdA);
             tr.appendChild(tdB);
+            tr.appendChild(tdTotal);
+            tr.appendChild(tdChange);
             frag.appendChild(tr);
           });
         tbody.innerHTML = '';
