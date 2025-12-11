@@ -84,9 +84,9 @@
 
       .map-stage{
         position:relative;
-        min-height:calc(100vh + 140px);
+        min-height:calc(100vh + 40px);
         background:var(--ui);
-        margin-top:-200px;
+        margin-top:-170px;
         overflow:hidden;
       }
 
@@ -97,16 +97,16 @@
         right:0;
         width:calc(100% + 32px);
         margin-left:-16px;
-        height:calc(100vh + var(--header-h));
-        min-height:880px;
+        height:calc(100vh + var(--header-h) - 80px);
+        min-height:760px;
         background:var(--ui);
         padding-bottom:env(safe-area-inset-bottom);
         box-sizing:border-box;
       }
 
       body.map-expanded #map{
-        height:calc(100vh + var(--header-h));
-        min-height:880px;
+        height:calc(100vh + var(--header-h) - 80px);
+        min-height:760px;
       }
 
       body.header-hidden .site-header{ transform:translateY(-105%); opacity:0; box-shadow:none; }
@@ -258,7 +258,7 @@
         z-index:1;
         background:linear-gradient(180deg, #F5F6F8, #F9FAFB);
         color:var(--muted-ink);
-        text-align:left;
+        text-align:center;
         font-weight:800;
         padding:12px 16px;
         border-bottom:1px solid var(--stroke);
@@ -267,6 +267,7 @@
       .rent-table tbody td{
         padding:12px 16px;
         border-bottom:1px solid #F1F2F4;
+        text-align:center;
       }
       .rent-table tbody td:first-child{ font-weight:800; color:var(--ink); letter-spacing:.1px; }
       .rent-table tbody tr:nth-child(even){ background:#FAFAFB; }
@@ -295,8 +296,8 @@
         box-shadow:none;
         pointer-events:none; /* never block map interactions */
         backdrop-filter:none;
-        padding:0 0 12px;
-        margin:-12px 0 0;
+        padding:0 0 8px;
+        margin:-20px 0 0;
         display:flex;
         justify-content:center;
       }
@@ -317,8 +318,8 @@
         overflow:hidden;
         padding:2px;
         border-radius:12px;
-        background:rgba(255,255,255,0.08);
-        border:1px solid rgba(255,255,255,0.14);
+        background:#3d4040;
+        border:1px solid rgba(255,255,255,0.12);
         box-shadow:inset 0 0 0 1px rgba(0,0,0,0.08);
       }
       .logo-viewport::before,
@@ -469,10 +470,6 @@
       .price-box .price{
         display:block; color:var(--ink); font-size:1rem; font-weight:600;
       }
-      .popup-metrics{ margin-top:8px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
-      .metric-chip{ padding:8px 10px; border:1px solid var(--stroke); background:#fff; border-radius:10px; box-shadow:0 10px 24px rgba(15,23,42,0.12); text-align:center; min-width:120px; }
-      .metric-chip .label{ display:block; font-size:.82rem; color:var(--muted-ink); letter-spacing:.25px; text-transform:uppercase; font-weight:800; }
-      .metric-chip .value{ display:block; font-weight:900; color:var(--ink); font-size:1rem; }
     </style>
   </head>
   <body>
@@ -535,8 +532,6 @@
                   <th scope="col"><button class="sort-button" type="button" data-sort="submarket" aria-sort="none">Submarket <span class="sort-indicator">⇅</span></button></th>
                   <th scope="col"><button class="sort-button" type="button" data-sort="priceA" aria-sort="descending">Grade A Prime Rent <span class="sort-indicator">⇅</span></button></th>
                   <th scope="col"><button class="sort-button" type="button" data-sort="priceB" aria-sort="none">Grade B Prime Rent <span class="sort-indicator">⇅</span></button></th>
-                  <th scope="col"><button class="sort-button" type="button" data-sort="totalCost" aria-sort="none">Total cost: Rent, Rates and Service Charge <span class="sort-indicator">⇅</span></button></th>
-                  <th scope="col"><button class="sort-button" type="button" data-sort="totalCostChange" aria-sort="none">Total Cost Percentage Change (Last 12-months, %) <span class="sort-indicator">⇅</span></button></th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -570,35 +565,6 @@
         "White City / Shepherd's Bush": { A: "£60.00", B: "£42.50" },
         Hammersmith: { A: "£57.50", B: "£40.00" },
         "Knightsbridge / Belgravia": { A: "£97.50", B: "£65.00" }
-      };
-
-      const defaultMetrics = {
-        totalCost: '—',
-        totalCostChange: '—'
-      };
-
-      const submarketMetrics = {
-        "Mayfair & St James's": { totalCost: "£256.34", totalCostChange: "7.9%" },
-        "Knightsbridge / Belgravia": { totalCost: "£158.38", totalCostChange: "5.8%" },
-        Marylebone: { totalCost: "£178.48", totalCostChange: "13.4%" },
-        Soho: { totalCost: "£180.80", totalCostChange: "11.5%" },
-        "Noho / Fitzrovia": { totalCost: "£174.53", totalCostChange: "8.4%" },
-        "Covent Garden": { totalCost: "£159.39", totalCostChange: "7.5%" },
-        "Euston & Kings Cross": { totalCost: "£152.86", totalCostChange: "9.7%" },
-        "Victoria / Westminster": { totalCost: "£157.80", totalCostChange: "7.3%" },
-        "Clerkenwell & Farringdon": { totalCost: "£139.87", totalCostChange: "6.1%" },
-        Midtown: { totalCost: "£143.75", totalCostChange: "10.1%" },
-        "City (EC2, EC3, EC4)": { totalCost: "£150.30", totalCostChange: "8.1%" },
-        Paddington: { totalCost: "£140.42", totalCostChange: "6.4%" },
-        "Old Street / Shoreditch": { totalCost: "£130.77", totalCostChange: "8.8%" },
-        Southbank: { totalCost: "£140.19", totalCostChange: "6.4%" },
-        "Vauxhall / Nine Elms & Battersea": { totalCost: "£102.68", totalCostChange: "5.7%" },
-        "Kensington & Chelsea": { totalCost: "£125.08", totalCostChange: "5.0%" },
-        Camden: { totalCost: "£106.59", totalCostChange: "3.5%" },
-        Hammersmith: { totalCost: "£98.37", totalCostChange: "3.0%" },
-        "Aldgate / Whitechapel": { totalCost: "£103.32", totalCostChange: "0.1%" },
-        "White City / Shepherd's Bush": { totalCost: "£102.07", totalCostChange: "5.2%" },
-        "Canary Wharf": { totalCost: "£106.20", totalCostChange: "4.4%" }
       };
 
       const labelToUrl = {
@@ -792,17 +758,10 @@
 
       function renderPopup(label, dataInfo){
         const title = (label || '').toUpperCase();
-        const metrics = submarketMetrics[label] || defaultMetrics;
-        const hasMetrics = metrics && ((metrics.totalCost && metrics.totalCost !== '—') || (metrics.totalCostChange && metrics.totalCostChange !== '—'));
         const prices = dataInfo ? `
     <div class="popup-prices">
       <div class="price-box"><span class="grade">Grade A</span><span class="price">${dataInfo.A}</span></div>
       <div class="price-box"><span class="grade">Grade B</span><span class="price">${dataInfo.B}</span></div>
-    </div>` : '';
-        const metricsHtml = hasMetrics ? `
-    <div class="popup-metrics">
-      <div class="metric-chip"><span class="label">Total Cost</span><span class="value">${metrics.totalCost}</span></div>
-      <div class="metric-chip"><span class="label">12-mo Change</span><span class="value">${metrics.totalCostChange}</span></div>
     </div>` : '';
         return `
     <div class="pop-inner" data-label="${title}" role="status" aria-live="polite">
@@ -810,7 +769,6 @@
         <h3 class="popup-title">${title}</h3>
       </div>
       ${prices}
-      ${metricsHtml}
     </div>`;
       }
 
@@ -1236,15 +1194,6 @@
         return Number.isFinite(cleaned) ? cleaned : null;
       }
 
-      function metricToNumber(value){
-        if (typeof value === 'number') return Number.isFinite(value) ? value : null;
-        if (typeof value !== 'string') return null;
-        const trimmed = value.trim();
-        if (!trimmed) return null;
-        const cleaned = parseFloat(trimmed.replace(/[^0-9.]/g, ''));
-        return Number.isFinite(cleaned) ? cleaned : null;
-      }
-
         function getTableRows(){
           return Object.keys(priceData)
             .filter(label => label !== 'River Thames')
@@ -1254,11 +1203,7 @@
               priceAText: priceData[label]?.A || '—',
               priceA: priceToNumber(priceData[label]?.A),
               priceBText: priceData[label]?.B || '—',
-              priceB: priceToNumber(priceData[label]?.B),
-              totalCostText: (submarketMetrics[label]?.totalCost ?? defaultMetrics.totalCost),
-              totalCost: metricToNumber(submarketMetrics[label]?.totalCost ?? defaultMetrics.totalCost),
-              totalCostChangeText: (submarketMetrics[label]?.totalCostChange ?? defaultMetrics.totalCostChange),
-              totalCostChange: metricToNumber(submarketMetrics[label]?.totalCostChange ?? defaultMetrics.totalCostChange)
+              priceB: priceToNumber(priceData[label]?.B)
             }));
         }
 
@@ -1341,17 +1286,9 @@
             const tdB = document.createElement('td');
             tdB.textContent = row.priceBText;
 
-            const tdTotal = document.createElement('td');
-            tdTotal.textContent = row.totalCostText;
-
-            const tdTotalChange = document.createElement('td');
-            tdTotalChange.textContent = row.totalCostChangeText;
-
             tr.appendChild(tdLabel);
             tr.appendChild(tdA);
             tr.appendChild(tdB);
-            tr.appendChild(tdTotal);
-            tr.appendChild(tdTotalChange);
             frag.appendChild(tr);
           });
         tbody.innerHTML = '';
