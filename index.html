@@ -1042,7 +1042,7 @@
       }
       map.once('load', () => map.resize());
 
-      map.on('load', function () {
+      function bootMapData(){
         var cacheBuster = '?v=' + Date.now();
         var localUrl = 'final_poly.geojson' + cacheBuster;
         var remoteUrl = 'https://raw.githubusercontent.com/CharlieCoughlin1/Central_London_Submarkets/main/final_poly.geojson' + cacheBuster;
@@ -1229,7 +1229,13 @@
           .catch(function (error) {
             console.error('Error loading GeoJSON:', error);
           });
-      });
+      }
+
+      if (map.isStyleLoaded()) {
+        bootMapData();
+      } else {
+        map.once('style.load', bootMapData);
+      }
 
       /* === Rents Table: populate + panel behavior === */
       const tableState = { sortKey: 'priceA', direction: 'desc' };
