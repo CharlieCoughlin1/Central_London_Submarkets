@@ -90,6 +90,43 @@
         overflow:hidden;
       }
 
+      .forecast-toggle{
+        position:absolute;
+        top:14px;
+        right:14px;
+        z-index:6;
+        display:flex;
+        gap:8px;
+        justify-content:flex-end;
+        width:100%;
+        pointer-events:none;
+      }
+
+      .forecast-toggle .map-forecast-btn{
+        appearance:none;
+        border:1px solid var(--stroke);
+        background:rgba(255,255,255,0.92);
+        color:var(--ink);
+        font-weight:800;
+        letter-spacing:.2px;
+        padding:10px 14px;
+        border-radius:999px;
+        box-shadow:0 12px 26px rgba(15,23,42,0.16);
+        cursor:pointer;
+        transition:background .14s ease, color .14s ease, box-shadow .14s ease, transform .12s ease, border-color .14s ease;
+        pointer-events:auto;
+      }
+
+      .forecast-toggle .map-forecast-btn:hover{ background:#fff; box-shadow:0 14px 30px rgba(15,23,42,0.18); }
+      .forecast-toggle .map-forecast-btn:active{ transform:translateY(1px); }
+
+      .forecast-toggle .map-forecast-btn.is-active{
+        background:linear-gradient(135deg, #FF5568, var(--brand));
+        color:#fff;
+        border-color:rgba(255,255,255,0.42);
+        box-shadow:0 16px 34px rgba(204,32,48,0.45);
+      }
+
       #map{
         position:sticky;
         top:0;
@@ -470,6 +507,12 @@
       .price-box .price{
         display:block; color:var(--ink); font-size:1rem; font-weight:600;
       }
+
+      .price-box .price-forecast-row{ display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; }
+      .price-box .price-forecast-row .price-current{ color:var(--muted-ink); font-weight:700; }
+      .price-box .price-forecast-row .forecast-arrow{ color:var(--brand); font-weight:900; }
+      .price-box .price-forecast-row .price-2030{ color:var(--ink); font-weight:800; }
+      .price-box .forecast-label{ display:block; color:var(--muted-ink); font-size:.78rem; margin-top:2px; }
     </style>
   </head>
   <body>
@@ -500,6 +543,9 @@
 
     <section class="map-stage" id="map-stage">
       <div id="map">
+        <div class="forecast-toggle">
+          <button id="forecast-toggle" class="map-forecast-btn" type="button" aria-pressed="false">2030 forecast</button>
+        </div>
         <div class="psf-control">*All prices are per sq ft</div>
       </div>
     </section>
@@ -569,6 +615,35 @@
         "Knightsbridge / Belgravia": { A: "£97.50", B: "£65.00" }
       };
 
+      const forecast2030Data = {
+        "Mayfair & St James's": 236.1120891,
+        "Knightsbridge / Belgravia": 124.4374523,
+        Marylebone: 146.7723797,
+        Soho: 146.7723797,
+        "Noho / Fitzrovia": 146.7723797,
+        "Covent Garden": 127.6281563,
+        "Euston & Kings Cross": 127.6281563,
+        "Victoria / Westminster": 130.8188602,
+        "Clerkenwell & Farringdon": 124.4374523,
+        Midtown: 121.2467484,
+        "City (EC2, EC3, EC4)": 124.4374523,
+        Paddington: 114.8653406,
+        "Old Street / Shoreditch": 111.6746367,
+        Southbank: 114.8653406,
+        "Vauxhall / Nine Elms & Battersea": 82.95830156,
+        "Kensington & Chelsea": 98.91182109,
+        Camden: 80.40573844,
+        Hammersmith: 73.38618984,
+        "Aldgate / Whitechapel": 76.57689375,
+        "White City / Shepherd's Bush": 76.57689375,
+        "Canary Wharf": 73.38618984
+      };
+
+      const forecastStats = (() => {
+        const values = Object.values(forecast2030Data).filter(v => typeof v === 'number' && Number.isFinite(v));
+        return { min: Math.min(...values), max: Math.max(...values) };
+      })();
+
       var totalCostData = {
         "Mayfair & St James's": { totalCost: "£256.34", change: "7.9%" },
         "Knightsbridge / Belgravia": { totalCost: "£158.38", change: "5.8%" },
@@ -622,6 +697,8 @@
       const headerEl = document.querySelector('.site-header');
       const logoMarqueeEl = document.getElementById('logo-marquee');
       const dataView = document.getElementById('data-view');
+      const forecastToggleBtn = document.getElementById('forecast-toggle');
+      let isForecastMode = false;
 
       const map = new maplibregl.Map({
         container: 'map',
@@ -664,6 +741,11 @@
       const labelMarkers = [];
       let geojsonFeatures = null;
       let cachedHeaderHeight = 0;
+      const forecastColorStops = {
+        light: '#FDE8EA',
+        mid: '#E24A56',
+        dark: '#7F0D1A'
+      };
 
       function isDesktopView(){
         return desktopMedia.matches;
@@ -671,6 +753,56 @@
 
       function setHover(id, isHovering) {
         map.setFeatureState({ source: 'subdistricts', id }, { hover: isHovering });
+      }
+
+      function getBaseFillColorExpression(){
+        return [
+          'case',
+          ['boolean', ['feature-state', 'hover'], false], 'rgba(204,32,48,0.10)',
+          '#EDEFF2'
+        ];
+      }
+
+      function getForecastFillColorExpression(){
+        if (!forecastStats.min || !forecastStats.max) return getBaseFillColorExpression();
+        const valueExpr = ['feature-state', 'forecast'];
+        const mid = (forecastStats.min + forecastStats.max) / 2;
+        return [
+          'case',
+          ['boolean', ['feature-state', 'hover'], false], 'rgba(255,255,255,0.35)',
+          ['case',
+            ['==', valueExpr, null], '#EDEFF2',
+            ['interpolate', ['linear'], valueExpr,
+              forecastStats.min, forecastColorStops.light,
+              mid, forecastColorStops.mid,
+              forecastStats.max, forecastColorStops.dark
+            ]
+          ]
+        ];
+      }
+
+      function updateFillForMode(){
+        if (!map.getLayer('subdistrict-fills')) return;
+        const expr = isForecastMode ? getForecastFillColorExpression() : getBaseFillColorExpression();
+        map.setPaintProperty('subdistrict-fills', 'fill-color', expr);
+      }
+
+      function applyForecastStatesToFeatures(features){
+        if (!Array.isArray(features)) return;
+        features.forEach(feature => {
+          const id = feature.id || feature.properties?.label;
+          const label = feature.properties?.label;
+          const forecastValue = forecast2030Data[label];
+          map.setFeatureState(
+            { source: 'subdistricts', id },
+            { forecast: typeof forecastValue === 'number' ? forecastValue : null }
+          );
+        });
+      }
+
+      function formatForecastPrice(value){
+        if (typeof value !== 'number' || !Number.isFinite(value)) return null;
+        return `£${value.toFixed(2)}`;
       }
 
       function getFeatureBoundsCenter(coords) {
@@ -784,9 +916,20 @@
 
       function renderPopup(label, dataInfo){
         const title = (label || '').toUpperCase();
+        const forecastValue = formatForecastPrice(forecast2030Data[label]);
         const prices = dataInfo ? `
     <div class="popup-prices">
-      <div class="price-box"><span class="grade">Grade A</span><span class="price">${dataInfo.A}</span></div>
+      <div class="price-box">
+        <span class="grade">Grade A</span>
+        ${isForecastMode && forecastValue ? `
+        <div class="price-forecast-row">
+          <span class="price price-current" aria-label="Q4 2025 grade A">${dataInfo.A}</span>
+          <span class="forecast-arrow" aria-hidden="true">→</span>
+          <span class="price price-2030" aria-label="2030 forecast grade A">${forecastValue}</span>
+        </div>
+        <span class="forecast-label">Q4 2025 to 2030 forecast</span>
+        ` : `<span class="price">${dataInfo.A}</span>`}
+      </div>
       <div class="price-box"><span class="grade">Grade B</span><span class="price">${dataInfo.B}</span></div>
     </div>` : '';
         return `
@@ -863,6 +1006,31 @@
       function findFeatureByLabel(label){
         if (!label || !Array.isArray(geojsonFeatures)) return null;
         return geojsonFeatures.find(feature => feature?.properties?.label === label) || null;
+      }
+
+      function refreshActivePopup(){
+        if (!activeHoverLabel) return;
+        const feature = findFeatureByLabel(activeHoverLabel);
+        if (!feature) return;
+        const center = getFeatureLabelCenter(feature.geometry);
+        showPopup(center, activeHoverLabel);
+      }
+
+      function toggleForecastMode(force){
+        if (!map.getLayer('subdistrict-fills')) return;
+        const next = typeof force === 'boolean' ? force : !isForecastMode;
+        if (next === isForecastMode) return;
+        isForecastMode = next;
+        if (forecastToggleBtn){
+          forecastToggleBtn.classList.toggle('is-active', isForecastMode);
+          forecastToggleBtn.setAttribute('aria-pressed', String(isForecastMode));
+        }
+        updateFillForMode();
+        refreshActivePopup();
+      }
+
+      if (forecastToggleBtn){
+        forecastToggleBtn.addEventListener('click', () => toggleForecastMode());
       }
 
       function focusFeatureByLabel(label){
@@ -1041,12 +1209,18 @@
             });
           })
           .then(function (data) {
+            (data.features || []).forEach(function (feature) {
+              if (!feature.id) feature.id = feature.properties?.label || feature.id;
+            });
+
             map.addSource('subdistricts', {
               type: 'geojson',
               data: data,
               maxzoom: 22,
               promoteId: 'label'
             });
+
+            applyForecastStatesToFeatures(data.features);
 
             // Thames
             map.addLayer({
@@ -1082,11 +1256,7 @@
               source: 'subdistricts',
               filter: ['!=', ['get', 'label'], 'River Thames'],
               paint: {
-                'fill-color': [
-                  'case',
-                  ['boolean', ['feature-state', 'hover'], false], 'rgba(204,32,48,0.10)',
-                  '#EDEFF2'
-                ],
+                'fill-color': getBaseFillColorExpression(),
                 'fill-outline-color': '#B6BCC6',
                 'fill-opacity': 1
               }
