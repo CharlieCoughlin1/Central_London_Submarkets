@@ -90,43 +90,6 @@
         overflow:hidden;
       }
 
-      .forecast-toggle{
-        position:absolute;
-        top:14px;
-        right:14px;
-        z-index:6;
-        display:flex;
-        gap:8px;
-        justify-content:flex-end;
-        width:100%;
-        pointer-events:none;
-      }
-
-      .forecast-toggle .map-forecast-btn{
-        appearance:none;
-        border:1px solid var(--stroke);
-        background:rgba(255,255,255,0.92);
-        color:var(--ink);
-        font-weight:800;
-        letter-spacing:.2px;
-        padding:10px 14px;
-        border-radius:999px;
-        box-shadow:0 12px 26px rgba(15,23,42,0.16);
-        cursor:pointer;
-        transition:background .14s ease, color .14s ease, box-shadow .14s ease, transform .12s ease, border-color .14s ease;
-        pointer-events:auto;
-      }
-
-      .forecast-toggle .map-forecast-btn:hover{ background:#fff; box-shadow:0 14px 30px rgba(15,23,42,0.18); }
-      .forecast-toggle .map-forecast-btn:active{ transform:translateY(1px); }
-
-      .forecast-toggle .map-forecast-btn.is-active{
-        background:linear-gradient(135deg, #FF5568, var(--brand));
-        color:#fff;
-        border-color:rgba(255,255,255,0.42);
-        box-shadow:0 16px 34px rgba(204,32,48,0.45);
-      }
-
       #map{
         position:sticky;
         top:0;
@@ -203,8 +166,8 @@
       }
       .table-panel{
         position:relative;
-        width:min(1200px, calc(100% - 36px));
-        max-width:1200px;
+        width:min(1400px, calc(100% - 36px));
+        max-width:1400px;
         height:auto;
         background:var(--surface);
         border:1px solid var(--stroke);
@@ -306,9 +269,10 @@
         border-bottom:1px solid #F1F2F4;
         text-align:center;
       }
+      .rent-table .col-grade-a{ background:#f8f6ff; }
+      .rent-table .col-grade-b{ background:#f4f8ff; }
       .rent-table tbody td:first-child{ font-weight:800; color:var(--ink); letter-spacing:.1px; }
-      .rent-table tbody tr:nth-child(even){ background:#FAFAFB; }
-      .rent-table tbody tr:hover{ background:rgba(204,32,48,0.06); }
+      .rent-table tbody tr:hover td{ background:rgba(204,32,48,0.06); }
       .rent-table a{
         font-weight:700;
         color:var(--ink);
@@ -439,6 +403,9 @@
         .btn{ width:100%; justify-content:center; }
         .hero-lede{ max-width:unset; }
       }
+      @media (min-width: 1200px){
+        .table-scroller{ overflow:visible; }
+      }
       @media (prefers-reduced-motion: reduce){
         *{transition:none!important;}
         .logo-track{ animation:none!important; }
@@ -508,11 +475,6 @@
         display:block; color:var(--ink); font-size:1rem; font-weight:600;
       }
 
-      .price-box .price-forecast-row{ display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; }
-      .price-box .price-forecast-row .price-current{ color:var(--muted-ink); font-weight:700; }
-      .price-box .price-forecast-row .forecast-arrow{ color:var(--brand); font-weight:900; }
-      .price-box .price-forecast-row .price-2030{ color:var(--ink); font-weight:800; }
-      .price-box .forecast-label{ display:block; color:var(--muted-ink); font-size:.78rem; margin-top:2px; }
     </style>
   </head>
   <body>
@@ -542,9 +504,6 @@
     </header>
 
     <section class="map-stage" id="map-stage">
-      <div class="forecast-toggle">
-        <button id="forecast-toggle" class="map-forecast-btn" type="button" aria-pressed="false">2030 forecast</button>
-      </div>
       <div id="map"></div>
       <div class="psf-control">*All prices are per sq ft</div>
     </section>
@@ -575,10 +534,12 @@
             <thead>
                 <tr>
                   <th scope="col"><button class="sort-button" type="button" data-sort="submarket" aria-sort="none">Submarket <span class="sort-indicator">⇅</span></button></th>
-                  <th scope="col"><button class="sort-button" type="button" data-sort="priceA" aria-sort="descending">Grade A Prime Rent <span class="sort-indicator">⇅</span></button></th>
-                  <th scope="col"><button class="sort-button" type="button" data-sort="priceB" aria-sort="none">Grade B Prime Rent <span class="sort-indicator">⇅</span></button></th>
-                  <th scope="col"><button class="sort-button" type="button" data-sort="totalCost" aria-sort="none">Total Cost: Rent, Rates, Service charge <span class="sort-indicator">⇅</span></button></th>
-                  <th scope="col"><button class="sort-button" type="button" data-sort="change" aria-sort="none">Total cost percentage change (last 12-months, %) <span class="sort-indicator">⇅</span></button></th>
+                  <th scope="col" class="col-grade-a"><button class="sort-button" type="button" data-sort="priceA" aria-sort="descending">Grade A Prime Rent <span class="sort-indicator">⇅</span></button></th>
+                  <th scope="col" class="col-grade-a"><button class="sort-button" type="button" data-sort="totalCostA" aria-sort="none">Grade A Total Cost: Rent, Rates, Service Charge <span class="sort-indicator">⇅</span></button></th>
+                  <th scope="col" class="col-grade-a"><button class="sort-button" type="button" data-sort="changeA" aria-sort="none">Grade A Total Cost Percentage Change (last 12-months, %) <span class="sort-indicator">⇅</span></button></th>
+                  <th scope="col" class="col-grade-b"><button class="sort-button" type="button" data-sort="priceB" aria-sort="none">Grade B Prime Rent <span class="sort-indicator">⇅</span></button></th>
+                  <th scope="col" class="col-grade-b"><button class="sort-button" type="button" data-sort="totalCostB" aria-sort="none">Grade B Total Cost: Rent, Rates, Service Charge <span class="sort-indicator">⇅</span></button></th>
+                  <th scope="col" class="col-grade-b"><button class="sort-button" type="button" data-sort="changeB" aria-sort="none">Grade B Total Cost Percentage Change (last 12-months, %) <span class="sort-indicator">⇅</span></button></th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -590,82 +551,46 @@
     <script src="vendor/maplibre-gl/maplibre-gl.js"></script>
     <script>
       /* === DATA === */
-      var priceData = {
-        Camden: { A: "£63.00", B: "£43.00" },
-        "Euston & Kings Cross": { A: "£100.00", B: "£65.00" },
-        "Mayfair & St James's": { A: "£185.00", B: "£90.00" },
-        Soho: { A: "£115.00", B: "£75.00" },
-        "Covent Garden": { A: "£100.00", B: "£65.00" },
-        "Victoria / Westminster": { A: "£102.50", B: "£65.00" },
-        "City (EC2, EC3, EC4)": { A: "£97.50", B: "£55.00" },
-        "Clerkenwell & Farringdon": { A: "£97.50", B: "£70.00" },
-        "Old Street / Shoreditch": { A: "£87.50", B: "£55.00" },
-        "Aldgate / Whitechapel": { A: "£60.00", B: "£40.00" },
-        "Vauxhall / Nine Elms & Battersea": { A: "£65.00", B: "£42.50" },
-        Southbank: { A: "£90.00", B: "£55.00" },
-        Midtown: { A: "£95.00", B: "£57.50" },
-        "Canary Wharf": { A: "£57.50", B: "£32.00" },
-        "Noho / Fitzrovia": { A: "£115.00", B: "£67.50" },
-        Marylebone: { A: "£115.00", B: "£67.50" },
-        Paddington: { A: "£90.00", B: "£52.50" },
-        "Kensington & Chelsea": { A: "£77.50", B: "£43.50" },
-        "White City / Shepherd's Bush": { A: "£60.00", B: "£42.50" },
-        Hammersmith: { A: "£57.50", B: "£40.00" },
-        "Knightsbridge / Belgravia": { A: "£97.50", B: "£65.00" }
-      };
+      const submarketData = [
+        { label: "Mayfair & St James's", gradeA: { primeRent: 185, totalCost: 256.33715, change: 7.901900532 }, gradeB: { primeRent: 90, totalCost: 150.63305, change: 5.88945907 } },
+        { label: "Knightsbridge / Belgravia", gradeA: { primeRent: 97.5, totalCost: 158.37715, change: 5.75044236 }, gradeB: { primeRent: 65, totalCost: 118.53715, change: 5.333585107 } },
+        { label: "Marylebone", gradeA: { primeRent: 115, totalCost: 178.47715, change: 13.44487526 }, gradeB: { primeRent: 67.5, totalCost: 117.58305, change: 7.504502857 } },
+        { label: "Soho", gradeA: { primeRent: 115, totalCost: 180.79715, change: 11.53089047 }, gradeB: { primeRent: 75, totalCost: 125.97305, change: 7.435120038 } },
+        { label: "Noho / Fitzrovia", gradeA: { primeRent: 115, totalCost: 174.52715, change: 8.445738963 }, gradeB: { primeRent: 67.5, totalCost: 114.68305, change: 5.199330367 } },
+        { label: "Covent Garden", gradeA: { primeRent: 100, totalCost: 159.38715, change: 7.472539699 }, gradeB: { primeRent: 65, totalCost: 110.69305, change: 5.880769047 } },
+        { label: "Euston & Kings Cross", gradeA: { primeRent: 100, totalCost: 152.85715, change: 9.67329148 }, gradeB: { primeRent: 65, totalCost: 106.81305, change: 8.181546564 } },
+        { label: "Victoria / Westminster", gradeA: { primeRent: 102.5, totalCost: 157.80305, change: 7.338060742 }, gradeB: { primeRent: 65, totalCost: 110.84895, change: 7.688298441 } },
+        { label: "Clerkenwell & Farringdon", gradeA: { primeRent: 97.5, totalCost: 139.87305, change: 6.145361411 }, gradeB: { primeRent: 70, totalCost: 108.11305, change: 8.021231953 } },
+        { label: "Midtown", gradeA: { primeRent: 95, totalCost: 143.75305, change: 10.1091877 }, gradeB: { primeRent: 57.5, totalCost: 99.37305, change: 5.947065409 } },
+        { label: "City (EC2, EC3, EC4)", gradeA: { primeRent: 97.5, totalCost: 150.29715, change: 8.053596463 }, gradeB: { primeRent: 55, totalCost: 99.33305, change: 6.769549094 } },
+        { label: "Paddington", gradeA: { primeRent: 90, totalCost: 140.41715, change: 6.396779693 }, gradeB: { primeRent: 52.5, totalCost: 91.81305, change: 6.431403234 } },
+        { label: "Old Street / Shoreditch", gradeA: { primeRent: 87.5, totalCost: 130.77305, change: 8.8279033 }, gradeB: { primeRent: 55, totalCost: 90.83305, change: 7.05763451 } },
+        { label: "Southbank", gradeA: { primeRent: 90, totalCost: 140.18715, change: 6.407947171 }, gradeB: { primeRent: 55, totalCost: 97.02305, change: 6.69494694 } },
+        { label: "Vauxhall / Nine Elms & Battersea", gradeA: { primeRent: 65, totalCost: 102.68305, change: 5.679051099 }, gradeB: { primeRent: 42.5, totalCost: 68.07075, change: 7.307874202 } },
+        { label: "Kensington & Chelsea", gradeA: { primeRent: 77.5, totalCost: 125.07715, change: 4.952506818 }, gradeB: { primeRent: 43.5, totalCost: 78.70895, change: 5.00827163 } },
+        { label: "Camden", gradeA: { primeRent: 63, totalCost: 106.59305, change: 3.503471379 }, gradeB: { primeRent: 43, totalCost: 81.17305, change: 4.543821238 } },
+        { label: "Hammersmith", gradeA: { primeRent: 57.5, totalCost: 98.36895, change: 2.966399749 }, gradeB: { primeRent: 40, totalCost: 76.31895, change: 3.757664333 } },
+        { label: "Aldgate / Whitechapel", gradeA: { primeRent: 60, totalCost: 103.32305, change: 0.104684397 }, gradeB: { primeRent: 40, totalCost: 76.73305, change: 4.080094947 } },
+        { label: "White City / Shepherd's Bush", gradeA: { primeRent: 60, totalCost: 102.07305, change: 5.246223643 }, gradeB: { primeRent: 42.5, totalCost: 74.81895, change: 7.475328593 } },
+        { label: "Stratford", gradeA: { primeRent: 45, totalCost: 81.40305, change: -1.215884958 }, gradeB: { primeRent: 32.5, totalCost: 58.17895, change: 9.595836865 } },
+        { label: "Canary Wharf", gradeA: { primeRent: 57.5, totalCost: 106.1956, change: 4.379398467 }, gradeB: { primeRent: 32, totalCost: 69.06535, change: 5.661057141 } }
+      ];
 
-      const forecast2030Data = {
-        "Mayfair & St James's": 236.1120891,
-        "Knightsbridge / Belgravia": 124.4374523,
-        Marylebone: 146.7723797,
-        Soho: 146.7723797,
-        "Noho / Fitzrovia": 146.7723797,
-        "Covent Garden": 127.6281563,
-        "Euston & Kings Cross": 127.6281563,
-        "Victoria / Westminster": 130.8188602,
-        "Clerkenwell & Farringdon": 124.4374523,
-        Midtown: 121.2467484,
-        "City (EC2, EC3, EC4)": 124.4374523,
-        Paddington: 114.8653406,
-        "Old Street / Shoreditch": 111.6746367,
-        Southbank: 114.8653406,
-        "Vauxhall / Nine Elms & Battersea": 82.95830156,
-        "Kensington & Chelsea": 98.91182109,
-        Camden: 80.40573844,
-        Hammersmith: 73.38618984,
-        "Aldgate / Whitechapel": 76.57689375,
-        "White City / Shepherd's Bush": 76.57689375,
-        "Canary Wharf": 73.38618984
-      };
+      function formatCurrency(value){
+        return Number.isFinite(value) ? `£${value.toFixed(2)}` : '—';
+      }
 
-      const forecastStats = (() => {
-        const values = Object.values(forecast2030Data).filter(v => typeof v === 'number' && Number.isFinite(v));
-        return { min: Math.min(...values), max: Math.max(...values) };
-      })();
+      function formatPercent(value){
+        return Number.isFinite(value) ? `${value.toFixed(1)}%` : '—';
+      }
 
-      var totalCostData = {
-        "Mayfair & St James's": { totalCost: "£256.34", change: "7.9%" },
-        "Knightsbridge / Belgravia": { totalCost: "£158.38", change: "5.8%" },
-        Marylebone: { totalCost: "£178.48", change: "13.4%" },
-        Soho: { totalCost: "£180.80", change: "11.5%" },
-        "Noho / Fitzrovia": { totalCost: "£174.53", change: "8.4%" },
-        "Covent Garden": { totalCost: "£159.39", change: "7.5%" },
-        "Euston & Kings Cross": { totalCost: "£152.86", change: "9.7%" },
-        "Victoria / Westminster": { totalCost: "£157.80", change: "7.3%" },
-        "Clerkenwell & Farringdon": { totalCost: "£139.87", change: "6.1%" },
-        Midtown: { totalCost: "£143.75", change: "10.1%" },
-        "City (EC2, EC3, EC4)": { totalCost: "£150.30", change: "8.1%" },
-        Paddington: { totalCost: "£140.42", change: "6.4%" },
-        "Old Street / Shoreditch": { totalCost: "£130.77", change: "8.8%" },
-        Southbank: { totalCost: "£140.19", change: "6.4%" },
-        "Vauxhall / Nine Elms & Battersea": { totalCost: "£102.68", change: "5.7%" },
-        "Kensington & Chelsea": { totalCost: "£125.08", change: "5.0%" },
-        Camden: { totalCost: "£106.59", change: "3.5%" },
-        Hammersmith: { totalCost: "£98.37", change: "3.0%" },
-        "Aldgate / Whitechapel": { totalCost: "£103.32", change: "0.1%" },
-        "White City / Shepherd's Bush": { totalCost: "£102.07", change: "5.2%" },
-        "Canary Wharf": { totalCost: "£106.20", change: "4.4%" }
-      };
+      const priceData = submarketData.reduce((acc, entry) => {
+        acc[entry.label] = {
+          A: formatCurrency(entry.gradeA?.primeRent),
+          B: formatCurrency(entry.gradeB?.primeRent)
+        };
+        return acc;
+      }, {});
 
       const labelToUrl = {
         "Mayfair & St James's": "https://infogram.com/1pjzjz9jqmq7qmf6jvdd2zrenqfm9qeygxn",
@@ -696,8 +621,6 @@
       const headerEl = document.querySelector('.site-header');
       const logoMarqueeEl = document.getElementById('logo-marquee');
       const dataView = document.getElementById('data-view');
-      const forecastToggleBtn = document.getElementById('forecast-toggle');
-      let isForecastMode = false;
 
       const map = new maplibregl.Map({
         container: 'map',
@@ -740,11 +663,6 @@
       const labelMarkers = [];
       let geojsonFeatures = null;
       let cachedHeaderHeight = 0;
-      const forecastColorStops = {
-        light: '#FDE8EA',
-        mid: '#E24A56',
-        dark: '#7F0D1A'
-      };
 
       function isDesktopView(){
         return desktopMedia.matches;
@@ -760,48 +678,6 @@
           ['boolean', ['feature-state', 'hover'], false], 'rgba(204,32,48,0.10)',
           '#EDEFF2'
         ];
-      }
-
-      function getForecastFillColorExpression(){
-        if (!forecastStats.min || !forecastStats.max) return getBaseFillColorExpression();
-        const valueExpr = ['feature-state', 'forecast'];
-        const mid = (forecastStats.min + forecastStats.max) / 2;
-        return [
-          'case',
-          ['boolean', ['feature-state', 'hover'], false], 'rgba(255,255,255,0.35)',
-          ['case',
-            ['==', valueExpr, null], '#EDEFF2',
-            ['interpolate', ['linear'], valueExpr,
-              forecastStats.min, forecastColorStops.light,
-              mid, forecastColorStops.mid,
-              forecastStats.max, forecastColorStops.dark
-            ]
-          ]
-        ];
-      }
-
-      function updateFillForMode(){
-        if (!map.getLayer('subdistrict-fills')) return;
-        const expr = isForecastMode ? getForecastFillColorExpression() : getBaseFillColorExpression();
-        map.setPaintProperty('subdistrict-fills', 'fill-color', expr);
-      }
-
-      function applyForecastStatesToFeatures(features){
-        if (!Array.isArray(features)) return;
-        features.forEach(feature => {
-          const id = feature.id || feature.properties?.label;
-          const label = feature.properties?.label;
-          const forecastValue = forecast2030Data[label];
-          map.setFeatureState(
-            { source: 'subdistricts', id },
-            { forecast: typeof forecastValue === 'number' ? forecastValue : null }
-          );
-        });
-      }
-
-      function formatForecastPrice(value){
-        if (typeof value !== 'number' || !Number.isFinite(value)) return null;
-        return `£${value.toFixed(2)}`;
       }
 
       function getFeatureBoundsCenter(coords) {
@@ -915,19 +791,11 @@
 
       function renderPopup(label, dataInfo){
         const title = (label || '').toUpperCase();
-        const forecastValue = formatForecastPrice(forecast2030Data[label]);
         const prices = dataInfo ? `
     <div class="popup-prices">
       <div class="price-box">
         <span class="grade">Grade A</span>
-        ${isForecastMode && forecastValue ? `
-        <div class="price-forecast-row">
-          <span class="price price-current" aria-label="Q4 2025 grade A">${dataInfo.A}</span>
-          <span class="forecast-arrow" aria-hidden="true">→</span>
-          <span class="price price-2030" aria-label="2030 forecast grade A">${forecastValue}</span>
-        </div>
-        <span class="forecast-label">Q4 2025 to 2030 forecast</span>
-        ` : `<span class="price">${dataInfo.A}</span>`}
+        <span class="price">${dataInfo.A}</span>
       </div>
       <div class="price-box"><span class="grade">Grade B</span><span class="price">${dataInfo.B}</span></div>
     </div>` : '';
@@ -1013,23 +881,6 @@
         if (!feature) return;
         const center = getFeatureLabelCenter(feature.geometry);
         showPopup(center, activeHoverLabel);
-      }
-
-      function toggleForecastMode(force){
-        if (!map.getLayer('subdistrict-fills')) return;
-        const next = typeof force === 'boolean' ? force : !isForecastMode;
-        if (next === isForecastMode) return;
-        isForecastMode = next;
-        if (forecastToggleBtn){
-          forecastToggleBtn.classList.toggle('is-active', isForecastMode);
-          forecastToggleBtn.setAttribute('aria-pressed', String(isForecastMode));
-        }
-        updateFillForMode();
-        refreshActivePopup();
-      }
-
-      if (forecastToggleBtn){
-        forecastToggleBtn.addEventListener('click', () => toggleForecastMode());
       }
 
       function focusFeatureByLabel(label){
@@ -1383,33 +1234,23 @@
       /* === Rents Table: populate + panel behavior === */
       const tableState = { sortKey: 'priceA', direction: 'desc' };
 
-      function priceToNumber(value){
-        if (typeof value !== 'string') return null;
-        const cleaned = parseFloat(value.replace(/[^0-9.]/g, ''));
-        return Number.isFinite(cleaned) ? cleaned : null;
-      }
-
-      function percentToNumber(value){
-        if (typeof value !== 'string') return null;
-        const cleaned = parseFloat(value.replace(/[^0-9.+-]/g, ''));
-        return Number.isFinite(cleaned) ? cleaned : null;
-      }
-
         function getTableRows(){
-          return Object.keys(priceData)
-            .filter(label => label !== 'River Thames')
-            .map(label => ({
-              submarket: label,
-              url: labelToUrl[label] || '',
-              priceAText: priceData[label]?.A || '—',
-              priceA: priceToNumber(priceData[label]?.A),
-              priceBText: priceData[label]?.B || '—',
-              priceB: priceToNumber(priceData[label]?.B),
-              totalCostText: totalCostData[label]?.totalCost || '—',
-              totalCost: priceToNumber(totalCostData[label]?.totalCost),
-              changeText: totalCostData[label]?.change || '—',
-              change: percentToNumber(totalCostData[label]?.change)
-            }));
+          return submarketData.map(entry => ({
+            submarket: entry.label,
+            url: labelToUrl[entry.label] || '',
+            priceAText: formatCurrency(entry.gradeA?.primeRent),
+            priceA: entry.gradeA?.primeRent ?? null,
+            totalCostAText: formatCurrency(entry.gradeA?.totalCost),
+            totalCostA: entry.gradeA?.totalCost ?? null,
+            changeAText: formatPercent(entry.gradeA?.change),
+            changeA: entry.gradeA?.change ?? null,
+            priceBText: formatCurrency(entry.gradeB?.primeRent),
+            priceB: entry.gradeB?.primeRent ?? null,
+            totalCostBText: formatCurrency(entry.gradeB?.totalCost),
+            totalCostB: entry.gradeB?.totalCost ?? null,
+            changeBText: formatPercent(entry.gradeB?.change),
+            changeB: entry.gradeB?.change ?? null
+          }));
         }
 
         function applySort(rows){
@@ -1486,22 +1327,36 @@
             }
 
             const tdA = document.createElement('td');
+            tdA.className = 'col-grade-a';
             tdA.textContent = row.priceAText;
 
+            const tdTotalA = document.createElement('td');
+            tdTotalA.className = 'col-grade-a';
+            tdTotalA.textContent = row.totalCostAText;
+
+            const tdChangeA = document.createElement('td');
+            tdChangeA.className = 'col-grade-a';
+            tdChangeA.textContent = row.changeAText;
+
             const tdB = document.createElement('td');
+            tdB.className = 'col-grade-b';
             tdB.textContent = row.priceBText;
 
-            const tdTotal = document.createElement('td');
-            tdTotal.textContent = row.totalCostText;
+            const tdTotalB = document.createElement('td');
+            tdTotalB.className = 'col-grade-b';
+            tdTotalB.textContent = row.totalCostBText;
 
-            const tdChange = document.createElement('td');
-            tdChange.textContent = row.changeText;
+            const tdChangeB = document.createElement('td');
+            tdChangeB.className = 'col-grade-b';
+            tdChangeB.textContent = row.changeBText;
 
             tr.appendChild(tdLabel);
             tr.appendChild(tdA);
+            tr.appendChild(tdTotalA);
+            tr.appendChild(tdChangeA);
             tr.appendChild(tdB);
-            tr.appendChild(tdTotal);
-            tr.appendChild(tdChange);
+            tr.appendChild(tdTotalB);
+            tr.appendChild(tdChangeB);
             frag.appendChild(tr);
           });
         tbody.innerHTML = '';
