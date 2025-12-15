@@ -95,18 +95,18 @@
         top:0;
         left:0;
         right:0;
-        width:calc(100% + 32px);
-        margin-left:-16px;
-        height:calc(100vh + var(--header-h) - 80px);
-        min-height:760px;
+        width:100%;
+        margin-left:0;
+        height:clamp(640px, 94vh + var(--header-h) - 80px, 1080px);
+        min-height:640px;
         background:var(--ui);
         padding-bottom:env(safe-area-inset-bottom);
         box-sizing:border-box;
       }
 
       body.map-expanded #map{
-        height:calc(100vh + var(--header-h) - 80px);
-        min-height:760px;
+        height:clamp(640px, 94vh + var(--header-h) - 80px, 1080px);
+        min-height:640px;
       }
 
       body.header-hidden .site-header{ transform:translateY(-105%); opacity:0; box-shadow:none; }
@@ -116,21 +116,22 @@
         display:inline-block;
         padding:6px 10px;
         border:1px solid var(--stroke);
-        border-radius:10px;
-        background:rgba(255,255,255,0.9);
-        box-shadow:0 10px 28px rgba(15,23,42,0.14);
+        border-radius:12px;
+        background:rgba(255,255,255,0.92);
+        box-shadow:0 12px 32px rgba(15,23,42,0.16);
         color:var(--ink);
         font-family:"DIN Pro","DINPro",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
         font-weight:800;
-        font-size:0.82rem;
-        letter-spacing:.25px;
+        font-size:clamp(0.72rem, 0.75vw + 0.45rem, 0.86rem);
+        letter-spacing:.28px;
         text-transform:uppercase;
         text-align:center;
-        max-width:160px;
-        line-height:1.25;
+        max-width:170px;
+        line-height:1.28;
         white-space:normal;
         word-break:break-word;
         transform:translate3d(0,0,0);
+        backdrop-filter:saturate(120%) blur(2px);
       }
 
       /* PSF note */
@@ -169,7 +170,7 @@
         width:min(1400px, calc(100% - 36px));
         max-width:1400px;
         height:auto;
-        background:var(--surface);
+        background:linear-gradient(165deg, #FFFFFF 0%, #F6F7FA 65%, #EEF1F6 100%);
         border:1px solid var(--stroke);
         border-radius:14px;
         box-shadow:0 18px 36px rgba(15,23,42,0.2);
@@ -184,6 +185,7 @@
       }
       .panel-header{
         display:flex; align-items:center; justify-content:space-between;
+        gap:12px;
         padding:16px 16px 12px;
         background:linear-gradient(180deg, #F9FAFB, #FFFFFF);
         border-bottom:1px solid var(--stroke);
@@ -214,8 +216,9 @@
         overflow:auto;
         flex:1;
         border-top:1px solid var(--stroke);
-        background:var(--surface);
+        background:linear-gradient(180deg, #FFFFFF, #F8FAFC);
         min-height:0;
+        position:relative;
       }
 
       .rent-table{
@@ -223,6 +226,7 @@
         border-collapse:separate;
         border-spacing:0;
         font-variant-numeric:tabular-nums;
+        table-layout:fixed;
       }
 
       .sort-button{
@@ -263,6 +267,7 @@
         padding:12px 16px;
         border-bottom:1px solid var(--stroke);
         letter-spacing:.2px;
+        box-shadow:inset 0 -1px 0 rgba(15,23,42,0.04);
       }
       .rent-table tbody td{
         padding:12px 16px;
@@ -283,6 +288,49 @@
         color:var(--muted-ink);
         font-weight:700;
         cursor:default;
+      }
+
+      /* Responsive, card-like table layout */
+      @media (max-width: 960px){
+        .table-panel{ box-shadow:0 14px 26px rgba(15,23,42,0.16); }
+        .table-scroller{ background:transparent; }
+        .rent-table{ border-collapse:collapse; }
+        .rent-table thead{ display:none; }
+        .rent-table caption{ padding:12px 6px; }
+        .rent-table tbody{ display:grid; gap:12px; padding:6px; }
+        .rent-table tbody tr{
+          display:grid;
+          grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+          gap:10px;
+          border:1px solid var(--stroke);
+          border-radius:12px;
+          background:#fff;
+          box-shadow:0 10px 22px rgba(15,23,42,0.12);
+          overflow:hidden;
+        }
+        .rent-table tbody td{
+          text-align:left;
+          border-bottom:none;
+          padding:12px 12px 10px;
+          display:flex;
+          flex-direction:column;
+          gap:6px;
+          background:transparent;
+        }
+        .rent-table tbody td::before{
+          content:attr(data-title);
+          font-size:.78rem;
+          text-transform:uppercase;
+          letter-spacing:.35px;
+          color:var(--muted-ink);
+          font-weight:800;
+        }
+        .rent-table tbody td:first-child{
+          grid-column:1 / -1;
+          padding:14px 12px 8px;
+          font-size:1.08rem;
+        }
+        .rent-table tbody tr:hover td{ background:transparent; }
       }
 
       /* --- Client logo banner (outside #map, fixed to viewport) --- */
@@ -390,6 +438,10 @@
         .logo-marquee{ padding:0; }
         .logo-viewport::before, .logo-viewport::after{ width:18px; }
         .logo-strip img{ height:40px; max-width:170px; clip-path:inset(.8px round 2px); }
+      }
+      @media (max-width:1400px){
+        .polygon-label{ font-size:0.76rem; padding:5px 8px; max-width:150px; }
+        #map{ height:clamp(600px, 92vh + var(--header-h) - 70px, 1040px); min-height:600px; }
       }
       @media (max-width:960px){
         .hero-shell{ grid-template-columns:1fr; gap:12px; }
@@ -779,6 +831,49 @@
         return !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom);
       }
 
+      function inflateRect(rect, padding = 4){
+        return {
+          top: rect.top - padding,
+          right: rect.right + padding,
+          bottom: rect.bottom + padding,
+          left: rect.left - padding
+        };
+      }
+
+      function getRelativeRect(el){
+        if (!el || !mapContainer) return null;
+        const mapRect = mapContainer.getBoundingClientRect();
+        const rect = el.getBoundingClientRect();
+        return {
+          top: rect.top - mapRect.top,
+          right: rect.right - mapRect.left,
+          bottom: rect.bottom - mapRect.top,
+          left: rect.left - mapRect.left
+        };
+      }
+
+      function ringArea(ring = []){
+        let area = 0;
+        for (let i = 0; i < ring.length - 1; i++) {
+          const [x0, y0] = ring[i];
+          const [x1, y1] = ring[i + 1];
+          area += (x0 * y1) - (x1 * y0);
+        }
+        return Math.abs(area / 2);
+      }
+
+      function featureArea(geometry){
+        if (!geometry) return 0;
+        const { type, coordinates } = geometry;
+        if (type === 'Polygon' && Array.isArray(coordinates)) {
+          return ringArea(coordinates[0]);
+        }
+        if (type === 'MultiPolygon' && Array.isArray(coordinates)) {
+          return coordinates.reduce((sum, poly) => sum + ringArea(poly?.[0] || []), 0);
+        }
+        return 0;
+      }
+
       function setLabelVisibility(label, isVisible){
         if (!label) return;
         const entry = labelMarkers.find(item => item.label === label);
@@ -941,46 +1036,56 @@
         clearLabels();
         if (!isDesktopView() || !Array.isArray(features)) return;
         const occupied = [];
-        features
+        const sorted = features
           .filter(f => f?.properties?.label && f.properties.label !== 'River Thames')
-          .forEach(feature => {
-            const coords = getFeatureLabelCenter(feature.geometry);
-            if (!coords || !Number.isFinite(coords[0]) || !Number.isFinite(coords[1])) return;
-            const el = document.createElement('div');
-            el.className = 'polygon-label';
-            el.innerHTML = formatLabelText(feature.properties.label).replace(/\n/g, '<br>');
-            if (activeHoverLabel === feature.properties.label) {
-              el.style.opacity = '0';
-            }
-            const marker = new maplibregl.Marker({ element: el, anchor: 'center' }).setLngLat(coords).addTo(map);
-            const offsets = [
-              [0, 0],
-              [0, -18],
-              [0, 18],
-              [18, 0],
-              [-18, 0],
-              [14, 14],
-              [-14, 14],
-              [14, -14],
-              [-14, -14]
-            ];
+          .map(feature => ({ feature, area: featureArea(feature.geometry) }))
+          .sort((a, b) => b.area - a.area);
 
-            let placed = false;
-            for (const offset of offsets) {
-              marker.setOffset(offset);
-              const rect = el.getBoundingClientRect();
-              const hasCollision = occupied.some(existing => boxesOverlap(existing, rect));
-              if (!hasCollision) {
-                occupied.push(rect);
-                placed = true;
-                break;
-              }
+        sorted.forEach(({ feature }) => {
+          const coords = getFeatureLabelCenter(feature.geometry);
+          if (!coords || !Number.isFinite(coords[0]) || !Number.isFinite(coords[1])) return;
+          const el = document.createElement('div');
+          el.className = 'polygon-label';
+          el.innerHTML = formatLabelText(feature.properties.label).replace(/\n/g, '<br>');
+          if (activeHoverLabel === feature.properties.label) {
+            el.style.opacity = '0';
+          }
+          const marker = new maplibregl.Marker({ element: el, anchor: 'center' }).setLngLat(coords).addTo(map);
+          const offsets = [
+            [0, 0],
+            [0, -18],
+            [0, 18],
+            [18, 0],
+            [-18, 0],
+            [22, 12],
+            [-22, 12],
+            [22, -12],
+            [-22, -12],
+            [14, 20],
+            [-14, 20]
+          ];
+
+          let placed = false;
+          for (const offset of offsets) {
+            marker.setOffset(offset);
+            const rect = getRelativeRect(el);
+            if (!rect) continue;
+            const padded = inflateRect(rect, 6);
+            const hasCollision = occupied.some(existing => boxesOverlap(existing, padded));
+            if (!hasCollision) {
+              occupied.push(padded);
+              placed = true;
+              break;
             }
-            if (!placed) {
-              occupied.push(el.getBoundingClientRect());
-            }
-            labelMarkers.push({ label: feature.properties.label, marker });
-          });
+          }
+
+          if (!placed) {
+            marker.remove();
+            return;
+          }
+
+          labelMarkers.push({ label: feature.properties.label, marker });
+        });
       }
 
       function syncDesktopMode(){
@@ -1314,6 +1419,7 @@
             tr.dataset.label = row.submarket;
 
             const tdLabel = document.createElement('td');
+            tdLabel.dataset.title = 'Submarket';
             if (row.url){
               const a = document.createElement('a');
               a.href = row.url;
@@ -1331,26 +1437,32 @@
 
             const tdA = document.createElement('td');
             tdA.className = 'col-grade-a';
+            tdA.dataset.title = 'Grade A prime rent';
             tdA.textContent = row.priceAText;
 
             const tdTotalA = document.createElement('td');
             tdTotalA.className = 'col-grade-a';
+            tdTotalA.dataset.title = 'Grade A total cost';
             tdTotalA.textContent = row.totalCostAText;
 
             const tdChangeA = document.createElement('td');
             tdChangeA.className = 'col-grade-a';
+            tdChangeA.dataset.title = 'Grade A % change';
             tdChangeA.textContent = row.changeAText;
 
             const tdB = document.createElement('td');
             tdB.className = 'col-grade-b';
+            tdB.dataset.title = 'Grade B prime rent';
             tdB.textContent = row.priceBText;
 
             const tdTotalB = document.createElement('td');
             tdTotalB.className = 'col-grade-b';
+            tdTotalB.dataset.title = 'Grade B total cost';
             tdTotalB.textContent = row.totalCostBText;
 
             const tdChangeB = document.createElement('td');
             tdChangeB.className = 'col-grade-b';
+            tdChangeB.dataset.title = 'Grade B % change';
             tdChangeB.textContent = row.changeBText;
 
             tr.appendChild(tdLabel);
