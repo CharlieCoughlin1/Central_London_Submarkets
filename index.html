@@ -303,10 +303,10 @@
         font-weight:800;
         display:inline-flex;
         flex-direction:column;
-        align-items:flex-start;
+        align-items:center;
         gap:2px;
         cursor:pointer;
-        text-align:left;
+        text-align:center;
       }
       .sort-button .sort-title{ font-weight:900; letter-spacing:.12px; }
       .sort-button .sort-subtitle{ font-weight:700; color:var(--muted-ink); font-size:.9rem; }
@@ -315,7 +315,7 @@
         color:var(--muted-ink);
         opacity:.7;
         transition:opacity .12s ease, transform .12s ease;
-        align-self:flex-end;
+        align-self:center;
       }
       .sort-button:hover .sort-indicator{ opacity:1; transform:translateY(-2px); }
       .sort-button[aria-sort="ascending"],
@@ -335,7 +335,7 @@
         z-index:1;
         background:linear-gradient(180deg, #ECEFF2, #F5F6F8);
         color:var(--ink);
-        text-align:left;
+        text-align:center;
         font-weight:800;
         padding:14px 16px 12px;
         border-bottom:1px solid var(--stroke);
@@ -354,13 +354,13 @@
       .rent-table tbody td{
         padding:12px 16px;
         border-bottom:1px solid #F1F2F4;
-        text-align:right;
+        text-align:center;
         transition:background .12s ease, box-shadow .12s ease;
       }
-      .rent-table tbody td.numeric{ text-align:right; font-weight:400; color:#131a2c; }
+      .rent-table tbody td.numeric{ text-align:center; font-weight:400; color:#131a2c; }
       .rent-table .col-grade-a{ background:var(--grade-a-soft); }
       .rent-table .col-grade-b{ background:var(--grade-b-soft); }
-      .rent-table tbody td:first-child{ font-weight:900; color:var(--ink); letter-spacing:.1px; text-align:left; white-space:nowrap; }
+      .rent-table tbody td:first-child{ font-weight:900; color:var(--ink); letter-spacing:.1px; text-align:center; white-space:nowrap; }
       .rent-table thead th:first-child{ width:32%; min-width:300px; }
       .rent-table tbody tr:nth-child(even) td:not(.col-grade-a):not(.col-grade-b){ background:rgba(15,23,42,0.015); }
       .rent-table tbody tr:hover td{ background:rgba(204,32,48,0.03); }
@@ -397,10 +397,11 @@
         .table-meta .legend{ width:100%; justify-content:flex-start; }
         .table-meta .meta-note{ font-size:.9rem; }
         .table-scroller{ background:linear-gradient(180deg, #FFFFFF 0%, #F5F7FB 60%, #EEF1F6 100%); padding:8px 6px 16px; }
-        .rent-table{ border-collapse:separate; }
+        .rent-table{ border-collapse:separate; display:block; width:100%; }
+        .rent-table colgroup{ display:none; }
         .rent-table thead{ display:none; }
         .rent-table caption{ padding:10px 12px; text-align:left; color:var(--muted-ink); }
-        .rent-table tbody{ display:flex; flex-direction:column; gap:14px; padding:8px 8px 4px; }
+        .rent-table tbody{ display:flex; flex-direction:column; gap:14px; padding:8px 8px 4px; width:100%; }
         .rent-table tbody tr{
           display:grid;
           grid-template-columns:repeat(auto-fit, minmax(230px, 1fr));
@@ -423,6 +424,7 @@
           border:1px solid #E6E9EF;
           border-radius:12px;
           box-shadow:inset 0 1px 0 rgba(255,255,255,0.9);
+          width:100%;
         }
         .rent-table tbody td:first-child{ white-space:normal; }
         .rent-table tbody td.numeric{ text-align:left; font-weight:800; color:var(--ink); }
@@ -813,7 +815,7 @@
       }, {});
 
       const labelToUrl = {
-        "Mayfair & St James's": "https://infogram.com/1pjzjz9jqmq7qmf6jvdd2zrenqfm9qeygxn",
+        "Mayfair & St James's": "https://infogram.com/mayfair-st-jamess-1hnp27evorrxy4g",
         "Aldgate / Whitechapel": "https://infogram.com/aldgate-whitechapel-1hxj48mwox1l52v",
         "Knightsbridge / Belgravia": "https://infogram.com/knightsbridge-belgravia-1hnp27evnenmn4g",
         "Old Street / Shoreditch": "https://infogram.com/old-street-shoreditch-hoxton-1hnp27evnm7gn4g",
