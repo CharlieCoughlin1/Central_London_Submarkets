@@ -84,7 +84,7 @@
 
       .map-stage{
         position:relative;
-        min-height:calc(100vh + 40px);
+        min-height:calc(110vh + 80px);
         background:var(--ui);
         margin-top:-170px;
         overflow:hidden;
@@ -97,16 +97,16 @@
         right:0;
         width:100%;
         margin-left:0;
-        height:clamp(640px, 94vh + var(--header-h) - 80px, 1080px);
-        min-height:640px;
+        height:clamp(780px, 104vh + var(--header-h), 1220px);
+        min-height:780px;
         background:var(--ui);
         padding-bottom:env(safe-area-inset-bottom);
         box-sizing:border-box;
       }
 
       body.map-expanded #map{
-        height:clamp(640px, 94vh + var(--header-h) - 80px, 1080px);
-        min-height:640px;
+        height:clamp(780px, 104vh + var(--header-h), 1220px);
+        min-height:780px;
       }
 
       body.header-hidden .site-header{ transform:translateY(-105%); opacity:0; box-shadow:none; }
@@ -395,9 +395,9 @@
         overflow:hidden;
         padding:10px 8px;
         border-radius:14px;
-        background:var(--brand);
-        border:1px solid rgba(255,255,255,0.18);
-        box-shadow:inset 0 0 0 1px rgba(255,255,255,0.06), 0 12px 26px rgba(12,16,32,0.28);
+        background:#F4F6F9;
+        border:1px solid rgba(15,23,42,0.08);
+        box-shadow:inset 0 0 0 1px rgba(255,255,255,0.45), 0 12px 26px rgba(12,16,32,0.18);
       }
       .logo-viewport::before,
       .logo-viewport::after{
@@ -407,7 +407,7 @@
         width:46px;
         pointer-events:none;
         z-index:1;
-        background:linear-gradient(90deg, rgba(204,32,48,1), rgba(204,32,48,0));
+        background:linear-gradient(90deg, rgba(244,246,249,1), rgba(244,246,249,0));
       }
       .logo-viewport::before{ left:0; }
       .logo-viewport::after{ right:0; transform:scaleX(-1); }
@@ -441,9 +441,9 @@
         flex:0 0 auto;
         padding:10px 14px;
         border-radius:12px;
-        background:var(--brand);
-        border:1px solid rgba(255,255,255,0.22);
-        box-shadow:0 10px 24px rgba(0,0,0,0.22), inset 0 0 0 1px rgba(255,255,255,0.06);
+        background:#F4F6F9;
+        border:1px solid rgba(15,23,42,0.08);
+        box-shadow:0 10px 24px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(255,255,255,0.8);
       }
       .logo-strip img{
         display:block;
@@ -471,15 +471,15 @@
       }
       @media (max-width:1400px){
         .polygon-label{ font-size:0.76rem; padding:5px 8px; max-width:150px; }
-        #map{ height:clamp(600px, 92vh + var(--header-h) - 70px, 1040px); min-height:600px; }
+        #map{ height:clamp(720px, 100vh + var(--header-h), 1180px); min-height:720px; }
       }
       @media (max-width:960px){
         .hero-shell{ grid-template-columns:1fr; gap:12px; }
         .hero-visual{ justify-items:start; }
       }
       @media (max-width:720px){
-        #map{ top:0; min-height:760px; height:calc(100vh + var(--header-h)); }
-        body.map-expanded #map{ min-height:760px; }
+        #map{ top:0; min-height:880px; height:calc(110vh + var(--header-h)); }
+        body.map-expanded #map{ min-height:880px; }
         .table-panel{ width:100%; border-radius:14px; box-shadow:0 10px 24px rgba(15,23,42,0.18); }
         .logo-marquee{ padding:0; }
         .btn{ width:100%; justify-content:center; }
