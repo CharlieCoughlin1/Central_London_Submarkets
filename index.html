@@ -532,7 +532,9 @@
         align-items:center;
         justify-content:center;
         flex:0 0 auto;
-        padding:10px 14px;
+        width:180px;
+        height:90px;
+        padding:12px;
         border-radius:12px;
         background:#3f4040;
         border:1px solid rgba(255,255,255,0.16);
@@ -540,14 +542,15 @@
       }
       .logo-strip img{
         display:block;
-        height:46px;
-        max-width:200px;
+        height:42px;
+        max-width:160px;
         object-fit:contain;
         opacity:.98;
-        filter:drop-shadow(0 6px 12px rgba(12,16,32,0.24));
-        clip-path:inset(1px round 4px);
-        transform:scale(1.08);
+        filter:none;
+        clip-path:none;
+        transform:none;
         transform-origin:center;
+        margin:auto;
       }
 
       @media (max-width:480px){
@@ -562,7 +565,7 @@
         .banner-subtitle{ font-size:.72rem; }
         .logo-marquee{ padding:0; }
         .logo-viewport::before, .logo-viewport::after{ width:18px; }
-        .logo-strip img{ height:40px; max-width:170px; clip-path:inset(.8px round 2px); }
+        .logo-strip img{ height:36px; max-width:150px; }
       }
       @media (max-width:1400px){
         .polygon-label{ font-size:0.76rem; padding:5px 8px; max-width:150px; }
