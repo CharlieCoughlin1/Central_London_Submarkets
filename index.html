@@ -15,6 +15,7 @@
         --grade-b-soft:#f1eeea;
         --grade-a-soft-hover:#e7d2d9;
         --grade-b-soft-hover:#e2dad2;
+        --heat-change:#2563eb;
         --ink:#0F172A;
         --muted-ink:#475569;
         --surface:#FFFFFF;
@@ -357,6 +358,14 @@
       .rent-table tbody tr:hover td{ background:rgba(204,32,48,0.03); }
       .rent-table tbody tr:hover td.col-grade-a{ background:var(--grade-a-soft-hover); }
       .rent-table tbody tr:hover td.col-grade-b{ background:var(--grade-b-soft-hover); }
+      .rent-table tbody td.heat-cell{
+        position:relative;
+        font-weight:800;
+        color:var(--ink);
+        background:var(--heat-bg, transparent);
+        transition:background .12s ease, box-shadow .12s ease, filter .12s ease;
+      }
+      .rent-table tbody tr:hover td.heat-cell{ filter:brightness(0.96); }
       .rent-table tbody td .pill-note{ display:inline-block; margin-left:6px; padding:4px 6px; border-radius:10px; font-size:.78rem; color:var(--muted-ink); background:rgba(15,23,42,0.05); font-weight:700; }
       .rent-table a{
         font-weight:700;
@@ -785,6 +794,9 @@
 
       /* === MAP (restored to proven working state — no persistent labels) === */
       const root = document.documentElement;
+      const heatColorA = getComputedStyle(root).getPropertyValue('--grade-a-strong').trim() || '#c72a3b';
+      const heatColorB = getComputedStyle(root).getPropertyValue('--grade-b-strong').trim() || '#433c36';
+      const heatColorChange = getComputedStyle(root).getPropertyValue('--heat-change').trim() || '#2563eb';
       const headerEl = document.querySelector('.site-header');
       const logoMarqueeEl = document.getElementById('logo-marquee');
       const dataView = document.getElementById('data-view');
@@ -1478,50 +1490,112 @@
       /* === Rents Table: populate + panel behavior === */
       const tableState = { sortKey: 'priceA', direction: 'desc' };
 
-        function getTableRows(){
-          return submarketData.map(entry => ({
-            submarket: entry.label,
-            url: labelToUrl[entry.label] || '',
-            priceAText: formatCurrency(entry.gradeA?.primeRent),
-            priceA: entry.gradeA?.primeRent ?? null,
-            totalCostAText: formatCurrency(entry.gradeA?.totalCost),
-            totalCostA: entry.gradeA?.totalCost ?? null,
-            changeAText: formatPercent(entry.gradeA?.change),
-            changeA: entry.gradeA?.change ?? null,
-            priceBText: formatCurrency(entry.gradeB?.primeRent),
-            priceB: entry.gradeB?.primeRent ?? null,
-            totalCostBText: formatCurrency(entry.gradeB?.totalCost),
-            totalCostB: entry.gradeB?.totalCost ?? null,
-            changeBText: formatPercent(entry.gradeB?.change),
-            changeB: entry.gradeB?.change ?? null
-          }));
+      function trackMetric(range, key, value){
+        if (!Number.isFinite(value)) return;
+        if (!range[key]){
+          range[key] = { min: value, max: value };
+          return;
         }
+        range[key].min = Math.min(range[key].min, value);
+        range[key].max = Math.max(range[key].max, value);
+      }
 
-        function applySort(rows){
-          const dir = tableState.direction === 'desc' ? -1 : 1;
-          const key = tableState.sortKey;
+      const heatmapRanges = submarketData.reduce((acc, entry) => {
+        trackMetric(acc, 'priceA', entry.gradeA?.primeRent);
+        trackMetric(acc, 'totalCostA', entry.gradeA?.totalCost);
+        trackMetric(acc, 'changeA', entry.gradeA?.change);
+        trackMetric(acc, 'priceB', entry.gradeB?.primeRent);
+        trackMetric(acc, 'totalCostB', entry.gradeB?.totalCost);
+        trackMetric(acc, 'changeB', entry.gradeB?.change);
+        return acc;
+      }, {});
 
-          return rows.sort((a, b) => {
-            let cmp = 0;
-            const aVal = a[key];
-            const bVal = b[key];
+      function hexToRgb(hex){
+        const normalized = hex.replace('#', '');
+        const bigint = parseInt(normalized.length === 3 ? normalized.split('').map(c => c + c).join('') : normalized, 16);
+        if (Number.isNaN(bigint)) return { r: 199, g: 42, b: 59 };
+        return { r: (bigint >> 16) & 255, g: (bigint >> 8) & 255, b: bigint & 255 };
+      }
 
-            if (typeof aVal === 'number' && typeof bVal === 'number') {
-              cmp = aVal === bVal ? 0 : (aVal < bVal ? -1 : 1);
-            } else if (typeof aVal === 'string' && typeof bVal === 'string') {
-              cmp = aVal.localeCompare(bVal);
-            } else if (aVal == null && bVal == null) {
-              cmp = 0;
-            } else if (aVal == null) {
-              cmp = 1;
-            } else if (bVal == null) {
-              cmp = -1;
-            } else {
-              cmp = aVal < bVal ? -1 : 1;
-            }
-            return cmp * dir;
-          });
+      function mixWithWhite(color, weight){
+        const { r, g, b } = hexToRgb(color);
+        const ratio = Math.min(Math.max(weight, 0), 1);
+        const mix = (channel) => Math.round(255 - (255 - channel) * ratio);
+        return `rgb(${mix(r)}, ${mix(g)}, ${mix(b)})`;
+      }
+
+      function getHeatColor(value, range, baseColor){
+        if (!range || !Number.isFinite(value)) return '';
+        const spread = Math.max(range.max - range.min, 0.0001);
+        const normalized = Math.min(Math.max((value - range.min) / spread, 0), 1);
+        const weight = 0.25 + normalized * 0.6;
+        return mixWithWhite(baseColor, weight);
+      }
+
+      const heatPalette = {
+        priceA: heatColorA,
+        totalCostA: heatColorA,
+        changeA: heatColorChange,
+        priceB: heatColorB,
+        totalCostB: heatColorB,
+        changeB: heatColorChange
+      };
+
+      function applyHeatmap(cell, value, key){
+        const color = heatPalette[key];
+        const range = heatmapRanges[key];
+        const shade = color ? getHeatColor(value, range, color) : '';
+        if (shade){
+          cell.classList.add('heat-cell');
+          cell.style.setProperty('--heat-bg', shade);
+          cell.style.background = shade;
         }
+      }
+
+      function getTableRows(){
+        return submarketData.map(entry => ({
+          submarket: entry.label,
+          url: labelToUrl[entry.label] || '',
+          priceAText: formatCurrency(entry.gradeA?.primeRent),
+          priceA: entry.gradeA?.primeRent ?? null,
+          totalCostAText: formatCurrency(entry.gradeA?.totalCost),
+          totalCostA: entry.gradeA?.totalCost ?? null,
+          changeAText: formatPercent(entry.gradeA?.change),
+          changeA: entry.gradeA?.change ?? null,
+          priceBText: formatCurrency(entry.gradeB?.primeRent),
+          priceB: entry.gradeB?.primeRent ?? null,
+          totalCostBText: formatCurrency(entry.gradeB?.totalCost),
+          totalCostB: entry.gradeB?.totalCost ?? null,
+          changeBText: formatPercent(entry.gradeB?.change),
+          changeB: entry.gradeB?.change ?? null
+        }));
+      }
+
+      function applySort(rows){
+        const dir = tableState.direction === 'desc' ? -1 : 1;
+        const key = tableState.sortKey;
+
+        return rows.sort((a, b) => {
+          let cmp = 0;
+          const aVal = a[key];
+          const bVal = b[key];
+
+          if (typeof aVal === 'number' && typeof bVal === 'number') {
+            cmp = aVal === bVal ? 0 : (aVal < bVal ? -1 : 1);
+          } else if (typeof aVal === 'string' && typeof bVal === 'string') {
+            cmp = aVal.localeCompare(bVal);
+          } else if (aVal == null && bVal == null) {
+            cmp = 0;
+          } else if (aVal == null) {
+            cmp = 1;
+          } else if (bVal == null) {
+            cmp = -1;
+          } else {
+            cmp = aVal < bVal ? -1 : 1;
+          }
+          return cmp * dir;
+        });
+      }
 
       function updateSortIndicators(){
         document.querySelectorAll('.sort-button').forEach(btn => {
@@ -1576,31 +1650,37 @@
             tdA.className = 'col-grade-a numeric';
             tdA.dataset.title = 'Grade A prime rent';
             tdA.textContent = row.priceAText;
+            applyHeatmap(tdA, row.priceA, 'priceA');
 
             const tdTotalA = document.createElement('td');
             tdTotalA.className = 'col-grade-a numeric';
             tdTotalA.dataset.title = 'Grade A total cost';
             tdTotalA.textContent = row.totalCostAText;
+            applyHeatmap(tdTotalA, row.totalCostA, 'totalCostA');
 
             const tdChangeA = document.createElement('td');
             tdChangeA.className = 'col-grade-a numeric';
             tdChangeA.dataset.title = 'Grade A % change';
             tdChangeA.textContent = row.changeAText;
+            applyHeatmap(tdChangeA, row.changeA, 'changeA');
 
             const tdB = document.createElement('td');
             tdB.className = 'col-grade-b numeric';
             tdB.dataset.title = 'Grade B prime rent';
             tdB.textContent = row.priceBText;
+            applyHeatmap(tdB, row.priceB, 'priceB');
 
             const tdTotalB = document.createElement('td');
             tdTotalB.className = 'col-grade-b numeric';
             tdTotalB.dataset.title = 'Grade B total cost';
             tdTotalB.textContent = row.totalCostBText;
+            applyHeatmap(tdTotalB, row.totalCostB, 'totalCostB');
 
             const tdChangeB = document.createElement('td');
             tdChangeB.className = 'col-grade-b numeric';
             tdChangeB.dataset.title = 'Grade B % change';
             tdChangeB.textContent = row.changeBText;
+            applyHeatmap(tdChangeB, row.changeB, 'changeB');
 
             tr.appendChild(tdLabel);
             tr.appendChild(tdA);
