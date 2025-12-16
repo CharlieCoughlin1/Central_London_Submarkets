@@ -28,6 +28,11 @@
         --popup-accent: var(--brand);
         --header-h: 0px;
         --marquee-h: 0px;
+        --logo-gap:clamp(6px, 1.2vw, 10px);
+        --logo-w:clamp(120px, 15vw, 158px);
+        --logo-h:clamp(54px, 8vw, 70px);
+        --logo-img-h:clamp(32px, 6vw, 46px);
+        --logo-img-w:clamp(98px, 18vw, 148px);
       }
 
       html, body { height:100%; }
@@ -166,6 +171,9 @@
         font-size:.7rem;
         color:var(--muted-ink);
         z-index:3;
+        white-space:nowrap;
+        display:inline-flex;
+        align-items:center;
       }
 
       /* Hide table + labels in non-desktop views */
@@ -328,6 +336,8 @@
         padding:12px 16px 6px;
         color:var(--muted-ink);
         font-size:.85rem;
+        white-space:nowrap;
+        display:inline-block;
       }
       .rent-table thead th{
         position:sticky;
@@ -404,27 +414,28 @@
         .rent-table tbody{ display:flex; flex-direction:column; gap:14px; padding:8px 8px 4px; width:100%; }
         .rent-table tbody tr{
           display:grid;
-          grid-template-columns:repeat(auto-fit, minmax(230px, 1fr));
-          gap:12px;
+          grid-template-columns:repeat(auto-fit, minmax(190px, 1fr));
+          gap:10px;
           border:1px solid var(--stroke);
           border-radius:14px;
           background:linear-gradient(145deg, #FFFFFF 0%, #F9FAFD 60%, #F3F5FB 100%);
           box-shadow:0 14px 26px rgba(15,23,42,0.12);
           overflow:hidden;
-          padding:12px 12px 14px;
+          padding:10px 10px 12px;
         }
         .rent-table tbody td{
           text-align:left;
           border-bottom:none;
-          padding:12px 12px 10px;
+          padding:10px 10px 9px;
           display:flex;
           flex-direction:column;
-          gap:8px;
+          gap:6px;
           background:var(--ui);
           border:1px solid #E6E9EF;
           border-radius:12px;
           box-shadow:inset 0 1px 0 rgba(255,255,255,0.9);
           width:100%;
+          min-width:0;
         }
         .rent-table tbody td:first-child{ white-space:normal; }
         .rent-table tbody td.numeric{ text-align:left; font-weight:800; color:var(--ink); }
@@ -527,7 +538,7 @@
         width:max-content; /* content defines natural width */
         will-change:transform;
         animation: marquee-ltr 52s linear infinite; /* left-to-right */
-        gap:10px;
+        gap:var(--logo-gap);
         padding:0 12px;
       }
       /* Left-to-right continuous loop: render two identical strips (A + B). */
@@ -538,7 +549,7 @@
       .logo-strip{
         display:flex;
         align-items:center;
-        gap:10px;
+        gap:var(--logo-gap);
         list-style:none;
         margin:0;
         padding:2px 6px;
@@ -549,9 +560,9 @@
         align-items:center;
         justify-content:center;
         flex:0 0 auto;
-        width:158px;
-        height:70px;
-        padding:6px 10px;
+        width:var(--logo-w);
+        height:var(--logo-h);
+        padding:6px 8px;
         border-radius:12px;
         background:#3f4040;
         border:1px solid rgba(255,255,255,0.16);
@@ -559,8 +570,8 @@
       }
       .logo-strip img{
         display:block;
-        height:46px;
-        max-width:148px;
+        height:var(--logo-img-h);
+        max-width:var(--logo-img-w);
         object-fit:contain;
         opacity:.98;
         filter:none;
@@ -571,10 +582,10 @@
       }
       .logo-strip img[alt*="British Film Commission"],
       .logo-strip img[alt*="ITN"],
-      .logo-strip img[alt="BBC"],
+      .logo-strip img[alt*="BBC"],
       .logo-strip img[alt*="Automata"]{
-        height:64px;
-        max-width:180px;
+        height:clamp(44px, 7vw, 64px);
+        max-width:clamp(120px, 20vw, 180px);
       }
 
       @media (max-width:480px){
@@ -1955,7 +1966,7 @@
         'AtkinsRealis.png',
         'Automata.png',
         'Babcock.png',
-        'BBC.png',
+        'BBC (1).png',
         'British Ecological Society.png',
         'British Film Commission.png',
         'CGI.png',
