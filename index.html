@@ -75,16 +75,30 @@
       .meta-chip .chip-dot{ width:9px; height:9px; border-radius:50%; background:var(--brand); box-shadow:0 0 0 4px rgba(204,32,48,0.25); }
       .hero-visual{ position:relative; display:grid; gap:10px; align-content:center; justify-items:end; }
       .stat-card{ background:rgba(255,255,255,0.09); border:1px solid rgba(255,255,255,0.18); border-radius:14px; padding:12px 14px; width:260px; color:#F7F9FD; box-shadow:0 12px 28px rgba(0,0,0,0.22); backdrop-filter:saturate(130%) blur(6px); }
-      .stat-card h3{ margin:0 0 6px; font-size:.92rem; letter-spacing:.35px; text-transform:uppercase; }
+      .stat-card h3{ margin:0 0 6px; font-size:.92rem; letter-spacing:.35px; text-transform:uppercase; display:flex; align-items:center; gap:8px; }
       .stat-card .stat-value{ font-size:1.6rem; font-weight:900; display:block; letter-spacing:.4px; }
       .stat-card small{ display:block; color:#E4E8F1; opacity:.82; line-height:1.35; }
       .stat-subtext{ font-size:.88rem; opacity:.85; }
       .stat-stack{ display:grid; gap:8px; }
+      .live-dot{
+        width:9px;
+        height:9px;
+        border-radius:50%;
+        background:var(--brand);
+        box-shadow:0 0 0 0 rgba(204,32,48,0.45);
+        display:inline-block;
+        animation:pulse-dot 1.8s ease-in-out infinite;
+      }
+      @keyframes pulse-dot{
+        0%{ box-shadow:0 0 0 0 rgba(204,32,48,0.45); }
+        70%{ box-shadow:0 0 0 10px rgba(204,32,48,0); }
+        100%{ box-shadow:0 0 0 0 rgba(204,32,48,0); }
+      }
       .glow-ring{ position:absolute; inset:-22% -8% -32% auto; width:240px; height:240px; background:radial-gradient(circle, rgba(255,86,102,0.32), rgba(204,32,48,0)); filter:blur(16px); opacity:.8; pointer-events:none; }
 
       .map-stage{
         position:relative;
-        min-height:calc(110vh + 80px);
+        min-height:calc(120vh + 120px);
         background:var(--ui);
         margin-top:-170px;
         overflow:hidden;
@@ -97,16 +111,16 @@
         right:0;
         width:100%;
         margin-left:0;
-        height:clamp(840px, 110vh + var(--header-h), 1300px);
-        min-height:840px;
+        height:clamp(900px, 120vh + var(--header-h), 1400px);
+        min-height:900px;
         background:var(--ui);
         padding-bottom:env(safe-area-inset-bottom);
         box-sizing:border-box;
       }
 
       body.map-expanded #map{
-        height:clamp(840px, 110vh + var(--header-h), 1300px);
-        min-height:840px;
+        height:clamp(900px, 120vh + var(--header-h), 1400px);
+        min-height:900px;
       }
 
       body.header-hidden .site-header{ transform:translateY(-105%); opacity:0; box-shadow:none; }
@@ -453,6 +467,8 @@
         opacity:.98;
         filter:drop-shadow(0 6px 12px rgba(12,16,32,0.24));
         clip-path:inset(1px round 4px);
+        transform:scale(1.08);
+        transform-origin:center;
       }
 
       @media (max-width:480px){
@@ -575,7 +591,7 @@
           <div class="glow-ring"></div>
           <div class="stat-stack">
             <div class="stat-card">
-              <h3>Recent headline event</h3>
+              <h3><span class="live-dot" aria-hidden="true"></span>Recent headline event</h3>
               <small class="stat-subtext">Visa relocating European headquarters to Canary Wharf, leasing</small>
               <span class="stat-value">300,000 sq ft</span>
               <small class="stat-subtext">at <strong>One Canada Square</strong></small>
@@ -1062,6 +1078,17 @@
         }
       }
 
+      function getLabelBudget(total){
+        if (!mapContainer) return total;
+        const rect = mapContainer.getBoundingClientRect();
+        if (!rect?.width || !rect?.height) return total;
+        const area = rect.width * rect.height;
+        if (area >= 1400000) return total;
+        if (area >= 1100000) return Math.min(total, Math.ceil(total * 0.85));
+        if (area >= 900000) return Math.min(total, Math.ceil(total * 0.7));
+        return Math.min(total, Math.max(6, Math.ceil(total * 0.55)));
+      }
+
       function addLabels(features){
         clearLabels();
         if (!isDesktopView() || !Array.isArray(features)) return;
@@ -1071,7 +1098,10 @@
           .map(feature => ({ feature, area: featureArea(feature.geometry) }))
           .sort((a, b) => b.area - a.area);
 
-        sorted.forEach(({ feature }) => {
+        const labelLimit = getLabelBudget(sorted.length);
+        const limited = sorted.slice(0, labelLimit);
+
+        limited.forEach(({ feature }) => {
           const coords = getFeatureLabelCenter(feature.geometry);
           if (!coords || !Number.isFinite(coords[0]) || !Number.isFinite(coords[1])) return;
           const el = document.createElement('div');
