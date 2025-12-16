@@ -288,7 +288,7 @@
         table-layout:fixed;
       }
 
-      .rent-table col.col-submarket{ width:30%; }
+      .rent-table col.col-submarket{ width:36%; min-width:360px; }
       .rent-table col.col-prime{ width:10%; }
       .rent-table col.col-total{ width:15%; }
       .rent-table col.col-change{ width:10%; }
@@ -333,8 +333,8 @@
         position:sticky;
         top:0;
         z-index:1;
-        background:linear-gradient(180deg, #F5F6F8, #F9FAFB);
-        color:var(--muted-ink);
+        background:linear-gradient(180deg, #ECEFF2, #F5F6F8);
+        color:var(--ink);
         text-align:left;
         font-weight:800;
         padding:14px 16px 12px;
@@ -345,40 +345,12 @@
       }
       .rent-table thead th[aria-sort="ascending"],
       .rent-table thead th[aria-sort="descending"]{
-        background:linear-gradient(180deg, rgba(204,32,48,0.06), #F9FAFB);
+        background:linear-gradient(180deg, #E2E6EA, #F5F6F8);
         color:var(--ink);
       }
-      .rent-table thead th.col-grade-a,
-      .rent-table thead th.col-grade-b{
-        color:#fff;
-        border-color:rgba(255,255,255,0.2);
-        background:linear-gradient(180deg, color-mix(in srgb, var(--grade-a-strong) 86%, #0000), color-mix(in srgb, var(--grade-a-strong) 78%, #0000));
-      }
-      .rent-table thead th.col-grade-b{
-        background:linear-gradient(180deg, color-mix(in srgb, var(--grade-b-strong) 88%, #0000), color-mix(in srgb, var(--grade-b-strong) 78%, #0000));
-      }
-      .rent-table thead th.col-grade-a[aria-sort="ascending"],
-      .rent-table thead th.col-grade-a[aria-sort="descending"]{
-        background:linear-gradient(180deg, color-mix(in srgb, var(--grade-a-strong) 94%, #0000), color-mix(in srgb, var(--grade-a-strong) 86%, #0000));
-        color:#fff;
-      }
-      .rent-table thead th.col-grade-b[aria-sort="ascending"],
-      .rent-table thead th.col-grade-b[aria-sort="descending"]{
-        background:linear-gradient(180deg, color-mix(in srgb, var(--grade-b-strong) 94%, #0000), color-mix(in srgb, var(--grade-b-strong) 86%, #0000));
-        color:#fff;
-      }
-      .rent-table thead th.col-grade-a .sort-title,
-      .rent-table thead th.col-grade-b .sort-title,
-      .rent-table thead th.col-grade-a .sort-subtitle,
-      .rent-table thead th.col-grade-b .sort-subtitle,
-      .rent-table thead th.col-grade-a .sort-indicator,
-      .rent-table thead th.col-grade-b .sort-indicator{
-        color:rgba(255,255,255,0.94);
-      }
-      .rent-table thead th.col-grade-a .sort-subtitle,
-      .rent-table thead th.col-grade-b .sort-subtitle{ color:rgba(255,255,255,0.82); }
-      .rent-table thead th.col-grade-a .sort-indicator,
-      .rent-table thead th.col-grade-b .sort-indicator{ opacity:0.82; }
+      .rent-table thead .sort-title{ color:var(--ink); }
+      .rent-table thead .sort-subtitle{ color:var(--muted-ink); font-weight:600; font-size:.86rem; }
+      .rent-table thead .sort-indicator{ color:var(--muted-ink); }
       .rent-table tbody td{
         padding:12px 16px;
         border-bottom:1px solid #F1F2F4;
@@ -389,7 +361,7 @@
       .rent-table .col-grade-a{ background:var(--grade-a-soft); }
       .rent-table .col-grade-b{ background:var(--grade-b-soft); }
       .rent-table tbody td:first-child{ font-weight:900; color:var(--ink); letter-spacing:.1px; text-align:left; white-space:nowrap; }
-      .rent-table thead th:first-child{ width:30%; min-width:260px; }
+      .rent-table thead th:first-child{ width:36%; min-width:360px; }
       .rent-table tbody tr:nth-child(even) td:not(.col-grade-a):not(.col-grade-b){ background:rgba(15,23,42,0.015); }
       .rent-table tbody tr:hover td{ background:rgba(204,32,48,0.03); }
       .rent-table tbody tr:hover td.col-grade-a{ background:var(--grade-a-soft-hover); }
@@ -890,6 +862,7 @@
       let cachedHeaderHeight = 0;
       let camdenTopViewportY = null;
       let headerCurrentlyHidden = false;
+      let lastScrollY = window.scrollY || 0;
 
       function isDesktopView(){
         return desktopMedia.matches;
@@ -1305,11 +1278,15 @@
         desktopMedia.addListener(syncDesktopMode);
       }
 
-      function applyHeaderOffset(height){
-        root.style.setProperty('--header-h', `${Math.max(0, Math.round(height))}px`);
-        map.resize();
-        debouncedRefit();
-        syncDesktopMode();
+      function applyHeaderOffset(){
+        const height = headerEl ? Math.max(0, Math.round(headerEl.getBoundingClientRect().height || 0)) : 0;
+        if (height !== cachedHeaderHeight){
+          cachedHeaderHeight = height;
+          root.style.setProperty('--header-h', `${height}px`);
+          map.resize();
+          debouncedRefit();
+          syncDesktopMode();
+        }
       }
 
       async function updateHeaderHeight(){
@@ -1318,9 +1295,7 @@
         }
         const h = headerEl ? Math.ceil(headerEl.getBoundingClientRect().height || 0) : 0;
         cachedHeaderHeight = h;
-        if (!document.body.classList.contains('header-hidden')) {
-          applyHeaderOffset(cachedHeaderHeight);
-        }
+        applyHeaderOffset();
         syncHeaderVisibility();
       }
 
@@ -1360,11 +1335,25 @@
         cachedHeaderHeight = headerHeight;
         const trigger = camdenTopViewportY - headerHeight;
         const scrollTop = window.scrollY || document.documentElement.scrollTop || 0;
-        const shouldHide = scrollTop >= trigger;
+        const scrollingUp = scrollTop < lastScrollY - 4;
+        const scrollingDown = scrollTop > lastScrollY + 4;
+        const pastTrigger = scrollTop >= trigger;
+        let shouldHide = headerCurrentlyHidden;
+
+        if (!pastTrigger){
+          shouldHide = false;
+        } else if (scrollingUp){
+          shouldHide = false;
+        } else if (scrollingDown){
+          shouldHide = true;
+        }
+
+        lastScrollY = scrollTop;
+
         if (shouldHide !== headerCurrentlyHidden){
           headerCurrentlyHidden = shouldHide;
           document.body.classList.toggle('header-hidden', shouldHide);
-          applyHeaderOffset(shouldHide ? 0 : headerHeight);
+          applyHeaderOffset();
         }
       }
 
@@ -1623,7 +1612,7 @@
         if (!range || !Number.isFinite(value)) return '';
         const spread = Math.max(range.max - range.min, 0.0001);
         const normalized = Math.min(Math.max((value - range.min) / spread, 0), 1);
-        const weight = 0.18 + normalized * 0.5;
+        const weight = 0.45 + normalized * 0.45;
         return mixWithWhite(baseColor, weight);
       }
 
@@ -1636,6 +1625,16 @@
         changeB: heatColorB
       };
 
+      function getRelativeLuminance(color){
+        if (!color) return 1;
+        const rgb = color.replace(/rgb\(|\)/g, '').split(',').map(v => parseFloat(v.trim()) / 255);
+        if (rgb.some(v => Number.isNaN(v))) return 1;
+        const [r, g, b] = rgb.map(v => {
+          return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+        });
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+      }
+
       function applyHeatmap(cell, value, key){
         const color = heatPalette[key];
         const range = heatmapRanges[key];
@@ -1644,6 +1643,8 @@
           cell.classList.add('heat-cell');
           cell.style.setProperty('--heat-bg', shade);
           cell.style.background = shade;
+          const lum = getRelativeLuminance(shade);
+          cell.style.color = lum < 0.55 ? '#FFFFFF' : '#0F172A';
         }
       }
 
@@ -1884,11 +1885,34 @@
       }
 
       /* === Client logos marquee ===
-         Loads PNGs from "Client logos" via GitHub Contents API (alphabetical), duplicates strip for seamless LTR scroll.
+         Uses locally bundled PNGs from "Client logos" and duplicates strip for seamless LTR scroll.
       */
       const LOGO_DIR = "Client logos";
-      const BRANCHES = ["main","master"];
-      const REPO_HINT = "CharlieCoughlin1/Central_London_Submarkets";
+      const LOGO_FILES = [
+        'AJBell.png',
+        'AtkinsRealis.png',
+        'Automata.png',
+        'Babcock.png',
+        'BBC.png',
+        'British Ecological Society.png',
+        'British Film Commission.png',
+        'CGI.png',
+        'Cranswick.png',
+        'Evening Standard.png',
+        'Heineken.png',
+        'IB 365.png',
+        'ITN.png',
+        'ITV.png',
+        'Macdonalds.png',
+        'Mencap.png',
+        'Nationwide.png',
+        'Optiver.png',
+        'Orchard Theraputics.png',
+        'Pret.png',
+        'Specsavers.png',
+        'The Independent.png',
+        'William Reed.png'
+      ].filter(Boolean);
 
       function deriveAltFromPath(path){
         try {
@@ -1955,76 +1979,9 @@
         updateMarqueeHeight();
         setTimeout(() => debouncedRefit(), 250);
       }
-      function encodePathSegments(path){
-        return path.split('/').map(encodeURIComponent).join('/');
-      }
-      function guessRepoFromPage(){
-        const { hostname, pathname } = window.location;
-        if (hostname.endsWith('github.io')){
-          const owner = hostname.split('.')[0];
-          const seg = pathname.split('/').filter(Boolean);
-          const repo = seg.length ? seg[0] : '';
-          if (owner && repo) return `${owner}/${repo}`;
-        }
-        return null;
-      }
-      async function fetchGithubDirPngs(ownerRepo, branch){
-        const [owner, repo] = ownerRepo.split('/');
-        const encodedDir = encodePathSegments(LOGO_DIR);
-        const url = `https://api.github.com/repos/${owner}/${repo}/contents/${encodedDir}?ref=${encodeURIComponent(branch)}`;
-        const r = await fetch(url, { cache: 'no-store' });
-        if (!r.ok) throw new Error('No listing');
-        const json = await r.json();
-        if (!Array.isArray(json)) throw new Error('Unexpected');
-        const pngs = json
-          .filter(item => item && item.type === 'file' && /\.png$/i.test(item.name))
-          .sort((a,b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
-        return pngs.map(item => item.download_url || `https://raw.githubusercontent.com/${owner}/${repo}/${encodeURIComponent(branch)}/${encodedDir}/${encodeURIComponent(item.name)}`);
-      }
-      async function discoverLogoPngs(){
-        const candidates = new Set();
-        const fromHint = REPO_HINT && REPO_HINT.includes('/') ? REPO_HINT : null;
-        const fromPage = guessRepoFromPage();
-        if (fromHint) candidates.add(fromHint);
-        if (fromPage) candidates.add(fromPage);
-
-        for (const repo of candidates){
-          for (const ref of BRANCHES){
-            try {
-              const urls = await fetchGithubDirPngs(repo, ref);
-              if (urls && urls.length) return urls;
-            } catch(e){ /* try next */ }
-          }
-        }
-        // Fallback: gh-pages branch for site repos
-        if (fromPage){
-          try {
-            const urls = await fetchGithubDirPngs(fromPage, 'gh-pages');
-            if (urls && urls.length) return urls;
-          } catch(e){ /* ignore */ }
-        }
-        return [];
-      }
       async function initLogos(){
-        // Try manifest first (optional)
-        try{
-          const r = await fetch(`${encodePathSegments(LOGO_DIR)}/manifest.json`, { cache: 'no-store' });
-          if (r.ok){
-            const json = await r.json();
-            if (Array.isArray(json) && json.length){
-              const srcs = json
-                .map(x => (typeof x === 'string' ? `${LOGO_DIR}/${x}` : x.src))
-                .filter(Boolean)
-                .filter(src => /\.png$/i.test(src))
-                .map(src => src.replace(/\\/g,'/'));
-              srcs.sort((a,b)=> a.toLowerCase().localeCompare(b.toLowerCase()));
-              renderLogoMarqueeFromSrcs(srcs);
-              return;
-            }
-          }
-        } catch(e){ /* continue to GitHub API path */ }
-        const pngSrcs = await discoverLogoPngs();
-        renderLogoMarqueeFromSrcs(pngSrcs);
+        const srcs = LOGO_FILES.map(name => `${LOGO_DIR}/${encodeURIComponent(name)}`);
+        renderLogoMarqueeFromSrcs(srcs);
       }
 
       /* Utilities */
