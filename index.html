@@ -9,13 +9,12 @@
     <style>
       :root{
         --brand:#CC2030;
-        --grade-a-strong:#c72a3b;
-        --grade-b-strong:#433c36;
-        --grade-a-soft:#f4e7ea;
-        --grade-b-soft:#f1eeea;
-        --grade-a-soft-hover:#e7d2d9;
-        --grade-b-soft-hover:#e2dad2;
-        --heat-change:#2563eb;
+        --grade-a-strong:#b31f30;
+        --grade-b-strong:#352c27;
+        --grade-a-soft:#ecdce0;
+        --grade-b-soft:#e7e0d8;
+        --grade-a-soft-hover:#e0c8ce;
+        --grade-b-soft-hover:#dacec5;
         --ink:#0F172A;
         --muted-ink:#475569;
         --surface:#FFFFFF;
@@ -289,6 +288,11 @@
         table-layout:fixed;
       }
 
+      .rent-table col.col-submarket{ width:30%; }
+      .rent-table col.col-prime{ width:10%; }
+      .rent-table col.col-total{ width:15%; }
+      .rent-table col.col-change{ width:10%; }
+
       .sort-button{
         appearance:none;
         background:none;
@@ -344,6 +348,37 @@
         background:linear-gradient(180deg, rgba(204,32,48,0.06), #F9FAFB);
         color:var(--ink);
       }
+      .rent-table thead th.col-grade-a,
+      .rent-table thead th.col-grade-b{
+        color:#fff;
+        border-color:rgba(255,255,255,0.2);
+        background:linear-gradient(180deg, color-mix(in srgb, var(--grade-a-strong) 86%, #0000), color-mix(in srgb, var(--grade-a-strong) 78%, #0000));
+      }
+      .rent-table thead th.col-grade-b{
+        background:linear-gradient(180deg, color-mix(in srgb, var(--grade-b-strong) 88%, #0000), color-mix(in srgb, var(--grade-b-strong) 78%, #0000));
+      }
+      .rent-table thead th.col-grade-a[aria-sort="ascending"],
+      .rent-table thead th.col-grade-a[aria-sort="descending"]{
+        background:linear-gradient(180deg, color-mix(in srgb, var(--grade-a-strong) 94%, #0000), color-mix(in srgb, var(--grade-a-strong) 86%, #0000));
+        color:#fff;
+      }
+      .rent-table thead th.col-grade-b[aria-sort="ascending"],
+      .rent-table thead th.col-grade-b[aria-sort="descending"]{
+        background:linear-gradient(180deg, color-mix(in srgb, var(--grade-b-strong) 94%, #0000), color-mix(in srgb, var(--grade-b-strong) 86%, #0000));
+        color:#fff;
+      }
+      .rent-table thead th.col-grade-a .sort-title,
+      .rent-table thead th.col-grade-b .sort-title,
+      .rent-table thead th.col-grade-a .sort-subtitle,
+      .rent-table thead th.col-grade-b .sort-subtitle,
+      .rent-table thead th.col-grade-a .sort-indicator,
+      .rent-table thead th.col-grade-b .sort-indicator{
+        color:rgba(255,255,255,0.94);
+      }
+      .rent-table thead th.col-grade-a .sort-subtitle,
+      .rent-table thead th.col-grade-b .sort-subtitle{ color:rgba(255,255,255,0.82); }
+      .rent-table thead th.col-grade-a .sort-indicator,
+      .rent-table thead th.col-grade-b .sort-indicator{ opacity:0.82; }
       .rent-table tbody td{
         padding:12px 16px;
         border-bottom:1px solid #F1F2F4;
@@ -353,7 +388,8 @@
       .rent-table tbody td.numeric{ text-align:right; font-weight:400; color:#131a2c; }
       .rent-table .col-grade-a{ background:var(--grade-a-soft); }
       .rent-table .col-grade-b{ background:var(--grade-b-soft); }
-      .rent-table tbody td:first-child{ font-weight:900; color:var(--ink); letter-spacing:.1px; text-align:left; }
+      .rent-table tbody td:first-child{ font-weight:900; color:var(--ink); letter-spacing:.1px; text-align:left; white-space:nowrap; }
+      .rent-table thead th:first-child{ width:30%; min-width:260px; }
       .rent-table tbody tr:nth-child(even) td:not(.col-grade-a):not(.col-grade-b){ background:rgba(15,23,42,0.015); }
       .rent-table tbody tr:hover td{ background:rgba(204,32,48,0.03); }
       .rent-table tbody tr:hover td.col-grade-a{ background:var(--grade-a-soft-hover); }
@@ -361,9 +397,10 @@
       .rent-table tbody td.heat-cell{
         position:relative;
         font-weight:800;
-        color:var(--ink);
+        color:#fff;
         background:var(--heat-bg, transparent);
         transition:background .12s ease, box-shadow .12s ease, filter .12s ease;
+        text-shadow:0 1px 2px rgba(0,0,0,0.35);
       }
       .rent-table tbody tr:hover td.heat-cell{ filter:brightness(0.96); }
       .rent-table tbody td .pill-note{ display:inline-block; margin-left:6px; padding:4px 6px; border-radius:10px; font-size:.78rem; color:var(--muted-ink); background:rgba(15,23,42,0.05); font-weight:700; }
@@ -406,6 +443,7 @@
           gap:6px;
           background:transparent;
         }
+        .rent-table tbody td:first-child{ white-space:normal; }
         .rent-table tbody td.numeric{ text-align:left; }
         .rent-table tbody td.col-grade-a{ background:var(--grade-a-soft); }
         .rent-table tbody td.col-grade-b{ background:var(--grade-b-soft); }
@@ -707,6 +745,15 @@
         </div>
         <div class="table-scroller">
           <table id="rents-table" class="rent-table" aria-describedby="rents-caption">
+            <colgroup>
+              <col class="col-submarket" />
+              <col class="col-prime" />
+              <col class="col-total" />
+              <col class="col-change" />
+              <col class="col-prime" />
+              <col class="col-total" />
+              <col class="col-change" />
+            </colgroup>
             <caption id="rents-caption">*All prices are per sq ft</caption>
             <thead>
                 <tr>
@@ -796,7 +843,6 @@
       const root = document.documentElement;
       const heatColorA = getComputedStyle(root).getPropertyValue('--grade-a-strong').trim() || '#c72a3b';
       const heatColorB = getComputedStyle(root).getPropertyValue('--grade-b-strong').trim() || '#433c36';
-      const heatColorChange = getComputedStyle(root).getPropertyValue('--heat-change').trim() || '#2563eb';
       const headerEl = document.querySelector('.site-header');
       const logoMarqueeEl = document.getElementById('logo-marquee');
       const dataView = document.getElementById('data-view');
@@ -842,6 +888,8 @@
       const labelMarkers = [];
       let geojsonFeatures = null;
       let cachedHeaderHeight = 0;
+      let camdenTopViewportY = null;
+      let headerCurrentlyHidden = false;
 
       function isDesktopView(){
         return desktopMedia.matches;
@@ -1246,10 +1294,11 @@
       }
 
       // Keep map sized & fitted when UI changes
-      new ResizeObserver(() => { map.resize(); debouncedRefit(); syncDesktopMode(); }).observe(mapContainer);
-      window.addEventListener('resize', () => { map.resize(); debouncedRefit(); syncDesktopMode(); });
-      window.addEventListener('orientationchange', () => { map.resize(); debouncedRefit(); syncDesktopMode(); });
-      map.on('resize', refreshLabels);
+      new ResizeObserver(() => { map.resize(); debouncedRefit(); syncDesktopMode(); updateCamdenTop(); syncHeaderVisibility(); }).observe(mapContainer);
+      window.addEventListener('resize', () => { map.resize(); debouncedRefit(); syncDesktopMode(); updateCamdenTop(); syncHeaderVisibility(); });
+      window.addEventListener('orientationchange', () => { map.resize(); debouncedRefit(); syncDesktopMode(); updateCamdenTop(); syncHeaderVisibility(); });
+      window.addEventListener('scroll', syncHeaderVisibility, { passive: true });
+      map.on('resize', () => { refreshLabels(); updateCamdenTop(); syncHeaderVisibility(); });
       if (desktopMedia.addEventListener) {
         desktopMedia.addEventListener('change', syncDesktopMode);
       } else if (desktopMedia.addListener) {
@@ -1271,6 +1320,51 @@
         cachedHeaderHeight = h;
         if (!document.body.classList.contains('header-hidden')) {
           applyHeaderOffset(cachedHeaderHeight);
+        }
+        syncHeaderVisibility();
+      }
+
+      function getGeometryTopViewport(geometry){
+        if (!geometry || !map?.project) return null;
+        let minY = Infinity;
+        const walk = (coords) => {
+          if (!Array.isArray(coords)) return;
+          if (coords.length && typeof coords[0] === 'number' && typeof coords[1] === 'number'){
+            const projected = map.project([coords[0], coords[1]]);
+            if (projected && Number.isFinite(projected.y)){
+              minY = Math.min(minY, projected.y);
+            }
+            return;
+          }
+          coords.forEach(walk);
+        };
+        walk(geometry.coordinates);
+        if (!Number.isFinite(minY)) return null;
+        const rect = map.getCanvasContainer()?.getBoundingClientRect();
+        if (!rect) return null;
+        return rect.top + minY;
+      }
+
+      function updateCamdenTop(){
+        const camden = findFeatureByLabel('Camden');
+        if (!camden?.geometry) return;
+        const top = getGeometryTopViewport(camden.geometry);
+        if (top == null) return;
+        camdenTopViewportY = top;
+        syncHeaderVisibility();
+      }
+
+      function syncHeaderVisibility(){
+        if (camdenTopViewportY == null) return;
+        const headerHeight = Math.ceil(headerEl?.getBoundingClientRect()?.height || 0);
+        cachedHeaderHeight = headerHeight;
+        const trigger = camdenTopViewportY - headerHeight;
+        const scrollTop = window.scrollY || document.documentElement.scrollTop || 0;
+        const shouldHide = scrollTop >= trigger;
+        if (shouldHide !== headerCurrentlyHidden){
+          headerCurrentlyHidden = shouldHide;
+          document.body.classList.toggle('header-hidden', shouldHide);
+          applyHeaderOffset(shouldHide ? 0 : headerHeight);
         }
       }
 
@@ -1404,6 +1498,7 @@
             fitToInitialBounds({ duration: 0 });
             geojsonFeatures = data.features;
             syncDesktopMode();
+            map.once('idle', () => { updateCamdenTop(); syncHeaderVisibility(); });
 
             // Interaction (hover shows popup; no persistent labels)
             function handleMove(e) {
@@ -1528,17 +1623,17 @@
         if (!range || !Number.isFinite(value)) return '';
         const spread = Math.max(range.max - range.min, 0.0001);
         const normalized = Math.min(Math.max((value - range.min) / spread, 0), 1);
-        const weight = 0.25 + normalized * 0.6;
+        const weight = 0.18 + normalized * 0.5;
         return mixWithWhite(baseColor, weight);
       }
 
       const heatPalette = {
         priceA: heatColorA,
         totalCostA: heatColorA,
-        changeA: heatColorChange,
+        changeA: heatColorA,
         priceB: heatColorB,
         totalCostB: heatColorB,
-        changeB: heatColorChange
+        changeB: heatColorB
       };
 
       function applyHeatmap(cell, value, key){
