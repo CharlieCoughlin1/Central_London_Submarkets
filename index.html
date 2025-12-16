@@ -288,10 +288,10 @@
         table-layout:fixed;
       }
 
-      .rent-table col.col-submarket{ width:36%; min-width:360px; }
-      .rent-table col.col-prime{ width:10%; }
+      .rent-table col.col-submarket{ width:30%; min-width:320px; }
+      .rent-table col.col-prime{ width:12%; }
       .rent-table col.col-total{ width:15%; }
-      .rent-table col.col-change{ width:10%; }
+      .rent-table col.col-change{ width:8%; }
 
       .sort-button{
         appearance:none;
@@ -389,8 +389,8 @@
       }
 
       /* Responsive, card-like table layout */
-      @media (max-width: 960px){
-        .table-panel{ box-shadow:0 14px 26px rgba(15,23,42,0.16); }
+      @media (max-width: 1200px){
+        .table-panel{ box-shadow:0 14px 26px rgba(15,23,42,0.16); width:100%; }
         .table-scroller{ background:transparent; }
         .rent-table{ border-collapse:collapse; }
         .rent-table thead{ display:none; }
@@ -532,9 +532,9 @@
         align-items:center;
         justify-content:center;
         flex:0 0 auto;
-        width:180px;
-        height:90px;
-        padding:12px;
+        width:165px;
+        height:82px;
+        padding:8px 10px;
         border-radius:12px;
         background:#3f4040;
         border:1px solid rgba(255,255,255,0.16);
@@ -542,8 +542,8 @@
       }
       .logo-strip img{
         display:block;
-        height:42px;
-        max-width:160px;
+        height:50px;
+        max-width:150px;
         object-fit:contain;
         opacity:.98;
         filter:none;
@@ -565,7 +565,7 @@
         .banner-subtitle{ font-size:.72rem; }
         .logo-marquee{ padding:0; }
         .logo-viewport::before, .logo-viewport::after{ width:18px; }
-        .logo-strip img{ height:36px; max-width:150px; }
+        .logo-strip img{ height:42px; max-width:140px; }
       }
       @media (max-width:1400px){
         .polygon-label{ font-size:0.76rem; padding:5px 8px; max-width:150px; }
@@ -818,6 +818,12 @@
       const root = document.documentElement;
       const heatColorA = getComputedStyle(root).getPropertyValue('--grade-a-strong').trim() || '#c72a3b';
       const heatColorB = getComputedStyle(root).getPropertyValue('--grade-b-strong').trim() || '#433c36';
+
+      function shouldEnableHeatmap(){
+        return window.innerWidth > 1100;
+      }
+
+      let heatmapEnabled = shouldEnableHeatmap();
       const headerEl = document.querySelector('.site-header');
       const logoMarqueeEl = document.getElementById('logo-marquee');
       const dataView = document.getElementById('data-view');
@@ -1638,7 +1644,17 @@
         return 0.2126 * r + 0.7152 * g + 0.0722 * b;
       }
 
+      function clearHeatmapStyles(cell){
+        cell.classList.remove('heat-cell');
+        cell.style.removeProperty('--heat-bg');
+        cell.style.background = '';
+        cell.style.color = '';
+        cell.style.textShadow = '';
+      }
+
       function applyHeatmap(cell, value, key){
+        clearHeatmapStyles(cell);
+        if (!heatmapEnabled) return;
         const color = heatPalette[key];
         const range = heatmapRanges[key];
         const shade = color ? getHeatColor(value, range, color) : '';
@@ -1716,6 +1732,24 @@
         if (!scroller) return;
         scroller.style.maxHeight = '';
       }
+
+      function syncHeatmapMode(){
+        const next = shouldEnableHeatmap();
+        if (next === heatmapEnabled) return;
+        heatmapEnabled = next;
+        renderTable();
+      }
+
+      const debouncedTableResize = (() => {
+        let timer = null;
+        return () => {
+          clearTimeout(timer);
+          timer = setTimeout(() => {
+            syncHeatmapMode();
+            enforceVisibleRows();
+          }, 140);
+        };
+      })();
 
       function renderTable(){
         const tbody = document.querySelector('#rents-table tbody');
@@ -1816,10 +1850,11 @@
       function buildRentsTable(){
         renderTable();
         setupSorting();
-        window.addEventListener('resize', enforceVisibleRows);
+        window.addEventListener('resize', debouncedTableResize);
         if (document.fonts && document.fonts.ready) {
           document.fonts.ready.then(enforceVisibleRows).catch(() => {});
         }
+        syncHeatmapMode();
       }
 
       function setupTableHover(){
