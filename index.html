@@ -9,6 +9,12 @@
     <style>
       :root{
         --brand:#CC2030;
+        --grade-a-strong:#CC2030;
+        --grade-b-strong:#3D3834;
+        --grade-a-soft:#f7d6da;
+        --grade-b-soft:#e8e5e2;
+        --grade-a-soft-hover:#e0a3ac;
+        --grade-b-soft-hover:#d4cbc4;
         --ink:#0F172A;
         --muted-ink:#475569;
         --surface:#FFFFFF;
@@ -299,10 +305,12 @@
         text-align:center;
         transition:background .12s ease, box-shadow .12s ease;
       }
-      .rent-table .col-grade-a{ background:#fff4f4; }
-      .rent-table .col-grade-b{ background:#f4f8ff; }
+      .rent-table .col-grade-a{ background:var(--grade-a-soft); }
+      .rent-table .col-grade-b{ background:var(--grade-b-soft); }
       .rent-table tbody td:first-child{ font-weight:800; color:var(--ink); letter-spacing:.1px; }
-      .rent-table tbody tr:hover td{ background:rgba(204,32,48,0.06); }
+      .rent-table tbody tr:hover td{ background:rgba(204,32,48,0.03); }
+      .rent-table tbody tr:hover td.col-grade-a{ background:var(--grade-a-soft-hover); }
+      .rent-table tbody tr:hover td.col-grade-b{ background:var(--grade-b-soft-hover); }
       .rent-table a{
         font-weight:700;
         color:var(--ink);
@@ -342,6 +350,8 @@
           gap:6px;
           background:transparent;
         }
+        .rent-table tbody td.col-grade-a{ background:var(--grade-a-soft); }
+        .rent-table tbody td.col-grade-b{ background:var(--grade-b-soft); }
         .rent-table tbody td::before{
           content:attr(data-title);
           font-size:.78rem;
@@ -356,6 +366,8 @@
           font-size:1.08rem;
         }
         .rent-table tbody tr:hover td{ background:transparent; }
+        .rent-table tbody tr:hover td.col-grade-a{ background:var(--grade-a-soft-hover); }
+        .rent-table tbody tr:hover td.col-grade-b{ background:var(--grade-b-soft-hover); }
       }
 
       /* --- Client logo banner (outside #map, fixed to viewport) --- */
@@ -1148,20 +1160,26 @@
         });
       }
 
+      const refreshLabels = debounce(() => {
+        if (!geojsonFeatures || !isDesktopView()) return;
+        requestAnimationFrame(() => addLabels(geojsonFeatures));
+      }, 80);
+
       function syncDesktopMode(){
         const desktop = isDesktopView();
         document.body.classList.toggle('is-desktop', desktop);
         if (!desktop){
           clearLabels();
-        } else {
-          if (geojsonFeatures) addLabels(geojsonFeatures);
+          return;
         }
+        refreshLabels();
       }
 
       // Keep map sized & fitted when UI changes
       new ResizeObserver(() => { map.resize(); debouncedRefit(); syncDesktopMode(); }).observe(mapContainer);
       window.addEventListener('resize', () => { map.resize(); debouncedRefit(); syncDesktopMode(); });
       window.addEventListener('orientationchange', () => { map.resize(); debouncedRefit(); syncDesktopMode(); });
+      map.on('resize', refreshLabels);
       if (desktopMedia.addEventListener) {
         desktopMedia.addEventListener('change', syncDesktopMode);
       } else if (desktopMedia.addListener) {
