@@ -810,7 +810,7 @@
         { label: "City (EC2, EC3, EC4)", gradeA: { primeRent: 97.5, totalCost: 150.29715, change: 8.053596463 }, gradeB: { primeRent: 55, totalCost: 99.33305, change: 6.769549094 } },
         { label: "Paddington", gradeA: { primeRent: 90, totalCost: 140.41715, change: 6.396779693 }, gradeB: { primeRent: 52.5, totalCost: 91.81305, change: 6.431403234 } },
         { label: "Old Street / Shoreditch", gradeA: { primeRent: 87.5, totalCost: 130.77305, change: 8.8279033 }, gradeB: { primeRent: 55, totalCost: 90.83305, change: 7.05763451 } },
-        { label: "Southbank", gradeA: { primeRent: 90, totalCost: 140.18715, change: 6.407947171 }, gradeB: { primeRent: 55, totalCost: 97.02305, change: 6.69494694 } },
+        { label: "London Bridge / Waterloo", gradeA: { primeRent: 90, totalCost: 140.18715, change: 6.407947171 }, gradeB: { primeRent: 55, totalCost: 97.02305, change: 6.69494694 } },
         { label: "Vauxhall / Nine Elms & Battersea", gradeA: { primeRent: 65, totalCost: 102.68305, change: 5.679051099 }, gradeB: { primeRent: 42.5, totalCost: 68.07075, change: 7.307874202 } },
         { label: "Kensington & Chelsea", gradeA: { primeRent: 77.5, totalCost: 125.07715, change: 4.952506818 }, gradeB: { primeRent: 43.5, totalCost: 78.70895, change: 5.00827163 } },
         { label: "Camden", gradeA: { primeRent: 63, totalCost: 106.59305, change: 3.503471379 }, gradeB: { primeRent: 43, totalCost: 81.17305, change: 4.543821238 } },
@@ -847,7 +847,7 @@
         "Camden": "https://infogram.com/camden-1hnq41ow379yp23",
         "Hammersmith": "https://infogram.com/hammersmith-1h0n25ow3q7nz4p",
         "Clerkenwell & Farringdon": "https://infogram.com/clerkenwell-farringdon-1h984wvlq5n7d2p",
-        "Southbank": "https://infogram.com/london-bridge-waterloo-1h1749wro1wwl2z",
+        "London Bridge / Waterloo": "https://infogram.com/london-bridge-waterloo-1h1749wro1wwl2z",
         "City (EC2, EC3, EC4)": "https://infogram.com/the-city-1hnq41ow3ydok23",
         "Noho / Fitzrovia": "https://infogram.com/noho-fitzrovia-1hnp27evo0lkn4g",
         "White City / Shepherd's Bush": "https://infogram.com/white-city-shepherds-bush-1h9j6q7djg30v4g",
@@ -1013,7 +1013,20 @@
 
       function formatLabelText(label){
         if (!label) return '';
-        const words = String(label).split(' ').filter(Boolean);
+        const rawWords = String(label).split(' ').filter(Boolean);
+        const words = [];
+        for (let i = 0; i < rawWords.length; i++) {
+          if (rawWords[i] === '/') {
+            if (words.length) {
+              words[words.length - 1] = `${words[words.length - 1]} /`;
+            } else if (rawWords[i + 1]) {
+              words.push(`/${rawWords[i + 1]}`);
+              i += 1;
+            }
+            continue;
+          }
+          words.push(rawWords[i]);
+        }
         if (words.length <= 1) return label;
         let bestSplit = 1;
         let smallestDiff = Infinity;
@@ -2103,7 +2116,6 @@
     </script>
   </body>
 </html>
-
 
 
 
