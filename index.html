@@ -302,7 +302,7 @@
         font-weight:900;
         letter-spacing:.35px;
         text-transform:uppercase;
-        font-size:1.32rem;
+        font-size:1.4rem;
         color:var(--ink);
       }
       .panel-subtitle{
@@ -403,7 +403,7 @@
         table-layout:fixed;
       }
 
-      .rent-table col.col-submarket{ width:28%; min-width:260px; }
+      .rent-table col.col-submarket{ width:26%; min-width:250px; }
       .rent-table col.col-prime{ width:14%; min-width:120px; }
       .rent-table col.col-total{ width:18%; min-width:140px; }
       .rent-table col.col-change{ width:10%; min-width:120px; }
@@ -469,15 +469,27 @@
         letter-spacing:.4px;
         background:linear-gradient(180deg, #E6E9ED, #F1F3F6);
       }
-      .rent-table thead tr.group-row th.col-grade-a{ color:var(--grade-a-strong); }
-      .rent-table thead tr.group-row th.col-grade-b{ color:var(--grade-b-strong); }
+      .rent-table thead tr.group-row th.col-grade-a{
+        background:linear-gradient(180deg, rgba(204,32,48,0.28), rgba(204,32,48,0.12));
+        color:var(--ink);
+      }
+      .rent-table thead tr.group-row th.col-grade-b{
+        background:linear-gradient(180deg, rgba(67,60,54,0.28), rgba(67,60,54,0.12));
+        color:var(--ink);
+      }
       .rent-table thead tr.detail-row th{
         top:34px;
         z-index:2;
         padding:12px 16px 10px;
       }
-      .rent-table thead th.col-grade-a{ color:var(--grade-a-strong); }
-      .rent-table thead th.col-grade-b{ color:var(--grade-b-strong); }
+      .rent-table thead tr.detail-row th.col-grade-a{
+        background:linear-gradient(180deg, rgba(204,32,48,0.14), rgba(204,32,48,0.06));
+        color:var(--ink);
+      }
+      .rent-table thead tr.detail-row th.col-grade-b{
+        background:linear-gradient(180deg, rgba(67,60,54,0.14), rgba(67,60,54,0.06));
+        color:var(--ink);
+      }
       .rent-table thead th.submarket-head{
         vertical-align:middle;
         text-align:left;
@@ -491,11 +503,16 @@
         color:var(--ink);
       }
       .rent-table thead .sort-title{ color:var(--ink); white-space:nowrap; }
-      .rent-table thead th.col-grade-a .sort-title{ color:var(--grade-a-strong); }
-      .rent-table thead th.col-grade-b .sort-title{ color:var(--grade-b-strong); }
-      .rent-table thead .sort-subtitle{ color:var(--muted-ink); font-weight:600; font-size:.86rem; }
-      .rent-table thead th.col-grade-a .sort-subtitle{ color:rgba(179,31,48,0.7); }
-      .rent-table thead th.col-grade-b .sort-subtitle{ color:rgba(53,44,39,0.7); }
+      .rent-table thead th.col-grade-a .sort-title,
+      .rent-table thead th.col-grade-b .sort-title{ color:var(--ink); }
+      .rent-table thead .sort-subtitle{
+        color:var(--muted-ink);
+        font-weight:600;
+        font-size:.86rem;
+        white-space:nowrap;
+      }
+      .rent-table thead th.col-grade-a .sort-subtitle,
+      .rent-table thead th.col-grade-b .sort-subtitle{ color:var(--muted-ink); }
       .rent-table thead .sort-indicator{ color:var(--muted-ink); }
       .rent-table tbody td{
         padding:12px 16px;
@@ -504,10 +521,10 @@
         transition:background .12s ease, box-shadow .12s ease;
       }
       .rent-table tbody td.numeric{ text-align:center; font-weight:400; color:#131a2c; }
-      .rent-table .col-grade-a{ background:var(--grade-a-soft); }
-      .rent-table .col-grade-b{ background:var(--grade-b-soft); }
+      .rent-table tbody td.col-grade-a{ background:var(--grade-a-soft); }
+      .rent-table tbody td.col-grade-b{ background:var(--grade-b-soft); }
       .rent-table tbody td:first-child{ font-weight:900; color:var(--ink); letter-spacing:.1px; text-align:left; white-space:nowrap; }
-      .rent-table thead th:first-child{ width:32%; min-width:300px; }
+      .rent-table thead th:first-child{ width:29%; min-width:280px; }
       .rent-table tbody tr:nth-child(even) td:not(.col-grade-a):not(.col-grade-b){ background:rgba(15,23,42,0.015); }
       .rent-table tbody tr:hover td{ background:rgba(204,32,48,0.03); }
       .rent-table tbody tr:hover td.col-grade-a{ background:var(--grade-a-soft-hover); }
@@ -663,7 +680,7 @@
         pointer-events:none; /* never block map interactions */
         backdrop-filter:none;
         padding:0 12px 8px;
-        margin:-70px auto 0;
+        margin:-82px auto 0;
         display:flex;
         justify-content:center;
         opacity:0;
@@ -689,13 +706,7 @@
         text-shadow:0 8px 20px rgba(0,0,0,0.28);
       }
       .banner-subtitle::before{
-        content:"";
-        display:inline-block;
-        width:34px;
-        height:3px;
-        border-radius:999px;
-        background:rgba(255,255,255,0.7);
-        box-shadow:0 8px 18px rgba(0,0,0,0.24);
+        display:none;
       }
       .logo-viewport{
         position:relative;
@@ -955,7 +966,7 @@
         <div class="panel-accent" aria-hidden="true"></div>
         <div class="panel-header">
           <div class="panel-title-group">
-            <h2 id="rents-panel-title" class="panel-title">Central London Office Rents</h2>
+            <h2 id="rents-panel-title" class="panel-title">Central London Office Rents (Q4 2025)</h2>
             <p class="panel-subtitle">Prime benchmarks across Grade A and Grade B stock, refreshed quarterly.</p>
           </div>
           <button class="panel-close" type="button" aria-label="Close rents table">&times;</button>
@@ -2135,13 +2146,11 @@
             tdA.className = 'col-grade-a numeric';
             tdA.dataset.title = 'Grade A prime rent (psf)';
             tdA.textContent = row.priceAText;
-            applyHeatmap(tdA, row.priceA, 'priceA');
 
             const tdTotalA = document.createElement('td');
             tdTotalA.className = 'col-grade-a numeric';
             tdTotalA.dataset.title = 'Grade A total cost';
             tdTotalA.textContent = row.totalCostAText;
-            applyHeatmap(tdTotalA, row.totalCostA, 'totalCostA');
 
             const tdChangeA = document.createElement('td');
             tdChangeA.className = 'col-grade-a numeric';
@@ -2153,13 +2162,11 @@
             tdB.className = 'col-grade-b numeric';
             tdB.dataset.title = 'Grade B prime rent (psf)';
             tdB.textContent = row.priceBText;
-            applyHeatmap(tdB, row.priceB, 'priceB');
 
             const tdTotalB = document.createElement('td');
             tdTotalB.className = 'col-grade-b numeric';
             tdTotalB.dataset.title = 'Grade B total cost';
             tdTotalB.textContent = row.totalCostBText;
-            applyHeatmap(tdTotalB, row.totalCostB, 'totalCostB');
 
             const tdChangeB = document.createElement('td');
             tdChangeB.className = 'col-grade-b numeric';
