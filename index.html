@@ -126,7 +126,7 @@
       .map-stage{
         position:relative;
         min-height:calc(100vh + 60px);
-        background:var(--ui);
+        background:#fff;
         margin-top:-130px;
         overflow:hidden;
       }
@@ -204,7 +204,7 @@
         margin-left:0;
         height:clamp(760px, calc(100vh + var(--header-h)), 1200px);
         min-height:760px;
-        background:var(--ui);
+        background:#fff;
         padding-bottom:env(safe-area-inset-bottom);
         box-sizing:border-box;
       }
@@ -302,7 +302,7 @@
         font-weight:900;
         letter-spacing:.35px;
         text-transform:uppercase;
-        font-size:1.02rem;
+        font-size:1.32rem;
         color:var(--ink);
       }
       .panel-subtitle{
@@ -464,16 +464,20 @@
         top:0;
         z-index:3;
         padding:10px 16px 6px;
-        font-size:.8rem;
+        font-size:1rem;
         text-transform:uppercase;
         letter-spacing:.4px;
         background:linear-gradient(180deg, #E6E9ED, #F1F3F6);
       }
+      .rent-table thead tr.group-row th.col-grade-a{ color:var(--grade-a-strong); }
+      .rent-table thead tr.group-row th.col-grade-b{ color:var(--grade-b-strong); }
       .rent-table thead tr.detail-row th{
         top:34px;
         z-index:2;
         padding:12px 16px 10px;
       }
+      .rent-table thead th.col-grade-a{ color:var(--grade-a-strong); }
+      .rent-table thead th.col-grade-b{ color:var(--grade-b-strong); }
       .rent-table thead th.submarket-head{
         vertical-align:middle;
         text-align:left;
@@ -486,8 +490,12 @@
         background:linear-gradient(180deg, #E2E6EA, #F5F6F8);
         color:var(--ink);
       }
-      .rent-table thead .sort-title{ color:var(--ink); }
+      .rent-table thead .sort-title{ color:var(--ink); white-space:nowrap; }
+      .rent-table thead th.col-grade-a .sort-title{ color:var(--grade-a-strong); }
+      .rent-table thead th.col-grade-b .sort-title{ color:var(--grade-b-strong); }
       .rent-table thead .sort-subtitle{ color:var(--muted-ink); font-weight:600; font-size:.86rem; }
+      .rent-table thead th.col-grade-a .sort-subtitle{ color:rgba(179,31,48,0.7); }
+      .rent-table thead th.col-grade-b .sort-subtitle{ color:rgba(53,44,39,0.7); }
       .rent-table thead .sort-indicator{ color:var(--muted-ink); }
       .rent-table tbody td{
         padding:12px 16px;
@@ -655,7 +663,7 @@
         pointer-events:none; /* never block map interactions */
         backdrop-filter:none;
         padding:0 12px 8px;
-        margin:-40px auto 0;
+        margin:-70px auto 0;
         display:flex;
         justify-content:center;
         opacity:0;
