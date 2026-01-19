@@ -47,6 +47,15 @@
         transition:background .2s ease;
       }
 
+      body.is-embedded{
+        font-size:0.94rem;
+        --logo-gap:clamp(5px, 0.8vw, 8px);
+        --logo-w:clamp(60px, 10vw, 112px);
+        --logo-h:clamp(34px, 5vw, 50px);
+        --logo-img-h:clamp(22px, 4vw, 32px);
+        --logo-img-w:clamp(64px, 11vw, 108px);
+      }
+
       .skip-link{
         position:absolute;
         top:12px;
@@ -77,12 +86,16 @@
         padding:12px 20px 14px;
         transition:opacity .2s ease;
       }
+      body.is-embedded .site-header{ padding:8px 16px 10px; }
       .hero-shell{ max-width:1240px; margin:0 auto; display:grid; grid-template-columns:1fr auto; gap:12px; align-items:center; }
+      body.is-embedded .hero-shell{ max-width:1160px; }
       .hero-copy{ display:flex; flex-direction:column; gap:8px; }
       .eyebrow{ display:inline-flex; align-items:center; gap:8px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.18); color:#E8EEF9; padding:6px 10px; border-radius:999px; font-weight:800; letter-spacing:.6px; text-transform:uppercase; font-size:.78rem; width:max-content; box-shadow:0 6px 16px rgba(0,0,0,0.14); }
       .eyebrow::before{ content:""; width:8px; height:8px; border-radius:50%; background:var(--brand); box-shadow:0 0 0 4px rgba(204,32,48,0.25); }
       .hero-title{ margin:0; font-size:clamp(1.5rem, 1.6vw + 1.1rem, 2.1rem); line-height:1.18; letter-spacing:.3px; font-weight:900; text-shadow:0 8px 22px rgba(0,0,0,0.25); white-space:nowrap; }
       .hero-lede{ margin:0; max-width:760px; color:#E4E8F1; font-size:.98rem; line-height:1.5; white-space:nowrap; }
+      body.is-embedded .hero-title{ font-size:clamp(1.35rem, 1.2vw + 1rem, 1.85rem); }
+      body.is-embedded .hero-lede{ font-size:.9rem; }
       .cta-row{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
       .cta-row .btn{ border-radius:10px; }
       .cta-row .btn.is-active{ box-shadow:0 12px 28px rgba(204,32,48,0.28); transform:none; }
@@ -102,6 +115,7 @@
       .meta-chip .chip-dot{ width:9px; height:9px; border-radius:50%; background:var(--brand); box-shadow:0 0 0 4px rgba(204,32,48,0.25); }
       .hero-visual{ position:relative; display:grid; gap:10px; align-content:center; justify-items:end; }
       .stat-card{ background:rgba(255,255,255,0.09); border:1px solid rgba(255,255,255,0.18); border-radius:14px; padding:10px 12px; width:230px; color:#F7F9FD; box-shadow:0 12px 28px rgba(0,0,0,0.22); backdrop-filter:saturate(130%) blur(6px); }
+      body.is-embedded .stat-card{ width:210px; padding:8px 10px; }
       .stat-card h3{ margin:0 0 6px; font-size:.92rem; letter-spacing:.35px; text-transform:uppercase; display:flex; align-items:center; gap:8px; }
       .stat-card .stat-value{ font-size:1.6rem; font-weight:900; display:block; letter-spacing:.4px; }
       .stat-card small{ display:block; color:#E4E8F1; opacity:.82; line-height:1.35; }
@@ -129,6 +143,10 @@
         background:#fff;
         margin-top:-130px;
         overflow:hidden;
+      }
+      body.is-embedded .map-stage{
+        min-height:calc(100vh + 20px);
+        margin-top:-110px;
       }
 
       .map-status{
@@ -208,10 +226,18 @@
         padding-bottom:env(safe-area-inset-bottom);
         box-sizing:border-box;
       }
+      body.is-embedded #map{
+        height:clamp(640px, calc(92vh + var(--header-h)), 1040px);
+        min-height:640px;
+      }
 
       body.map-expanded #map{
         height:clamp(760px, calc(100vh + var(--header-h)), 1200px);
         min-height:760px;
+      }
+      body.is-embedded.map-expanded #map{
+        height:clamp(640px, calc(92vh + var(--header-h)), 1040px);
+        min-height:640px;
       }
 
       .polygon-label{
@@ -271,6 +297,9 @@
         overflow:visible;
         box-sizing:border-box;
       }
+      body.is-embedded .data-view{
+        padding:24px 14px calc(36px + env(safe-area-inset-bottom));
+      }
       .table-panel{
         position:relative;
         width:min(1600px, calc(100% - 28px));
@@ -305,6 +334,7 @@
         font-size:1.4rem;
         color:var(--ink);
       }
+      body.is-embedded .panel-title{ font-size:1.2rem; }
       .panel-subtitle{
         margin:0;
         color:var(--muted-ink);
@@ -692,6 +722,7 @@
       .logo-marquee.is-empty{ display:none; }
       .logo-marquee .logo-accent{ display:none; }
       .logo-banner-inner{ padding:10px 16px; width:min(98vw, 1560px); margin:0 auto; background:linear-gradient(125deg, #CC2030 6%, #B81E2D 46%, #9E1824 100%); border-radius:16px; box-shadow:0 14px 32px rgba(12,16,32,0.26); border:1px solid rgba(255,255,255,0.14); color:#fff; display:flex; flex-direction:column; gap:8px; }
+      body.is-embedded .logo-banner-inner{ padding:8px 14px; }
       .banner-subtitle{
         margin:0 0 2px;
         text-align:left;
@@ -1017,6 +1048,15 @@
 
     <script src="vendor/maplibre-gl/maplibre-gl.js"></script>
     <script>
+      const isEmbedded = (() => {
+        try {
+          return window.self !== window.top;
+        } catch (error) {
+          return true;
+        }
+      })();
+      document.body.classList.toggle('is-embedded', isEmbedded);
+
       /* === DATA === */
       const submarketData = [
         { label: "Mayfair & St James's", gradeA: { primeRent: 185, totalCost: 256.33715, change: 7.901900532 }, gradeB: { primeRent: 90, totalCost: 150.63305, change: 5.88945907 } },
