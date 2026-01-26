@@ -17,6 +17,7 @@
         --grade-b-soft-hover:#5a463d;
         --grade-a-tint:#f8ecef;
         --grade-b-tint:#f4f1ee;
+        --grade-divider:#c48b93;
         --submarket-tint:#F3F4F6;
         --table-header:#F7F8FA;
         --submarket-fill:#141c2e;
@@ -499,11 +500,12 @@
       .rent-table thead tr.group-row th.col-grade-a{
         background:var(--grade-a-tint);
         color:var(--ink);
-        border-right:1px solid var(--stroke);
+        border-right:3px solid var(--grade-divider);
       }
       .rent-table thead tr.group-row th.col-grade-b{
         background:var(--grade-b-tint);
         color:var(--ink);
+        border-left:3px solid var(--grade-divider);
       }
       .rent-table thead tr.detail-row th{
         top:34px;
@@ -517,6 +519,12 @@
       .rent-table thead tr.detail-row th.col-grade-b{
         background:var(--grade-b-tint);
         color:var(--ink);
+      }
+      .rent-table thead tr.detail-row th.col-grade-a:last-of-type{
+        border-right:3px solid var(--grade-divider);
+      }
+      .rent-table thead tr.detail-row th.col-grade-b:first-of-type{
+        border-left:3px solid var(--grade-divider);
       }
       .rent-table thead th.submarket-head{
         vertical-align:middle;
@@ -552,8 +560,8 @@
       .rent-table tbody td.numeric{ text-align:center; font-weight:600; color:var(--ink); font-size:.95rem; }
       .rent-table tbody td.col-grade-a{ background:var(--grade-a-tint); }
       .rent-table tbody td.col-grade-b{ background:var(--grade-b-tint); }
-      .rent-table tbody td.col-grade-a:last-of-type{ border-right:1px solid var(--stroke); }
-      .rent-table thead tr.detail-row th.col-grade-a:last-of-type{ border-right:1px solid var(--stroke); }
+      .rent-table tbody td.col-grade-a:last-of-type{ border-right:3px solid var(--grade-divider); }
+      .rent-table tbody td:nth-child(5){ border-left:3px solid var(--grade-divider); }
       .rent-table tbody td:first-child{ font-weight:900; color:var(--ink); letter-spacing:.1px; text-align:left; white-space:nowrap; background:var(--submarket-tint); }
       .rent-table thead th:first-child{ width:29%; min-width:280px; }
       .rent-table tbody tr:nth-child(even) td:not(.col-grade-a):not(.col-grade-b):not(:first-child){ background:#FBFCFD; }
