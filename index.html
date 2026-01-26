@@ -11,10 +11,11 @@
         --brand:#CC2030;
         --grade-a-strong:#b31f30;
         --grade-b-strong:#352c27;
-        --grade-a-soft:#d6a4b0;
-        --grade-b-soft:#cfbbac;
-        --grade-a-soft-hover:#c98d9a;
-        --grade-b-soft-hover:#c2aa98;
+        --grade-a-soft:#9f1f34;
+        --grade-b-soft:#4a3a32;
+        --grade-a-soft-hover:#b3253d;
+        --grade-b-soft-hover:#5a463d;
+        --submarket-fill:#141c2e;
         --ink:#0F172A;
         --muted-ink:#475569;
         --surface:#FFFFFF;
@@ -468,21 +469,12 @@
       .sort-button[aria-sort="descending"]{
         color:var(--ink);
       }
-      .rent-table caption{
-        caption-side:top;
-        text-align:left;
-        padding:12px 16px 6px;
-        color:var(--muted-ink);
-        font-size:.85rem;
-        white-space:nowrap;
-        display:inline-block;
-      }
       .rent-table thead th{
         position:sticky;
         top:0;
         z-index:1;
-        background:#F8FAFC;
-        color:var(--ink);
+        background:var(--submarket-fill);
+        color:#fff;
         text-align:center;
         font-weight:800;
         padding:14px 16px 12px;
@@ -498,16 +490,16 @@
         font-size:1rem;
         text-transform:uppercase;
         letter-spacing:.4px;
-        background:#F1F3F6;
+        background:var(--submarket-fill);
       }
       .rent-table thead tr.group-row th.col-grade-a{
-        background:rgba(204,32,48,0.16);
-        color:var(--ink);
+        background:var(--grade-a-soft);
+        color:#fff;
         border-right:4px solid #fff;
       }
       .rent-table thead tr.group-row th.col-grade-b{
-        background:rgba(67,60,54,0.14);
-        color:var(--ink);
+        background:var(--grade-b-soft);
+        color:#fff;
       }
       .rent-table thead tr.detail-row th{
         top:34px;
@@ -515,12 +507,12 @@
         padding:12px 16px 10px;
       }
       .rent-table thead tr.detail-row th.col-grade-a{
-        background:rgba(204,32,48,0.1);
-        color:var(--ink);
+        background:var(--grade-a-soft);
+        color:#fff;
       }
       .rent-table thead tr.detail-row th.col-grade-b{
-        background:rgba(67,60,54,0.09);
-        color:var(--ink);
+        background:var(--grade-b-soft);
+        color:#fff;
       }
       .rent-table thead th.submarket-head{
         vertical-align:middle;
@@ -531,38 +523,40 @@
       }
       .rent-table thead th[aria-sort="ascending"],
       .rent-table thead th[aria-sort="descending"]{
-        background:#EEF1F4;
-        color:var(--ink);
+        background:inherit;
+        color:inherit;
       }
-      .rent-table thead .sort-title{ color:var(--ink); white-space:nowrap; }
+      .rent-table thead .sort-title{ color:#fff; white-space:nowrap; }
       .rent-table thead th.col-grade-a .sort-title,
-      .rent-table thead th.col-grade-b .sort-title{ color:var(--ink); }
+      .rent-table thead th.col-grade-b .sort-title{ color:#fff; }
       .rent-table thead .sort-subtitle{
-        color:var(--muted-ink);
+        color:rgba(255,255,255,0.72);
         font-weight:600;
         font-size:.86rem;
         white-space:nowrap;
       }
       .rent-table thead th.col-grade-a .sort-subtitle,
-      .rent-table thead th.col-grade-b .sort-subtitle{ color:var(--muted-ink); }
-      .rent-table thead .sort-indicator{ color:var(--muted-ink); }
+      .rent-table thead th.col-grade-b .sort-subtitle{ color:rgba(255,255,255,0.72); }
+      .rent-table thead .sort-indicator{ color:rgba(255,255,255,0.7); }
       .rent-table tbody td{
         padding:12px 16px;
         border-bottom:1px solid #F1F2F4;
         text-align:center;
         transition:background .12s ease, box-shadow .12s ease;
+        color:#fff;
       }
-      .rent-table tbody td.numeric{ text-align:center; font-weight:600; color:#1f2937; font-size:.95rem; }
+      .rent-table tbody td.numeric{ text-align:center; font-weight:600; color:#fff; font-size:.95rem; }
       .rent-table tbody td.col-grade-a{ background:var(--grade-a-soft); }
       .rent-table tbody td.col-grade-b{ background:var(--grade-b-soft); }
       .rent-table tbody td.col-grade-a:last-of-type{ border-right:4px solid #fff; }
       .rent-table thead tr.detail-row th.col-grade-a:last-of-type{ border-right:4px solid #fff; }
-      .rent-table tbody td:first-child{ font-weight:900; color:var(--ink); letter-spacing:.1px; text-align:left; white-space:nowrap; }
+      .rent-table tbody td:first-child{ font-weight:900; color:#fff; letter-spacing:.1px; text-align:left; white-space:nowrap; background:var(--submarket-fill); }
       .rent-table thead th:first-child{ width:29%; min-width:280px; }
-      .rent-table tbody tr:nth-child(even) td:not(.col-grade-a):not(.col-grade-b){ background:rgba(15,23,42,0.015); }
+      .rent-table tbody tr:nth-child(even) td:not(.col-grade-a):not(.col-grade-b):not(:first-child){ background:rgba(15,23,42,0.015); }
       .rent-table tbody tr:hover td{ background:rgba(204,32,48,0.03); }
       .rent-table tbody tr:hover td.col-grade-a{ background:var(--grade-a-soft-hover); }
       .rent-table tbody tr:hover td.col-grade-b{ background:var(--grade-b-soft-hover); }
+      .rent-table tbody tr:hover td:first-child{ background:#1b2438; }
       .rent-table tbody tr.empty-row td{
         text-align:center;
         background:transparent;
@@ -626,8 +620,8 @@
           gap:10px;
           border:1px solid var(--stroke);
           border-radius:14px;
-          background:linear-gradient(145deg, #FFFFFF 0%, #F9FAFD 60%, #F3F5FB 100%);
-          box-shadow:0 14px 26px rgba(15,23,42,0.12);
+          background:#0f172a;
+          box-shadow:0 14px 26px rgba(15,23,42,0.22);
           overflow:hidden;
           padding:9px 9px 11px;
         }
@@ -638,33 +632,33 @@
           display:flex;
           flex-direction:column;
           gap:6px;
-          background:var(--ui);
-          border:1px solid #E6E9EF;
+          background:#1f2937;
+          border:1px solid rgba(255,255,255,0.12);
           border-radius:12px;
-          box-shadow:inset 0 1px 0 rgba(255,255,255,0.9);
+          box-shadow:inset 0 1px 0 rgba(255,255,255,0.08);
           width:100%;
           min-width:0;
         }
         .rent-table tbody td:first-child{ white-space:normal; }
-        .rent-table tbody td.numeric{ text-align:left; font-weight:800; color:var(--ink); }
-        .rent-table tbody td.col-grade-a{ background:linear-gradient(145deg, #e7c2ca, #d8abb5); border-color:rgba(204,32,48,0.24); box-shadow:0 6px 16px rgba(204,32,48,0.12); }
-        .rent-table tbody td.col-grade-b{ background:linear-gradient(145deg, #d8c7b7, #ccb7a4); border-color:rgba(67,60,54,0.24); box-shadow:0 6px 16px rgba(67,60,54,0.12); }
+        .rent-table tbody td.numeric{ text-align:left; font-weight:800; color:#fff; }
+        .rent-table tbody td.col-grade-a{ background:linear-gradient(145deg, #b3253d, #8c1c30); border-color:rgba(255,255,255,0.18); box-shadow:0 8px 18px rgba(204,32,48,0.24); }
+        .rent-table tbody td.col-grade-b{ background:linear-gradient(145deg, #5a463d, #3d302a); border-color:rgba(255,255,255,0.16); box-shadow:0 8px 18px rgba(15,23,42,0.24); }
         .rent-table tbody td::before{
           content:attr(data-title);
           font-size:.78rem;
           text-transform:uppercase;
           letter-spacing:.35px;
-          color:var(--muted-ink);
+          color:rgba(255,255,255,0.72);
           font-weight:800;
           opacity:.85;
         }
         .rent-table tbody td:first-child{
           grid-column:1 / -1;
-          padding:4px 4px 2px;
+          padding:8px 10px;
           font-size:1.08rem;
-          background:transparent;
-          border:none;
-          box-shadow:none;
+          background:var(--submarket-fill);
+          border:1px solid rgba(255,255,255,0.18);
+          box-shadow:inset 0 1px 0 rgba(255,255,255,0.1);
         }
         .rent-table tbody td:nth-child(2){ grid-column:1; grid-row:2; }
         .rent-table tbody td:nth-child(3){ grid-column:2; grid-row:2; }
@@ -672,10 +666,10 @@
         .rent-table tbody td:nth-child(5){ grid-column:1; grid-row:3; }
         .rent-table tbody td:nth-child(6){ grid-column:2; grid-row:3; }
         .rent-table tbody td:nth-child(7){ grid-column:3; grid-row:3; }
-        .rent-table tbody td:first-child::before{ color:var(--brand); letter-spacing:.44px; }
-        .rent-table tbody tr:hover td{ background:var(--ui); }
-        .rent-table tbody tr:hover td.col-grade-a{ background:linear-gradient(145deg, #deacb6, #c996a1); }
-        .rent-table tbody tr:hover td.col-grade-b{ background:linear-gradient(145deg, #d1beaa, #c2ab96); }
+        .rent-table tbody td:first-child::before{ color:rgba(255,255,255,0.7); letter-spacing:.44px; }
+        .rent-table tbody tr:hover td{ background:#263144; }
+        .rent-table tbody tr:hover td.col-grade-a{ background:linear-gradient(145deg, #c12c45, #9c1f34); }
+        .rent-table tbody tr:hover td.col-grade-b{ background:linear-gradient(145deg, #6a544a, #4a3a32); }
         .rent-table tbody td.col-grade-a:last-of-type{ border-right:none; }
         .rent-table tbody tr.empty-row{
           display:block;
@@ -1020,7 +1014,7 @@
           <p class="meta-note">Values shown per sq ft and to the nearest whole number; tap a submarket to open the dashboard.</p>
         </div>
         <div class="table-scroller">
-          <table id="rents-table" class="rent-table" aria-describedby="rents-caption">
+          <table id="rents-table" class="rent-table">
             <colgroup>
               <col class="col-submarket" />
               <col class="col-prime" />
@@ -1030,7 +1024,6 @@
               <col class="col-total" />
               <col class="col-change" />
             </colgroup>
-            <caption id="rents-caption">*All prices are per sq ft</caption>
             <thead>
                 <tr class="group-row">
                   <th scope="col" rowspan="2" class="submarket-head"><button class="sort-button" type="button" data-sort="submarket" aria-sort="none"><span class="sort-title">Submarket</span><span class="sort-subtitle">Linked dashboards</span><span class="sort-indicator">⇅</span></button></th>
