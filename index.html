@@ -11,10 +11,10 @@
         --brand:#CC2030;
         --grade-a-strong:#b31f30;
         --grade-b-strong:#352c27;
-        --grade-a-soft:#ecdce0;
-        --grade-b-soft:#e7e0d8;
-        --grade-a-soft-hover:#e0c8ce;
-        --grade-b-soft-hover:#dacec5;
+        --grade-a-soft:#e0b6c0;
+        --grade-b-soft:#d9c9bc;
+        --grade-a-soft-hover:#d5a1ad;
+        --grade-b-soft-hover:#cdb9aa;
         --ink:#0F172A;
         --muted-ink:#475569;
         --surface:#FFFFFF;
@@ -501,11 +501,12 @@
         background:linear-gradient(180deg, #E6E9ED, #F1F3F6);
       }
       .rent-table thead tr.group-row th.col-grade-a{
-        background:linear-gradient(180deg, rgba(204,32,48,0.28), rgba(204,32,48,0.12));
+        background:linear-gradient(180deg, rgba(204,32,48,0.4), rgba(204,32,48,0.18));
         color:var(--ink);
+        border-right:4px solid #fff;
       }
       .rent-table thead tr.group-row th.col-grade-b{
-        background:linear-gradient(180deg, rgba(67,60,54,0.28), rgba(67,60,54,0.12));
+        background:linear-gradient(180deg, rgba(67,60,54,0.4), rgba(67,60,54,0.18));
         color:var(--ink);
       }
       .rent-table thead tr.detail-row th{
@@ -514,11 +515,11 @@
         padding:12px 16px 10px;
       }
       .rent-table thead tr.detail-row th.col-grade-a{
-        background:linear-gradient(180deg, rgba(204,32,48,0.14), rgba(204,32,48,0.06));
+        background:linear-gradient(180deg, rgba(204,32,48,0.22), rgba(204,32,48,0.1));
         color:var(--ink);
       }
       .rent-table thead tr.detail-row th.col-grade-b{
-        background:linear-gradient(180deg, rgba(67,60,54,0.14), rgba(67,60,54,0.06));
+        background:linear-gradient(180deg, rgba(67,60,54,0.22), rgba(67,60,54,0.1));
         color:var(--ink);
       }
       .rent-table thead th.submarket-head{
@@ -554,6 +555,8 @@
       .rent-table tbody td.numeric{ text-align:center; font-weight:400; color:#131a2c; }
       .rent-table tbody td.col-grade-a{ background:var(--grade-a-soft); }
       .rent-table tbody td.col-grade-b{ background:var(--grade-b-soft); }
+      .rent-table tbody td.col-grade-a:last-of-type{ border-right:4px solid #fff; }
+      .rent-table thead tr.detail-row th.col-grade-a:last-of-type{ border-right:4px solid #fff; }
       .rent-table tbody td:first-child{ font-weight:900; color:var(--ink); letter-spacing:.1px; text-align:left; white-space:nowrap; }
       .rent-table thead th:first-child{ width:29%; min-width:280px; }
       .rent-table tbody tr:nth-child(even) td:not(.col-grade-a):not(.col-grade-b){ background:rgba(15,23,42,0.015); }
@@ -643,8 +646,8 @@
         }
         .rent-table tbody td:first-child{ white-space:normal; }
         .rent-table tbody td.numeric{ text-align:left; font-weight:800; color:var(--ink); }
-        .rent-table tbody td.col-grade-a{ background:linear-gradient(145deg, #f8eef1, #f2e4e9); border-color:rgba(204,32,48,0.18); box-shadow:0 6px 16px rgba(204,32,48,0.08); }
-        .rent-table tbody td.col-grade-b{ background:linear-gradient(145deg, #f1ece6, #e9e2d9); border-color:rgba(67,60,54,0.18); box-shadow:0 6px 16px rgba(67,60,54,0.08); }
+        .rent-table tbody td.col-grade-a{ background:linear-gradient(145deg, #efd4da, #e3bec6); border-color:rgba(204,32,48,0.24); box-shadow:0 6px 16px rgba(204,32,48,0.12); }
+        .rent-table tbody td.col-grade-b{ background:linear-gradient(145deg, #e4d7cb, #d7c7b7); border-color:rgba(67,60,54,0.24); box-shadow:0 6px 16px rgba(67,60,54,0.12); }
         .rent-table tbody td::before{
           content:attr(data-title);
           font-size:.78rem;
@@ -670,8 +673,9 @@
         .rent-table tbody td:nth-child(7){ grid-column:3; grid-row:3; }
         .rent-table tbody td:first-child::before{ color:var(--brand); letter-spacing:.44px; }
         .rent-table tbody tr:hover td{ background:var(--ui); }
-        .rent-table tbody tr:hover td.col-grade-a{ background:linear-gradient(145deg, #f4e3e8, #edd5dc); }
-        .rent-table tbody tr:hover td.col-grade-b{ background:linear-gradient(145deg, #ece3d8, #e4dbd0); }
+        .rent-table tbody tr:hover td.col-grade-a{ background:linear-gradient(145deg, #e9c4cc, #d9aeb8); }
+        .rent-table tbody tr:hover td.col-grade-b{ background:linear-gradient(145deg, #dccdbc, #cebcaa); }
+        .rent-table tbody td.col-grade-a:last-of-type{ border-right:none; }
         .rent-table tbody tr.empty-row{
           display:block;
           padding:6px;
@@ -1035,10 +1039,10 @@
                 <tr class="detail-row">
                   <th scope="col" class="col-grade-a"><button class="sort-button" type="button" data-sort="priceA" aria-sort="descending"><span class="sort-title">Prime rent (psf)</span><span class="sort-subtitle">Best-in-class</span><span class="sort-indicator">⇅</span></button></th>
                   <th scope="col" class="col-grade-a"><button class="sort-button" type="button" data-sort="totalCostA" aria-sort="none"><span class="sort-title">Total cost</span><span class="sort-subtitle">Rent + rates + service charge</span><span class="sort-indicator">⇅</span></button></th>
-                  <th scope="col" class="col-grade-a"><button class="sort-button" type="button" data-sort="changeA" aria-sort="none"><span class="sort-title">12-mo change</span><span class="sort-subtitle">Prime rent trend</span><span class="sort-indicator">⇅</span></button></th>
+                  <th scope="col" class="col-grade-a"><button class="sort-button" type="button" data-sort="changeA" aria-sort="none"><span class="sort-title">12-m change</span><span class="sort-subtitle">Prime rent trend</span><span class="sort-indicator">⇅</span></button></th>
                   <th scope="col" class="col-grade-b"><button class="sort-button" type="button" data-sort="priceB" aria-sort="none"><span class="sort-title">Prime rent (psf)</span><span class="sort-subtitle">Good quality</span><span class="sort-indicator">⇅</span></button></th>
                   <th scope="col" class="col-grade-b"><button class="sort-button" type="button" data-sort="totalCostB" aria-sort="none"><span class="sort-title">Total cost</span><span class="sort-subtitle">Rent + rates + service charge</span><span class="sort-indicator">⇅</span></button></th>
-                  <th scope="col" class="col-grade-b"><button class="sort-button" type="button" data-sort="changeB" aria-sort="none"><span class="sort-title">12-mo change</span><span class="sort-subtitle">Prime rent trend</span><span class="sort-indicator">⇅</span></button></th>
+                  <th scope="col" class="col-grade-b"><button class="sort-button" type="button" data-sort="changeB" aria-sort="none"><span class="sort-title">12-m change</span><span class="sort-subtitle">Prime rent trend</span><span class="sort-indicator">⇅</span></button></th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -1084,7 +1088,7 @@
       ];
 
       function formatCurrency(value){
-        return Number.isFinite(value) ? `£${value.toFixed(2)}` : '—';
+        return Number.isFinite(value) ? `£${value.toFixed(0)}` : '—';
       }
 
       function formatPercent(value){
@@ -2205,7 +2209,7 @@
 
             const tdChangeA = document.createElement('td');
             tdChangeA.className = 'col-grade-a numeric';
-            tdChangeA.dataset.title = 'Grade A 12-mo change';
+            tdChangeA.dataset.title = 'Grade A 12-m change';
             tdChangeA.textContent = row.changeAText;
             applyHeatmap(tdChangeA, row.changeA, 'changeA');
 
@@ -2221,7 +2225,7 @@
 
             const tdChangeB = document.createElement('td');
             tdChangeB.className = 'col-grade-b numeric';
-            tdChangeB.dataset.title = 'Grade B 12-mo change';
+            tdChangeB.dataset.title = 'Grade B 12-m change';
             tdChangeB.textContent = row.changeBText;
             applyHeatmap(tdChangeB, row.changeB, 'changeB');
 
