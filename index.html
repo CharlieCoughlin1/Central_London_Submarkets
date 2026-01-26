@@ -9,14 +9,14 @@
     <style>
       :root{
         --brand:#CC2030;
-        --grade-a-strong:#b31f30;
-        --grade-b-strong:#352c27;
+        --grade-a-strong:#cc2030;
+        --grade-b-strong:#00777a;
         --grade-a-soft:#9f1f34;
         --grade-b-soft:#4a3a32;
         --grade-a-soft-hover:#b3253d;
         --grade-b-soft-hover:#5a463d;
-        --grade-a-tint:#c24b5e;
-        --grade-b-tint:#786257;
+        --grade-a-tint:#cc2030;
+        --grade-b-tint:#00777a;
         --grade-a-tint-text:#ffffff;
         --grade-b-tint-text:#ffffff;
         --submarket-tint:#F7F8FA;
@@ -567,8 +567,8 @@
       .rent-table thead th:first-child{ width:29%; min-width:280px; }
       .rent-table tbody tr:nth-child(even) td:not(.col-grade-a):not(.col-grade-b):not(:first-child){ background:#FBFCFD; }
       .rent-table tbody tr:hover td{ background:#F5F6F8; }
-      .rent-table tbody tr:hover td.col-grade-a{ background:#b84254; }
-      .rent-table tbody tr:hover td.col-grade-b{ background:#6b584f; }
+      .rent-table tbody tr:hover td.col-grade-a{ background:#a61927; }
+      .rent-table tbody tr:hover td.col-grade-b{ background:#005c5e; }
       .rent-table tbody tr:hover td:first-child{ background:#E9EBEF; }
       .rent-table tbody tr.empty-row td{
         text-align:center;
@@ -681,8 +681,8 @@
         .rent-table tbody td:nth-child(7){ grid-column:3; grid-row:3; }
         .rent-table tbody td:first-child::before{ color:var(--muted-ink); letter-spacing:.44px; }
         .rent-table tbody tr:hover td{ background:#F5F6F8; }
-        .rent-table tbody tr:hover td.col-grade-a{ background:#b84254; }
-        .rent-table tbody tr:hover td.col-grade-b{ background:#6b584f; }
+        .rent-table tbody tr:hover td.col-grade-a{ background:#a61927; }
+        .rent-table tbody tr:hover td.col-grade-b{ background:#005c5e; }
         .rent-table tbody td.col-grade-a:last-of-type{ border-right:none; }
         .rent-table tbody tr.empty-row{
           display:block;
@@ -2054,10 +2054,10 @@
         return { r: (bigint >> 16) & 255, g: (bigint >> 8) & 255, b: bigint & 255 };
       }
 
-      function mixWithWhite(color, weight){
+      function mixWithBlack(color, weight){
         const { r, g, b } = hexToRgb(color);
         const ratio = Math.min(Math.max(weight, 0), 1);
-        const mix = (channel) => Math.round(255 - (255 - channel) * ratio);
+        const mix = (channel) => Math.round(channel * (1 - ratio));
         return `rgb(${mix(r)}, ${mix(g)}, ${mix(b)})`;
       }
 
@@ -2065,8 +2065,8 @@
         if (!range || !Number.isFinite(value)) return '';
         const spread = Math.max(range.max - range.min, 0.0001);
         const normalized = Math.min(Math.max((value - range.min) / spread, 0), 1);
-        const weight = 0.18 + normalized * 0.28;
-        return mixWithWhite(baseColor, weight);
+        const weight = normalized * 0.42;
+        return mixWithBlack(baseColor, weight);
       }
 
       const heatPalette = {
