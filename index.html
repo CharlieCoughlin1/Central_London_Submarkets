@@ -1094,7 +1094,7 @@
       function formatPercent(value){
         if (!Number.isFinite(value)) return '—';
         const arrow = value > 0 ? '↑' : value < 0 ? '↓' : '→';
-        return `${arrow} ${value.toFixed(1)}%`;
+        return `${arrow} ${value.toFixed(0)}%`;
       }
 
       const priceData = submarketData.reduce((acc, entry) => {
