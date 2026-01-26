@@ -15,6 +15,10 @@
         --grade-b-soft:#4a3a32;
         --grade-a-soft-hover:#b3253d;
         --grade-b-soft-hover:#5a463d;
+        --grade-a-tint:#f8ecef;
+        --grade-b-tint:#f4f1ee;
+        --submarket-tint:#F3F4F6;
+        --table-header:#F7F8FA;
         --submarket-fill:#141c2e;
         --ink:#0F172A;
         --muted-ink:#475569;
@@ -473,8 +477,8 @@
         position:sticky;
         top:0;
         z-index:1;
-        background:var(--submarket-fill);
-        color:#fff;
+        background:var(--table-header);
+        color:var(--ink);
         text-align:center;
         font-weight:800;
         padding:14px 16px 12px;
@@ -490,16 +494,16 @@
         font-size:1rem;
         text-transform:uppercase;
         letter-spacing:.4px;
-        background:var(--submarket-fill);
+        background:var(--table-header);
       }
       .rent-table thead tr.group-row th.col-grade-a{
-        background:var(--grade-a-soft);
-        color:#fff;
-        border-right:4px solid #fff;
+        background:var(--grade-a-tint);
+        color:var(--ink);
+        border-right:1px solid var(--stroke);
       }
       .rent-table thead tr.group-row th.col-grade-b{
-        background:var(--grade-b-soft);
-        color:#fff;
+        background:var(--grade-b-tint);
+        color:var(--ink);
       }
       .rent-table thead tr.detail-row th{
         top:34px;
@@ -507,12 +511,12 @@
         padding:12px 16px 10px;
       }
       .rent-table thead tr.detail-row th.col-grade-a{
-        background:var(--grade-a-soft);
-        color:#fff;
+        background:var(--grade-a-tint);
+        color:var(--ink);
       }
       .rent-table thead tr.detail-row th.col-grade-b{
-        background:var(--grade-b-soft);
-        color:#fff;
+        background:var(--grade-b-tint);
+        color:var(--ink);
       }
       .rent-table thead th.submarket-head{
         vertical-align:middle;
@@ -526,37 +530,37 @@
         background:inherit;
         color:inherit;
       }
-      .rent-table thead .sort-title{ color:#fff; white-space:nowrap; }
+      .rent-table thead .sort-title{ color:var(--ink); white-space:nowrap; }
       .rent-table thead th.col-grade-a .sort-title,
-      .rent-table thead th.col-grade-b .sort-title{ color:#fff; }
+      .rent-table thead th.col-grade-b .sort-title{ color:var(--ink); }
       .rent-table thead .sort-subtitle{
-        color:rgba(255,255,255,0.72);
+        color:var(--muted-ink);
         font-weight:600;
         font-size:.86rem;
         white-space:nowrap;
       }
       .rent-table thead th.col-grade-a .sort-subtitle,
-      .rent-table thead th.col-grade-b .sort-subtitle{ color:rgba(255,255,255,0.72); }
-      .rent-table thead .sort-indicator{ color:rgba(255,255,255,0.7); }
+      .rent-table thead th.col-grade-b .sort-subtitle{ color:var(--muted-ink); }
+      .rent-table thead .sort-indicator{ color:var(--muted-ink); }
       .rent-table tbody td{
         padding:12px 16px;
-        border-bottom:1px solid #F1F2F4;
+        border-bottom:1px solid #EEF0F3;
         text-align:center;
         transition:background .12s ease, box-shadow .12s ease;
-        color:#fff;
+        color:var(--ink);
       }
-      .rent-table tbody td.numeric{ text-align:center; font-weight:600; color:#fff; font-size:.95rem; }
-      .rent-table tbody td.col-grade-a{ background:var(--grade-a-soft); }
-      .rent-table tbody td.col-grade-b{ background:var(--grade-b-soft); }
-      .rent-table tbody td.col-grade-a:last-of-type{ border-right:4px solid #fff; }
-      .rent-table thead tr.detail-row th.col-grade-a:last-of-type{ border-right:4px solid #fff; }
-      .rent-table tbody td:first-child{ font-weight:900; color:#fff; letter-spacing:.1px; text-align:left; white-space:nowrap; background:var(--submarket-fill); }
+      .rent-table tbody td.numeric{ text-align:center; font-weight:600; color:var(--ink); font-size:.95rem; }
+      .rent-table tbody td.col-grade-a{ background:var(--grade-a-tint); }
+      .rent-table tbody td.col-grade-b{ background:var(--grade-b-tint); }
+      .rent-table tbody td.col-grade-a:last-of-type{ border-right:1px solid var(--stroke); }
+      .rent-table thead tr.detail-row th.col-grade-a:last-of-type{ border-right:1px solid var(--stroke); }
+      .rent-table tbody td:first-child{ font-weight:900; color:var(--ink); letter-spacing:.1px; text-align:left; white-space:nowrap; background:var(--submarket-tint); }
       .rent-table thead th:first-child{ width:29%; min-width:280px; }
-      .rent-table tbody tr:nth-child(even) td:not(.col-grade-a):not(.col-grade-b):not(:first-child){ background:rgba(15,23,42,0.015); }
-      .rent-table tbody tr:hover td{ background:rgba(204,32,48,0.03); }
-      .rent-table tbody tr:hover td.col-grade-a{ background:var(--grade-a-soft-hover); }
-      .rent-table tbody tr:hover td.col-grade-b{ background:var(--grade-b-soft-hover); }
-      .rent-table tbody tr:hover td:first-child{ background:#1b2438; }
+      .rent-table tbody tr:nth-child(even) td:not(.col-grade-a):not(.col-grade-b):not(:first-child){ background:#FBFCFD; }
+      .rent-table tbody tr:hover td{ background:#F5F6F8; }
+      .rent-table tbody tr:hover td.col-grade-a{ background:#f5e6ea; }
+      .rent-table tbody tr:hover td.col-grade-b{ background:#eee8e3; }
+      .rent-table tbody tr:hover td:first-child{ background:#E9EBEF; }
       .rent-table tbody tr.empty-row td{
         text-align:center;
         background:transparent;
@@ -565,10 +569,9 @@
         position:relative;
         font-weight:700;
         font-size:.95rem;
-        color:#fff;
+        color:var(--ink);
         background:var(--heat-bg, transparent);
         transition:background .12s ease, box-shadow .12s ease, filter .12s ease;
-        text-shadow:0 1px 2px rgba(0,0,0,0.35);
       }
       .rent-table tbody tr:hover td.heat-cell{ filter:brightness(0.96); }
       .rent-table tbody td .pill-note{ display:inline-block; margin-left:6px; padding:4px 6px; border-radius:10px; font-size:.78rem; color:var(--muted-ink); background:rgba(15,23,42,0.05); font-weight:700; }
@@ -620,8 +623,8 @@
           gap:10px;
           border:1px solid var(--stroke);
           border-radius:14px;
-          background:#0f172a;
-          box-shadow:0 14px 26px rgba(15,23,42,0.22);
+          background:#FFFFFF;
+          box-shadow:0 12px 22px rgba(15,23,42,0.1);
           overflow:hidden;
           padding:9px 9px 11px;
         }
@@ -632,23 +635,23 @@
           display:flex;
           flex-direction:column;
           gap:6px;
-          background:#1f2937;
-          border:1px solid rgba(255,255,255,0.12);
+          background:#F8FAFC;
+          border:1px solid rgba(148,163,184,0.25);
           border-radius:12px;
-          box-shadow:inset 0 1px 0 rgba(255,255,255,0.08);
+          box-shadow:inset 0 1px 0 rgba(255,255,255,0.6);
           width:100%;
           min-width:0;
         }
         .rent-table tbody td:first-child{ white-space:normal; }
-        .rent-table tbody td.numeric{ text-align:left; font-weight:800; color:#fff; }
-        .rent-table tbody td.col-grade-a{ background:linear-gradient(145deg, #b3253d, #8c1c30); border-color:rgba(255,255,255,0.18); box-shadow:0 8px 18px rgba(204,32,48,0.24); }
-        .rent-table tbody td.col-grade-b{ background:linear-gradient(145deg, #5a463d, #3d302a); border-color:rgba(255,255,255,0.16); box-shadow:0 8px 18px rgba(15,23,42,0.24); }
+        .rent-table tbody td.numeric{ text-align:left; font-weight:800; color:var(--ink); }
+        .rent-table tbody td.col-grade-a{ background:var(--grade-a-tint); border-color:rgba(148,163,184,0.35); box-shadow:none; color:var(--ink); }
+        .rent-table tbody td.col-grade-b{ background:var(--grade-b-tint); border-color:rgba(148,163,184,0.32); box-shadow:none; color:var(--ink); }
         .rent-table tbody td::before{
           content:attr(data-title);
           font-size:.78rem;
           text-transform:uppercase;
           letter-spacing:.35px;
-          color:rgba(255,255,255,0.72);
+          color:var(--muted-ink);
           font-weight:800;
           opacity:.85;
         }
@@ -656,9 +659,10 @@
           grid-column:1 / -1;
           padding:8px 10px;
           font-size:1.08rem;
-          background:var(--submarket-fill);
-          border:1px solid rgba(255,255,255,0.18);
-          box-shadow:inset 0 1px 0 rgba(255,255,255,0.1);
+          background:var(--submarket-tint);
+          border:1px solid rgba(148,163,184,0.3);
+          box-shadow:inset 0 1px 0 rgba(255,255,255,0.6);
+          color:var(--ink);
         }
         .rent-table tbody td:nth-child(2){ grid-column:1; grid-row:2; }
         .rent-table tbody td:nth-child(3){ grid-column:2; grid-row:2; }
@@ -666,10 +670,10 @@
         .rent-table tbody td:nth-child(5){ grid-column:1; grid-row:3; }
         .rent-table tbody td:nth-child(6){ grid-column:2; grid-row:3; }
         .rent-table tbody td:nth-child(7){ grid-column:3; grid-row:3; }
-        .rent-table tbody td:first-child::before{ color:rgba(255,255,255,0.7); letter-spacing:.44px; }
-        .rent-table tbody tr:hover td{ background:#263144; }
-        .rent-table tbody tr:hover td.col-grade-a{ background:linear-gradient(145deg, #c12c45, #9c1f34); }
-        .rent-table tbody tr:hover td.col-grade-b{ background:linear-gradient(145deg, #6a544a, #4a3a32); }
+        .rent-table tbody td:first-child::before{ color:var(--muted-ink); letter-spacing:.44px; }
+        .rent-table tbody tr:hover td{ background:#F5F6F8; }
+        .rent-table tbody tr:hover td.col-grade-a{ background:#f5e6ea; }
+        .rent-table tbody tr:hover td.col-grade-b{ background:#eee8e3; }
         .rent-table tbody td.col-grade-a:last-of-type{ border-right:none; }
         .rent-table tbody tr.empty-row{
           display:block;
@@ -2052,7 +2056,7 @@
         if (!range || !Number.isFinite(value)) return '';
         const spread = Math.max(range.max - range.min, 0.0001);
         const normalized = Math.min(Math.max((value - range.min) / spread, 0), 1);
-        const weight = 0.45 + normalized * 0.45;
+        const weight = 0.18 + normalized * 0.28;
         return mixWithWhite(baseColor, weight);
       }
 
@@ -2094,7 +2098,7 @@
           cell.style.setProperty('--heat-bg', shade);
           cell.style.background = shade;
           const lum = getRelativeLuminance(shade);
-          cell.style.color = lum < 0.55 ? '#FFFFFF' : '#0F172A';
+          cell.style.color = lum < 0.4 ? '#FFFFFF' : '#0F172A';
         }
       }
 
