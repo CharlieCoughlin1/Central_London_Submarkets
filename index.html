@@ -908,15 +908,19 @@
           --logo-img-h:30px;
           --logo-img-w:78px;
         }
-        .site-header{ position:relative; padding:10px 14px 12px; }
-        body.is-embedded .site-header{ margin-top:12px; }
+        .site-header{
+          position:relative;
+          padding:calc(14px + env(safe-area-inset-top)) 14px 12px;
+          margin-top:8px;
+        }
+        body.is-embedded .site-header{ margin-top:calc(12px + env(safe-area-inset-top)); }
         .hero-shell{ gap:10px; }
         .hero-copy{ gap:6px; }
         .hero-title{ font-size:clamp(1.35rem, 2.8vw + 1rem, 1.7rem); }
         .hero-lede{ font-size:.9rem; }
         .eyebrow{ display:none; }
         .hero-visual{ display:none; }
-        .map-stage{ margin-top:-110px; min-height:100svh; }
+        .map-stage{ margin-top:calc(-1 * (var(--header-h) - 16px)); min-height:100svh; }
         #map{ top:0; min-height:100svh; height:100svh; }
         body.map-expanded #map{ min-height:100svh; }
         .table-panel{ width:100%; border-radius:14px; box-shadow:0 10px 24px rgba(15,23,42,0.18); }
@@ -1693,6 +1697,7 @@
         if (!mapContainer) return total;
         const rect = mapContainer.getBoundingClientRect();
         if (!rect?.width || !rect?.height) return total;
+        if (rect.width >= 1200 && rect.height >= 720) return total;
         const area = rect.width * rect.height;
         if (area >= 1400000) return total;
         if (area >= 1100000) return Math.min(total, Math.ceil(total * 0.85));
