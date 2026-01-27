@@ -700,9 +700,53 @@
       }
 
       @media (max-width: 560px){
-        .rent-table tbody tr{ grid-template-columns:repeat(2, minmax(0, 1fr)); }
-        .rent-table tbody td{ grid-column:auto; grid-row:auto; }
-        .rent-table tbody td:first-child{ grid-column:1 / -1; }
+        .rent-table tbody tr{
+          display:block;
+          padding:12px;
+          gap:0;
+        }
+        .rent-table tbody td{
+          display:flex;
+          flex-direction:row;
+          justify-content:space-between;
+          align-items:baseline;
+          gap:10px;
+          padding:8px 0;
+          border:0;
+          border-bottom:1px solid rgba(148,163,184,0.25);
+          border-radius:0;
+          background:#fff;
+          box-shadow:none;
+        }
+        .rent-table tbody td::before{
+          font-size:.72rem;
+          color:var(--muted-ink);
+          flex:1;
+        }
+        .rent-table tbody td:first-child{
+          display:block;
+          font-size:1rem;
+          background:#fff;
+          border:0;
+          padding:0 0 8px;
+        }
+        .rent-table tbody td:first-child::before{
+          display:block;
+          margin-bottom:4px;
+        }
+        .rent-table tbody td:last-child{ border-bottom:none; }
+        .rent-table tbody td.numeric{ font-weight:700; color:var(--ink); }
+        .rent-table tbody td.col-grade-a,
+        .rent-table tbody td.col-grade-b,
+        .rent-table tbody td.heat-cell{
+          background:#fff;
+          color:var(--ink);
+        }
+        .rent-table tbody tr:hover td,
+        .rent-table tbody tr:hover td.col-grade-a,
+        .rent-table tbody tr:hover td.col-grade-b{
+          background:#fff;
+        }
       }
 
       @media (max-width: 380px){
@@ -834,7 +878,7 @@
       }
 
       @media (max-width:480px){
-        .site-header{padding:10px 12px 0;}
+        .site-header{padding:10px 12px 12px;}
         h1{font-size:1.6rem;}
         .custom-popup .maplibregl-popup-content{max-width:calc(100vw - 24px); padding:6px 8px 8px;}
         .popup-title{font-size:.92rem;}
@@ -845,7 +889,6 @@
         .banner-subtitle{ font-size:.72rem; }
         .logo-marquee{ padding:0; max-width:100%; }
         .logo-viewport::before, .logo-viewport::after{ width:18px; }
-        .logo-strip img{ height:34px; max-width:120px; }
       }
       @media (max-width:1400px){
         .polygon-label{ font-size:0.76rem; padding:5px 8px; max-width:150px; }
@@ -858,8 +901,23 @@
         .hero-lede{ white-space:normal; }
       }
       @media (max-width:720px){
-        #map{ top:0; min-height:880px; height:110vh; height:calc(110vh + var(--header-h)); }
-        body.map-expanded #map{ min-height:880px; }
+        :root{
+          --logo-gap:8px;
+          --logo-w:86px;
+          --logo-h:48px;
+          --logo-img-h:30px;
+          --logo-img-w:78px;
+        }
+        .site-header{ position:relative; padding:10px 14px 12px; }
+        .hero-shell{ gap:10px; }
+        .hero-copy{ gap:6px; }
+        .hero-title{ font-size:clamp(1.35rem, 2.8vw + 1rem, 1.7rem); }
+        .hero-lede{ font-size:.9rem; }
+        .eyebrow{ display:none; }
+        .hero-visual{ display:none; }
+        .map-stage{ margin-top:0; min-height:100svh; }
+        #map{ top:0; min-height:100svh; height:100svh; }
+        body.map-expanded #map{ min-height:100svh; }
         .table-panel{ width:100%; border-radius:14px; box-shadow:0 10px 24px rgba(15,23,42,0.18); }
         .logo-marquee{ padding:0; }
         .btn{ width:100%; justify-content:center; }
@@ -1189,6 +1247,7 @@
       const mapStatusTextEl = mapStatusEl ? mapStatusEl.querySelector('.map-status-text') : null;
       const mapUiEl = document.querySelector('.map-ui');
       const desktopMedia = window.matchMedia('(min-width: 1200px)');
+      const phoneMedia = window.matchMedia('(max-width: 720px)');
 
       let hoveredId = null;
       let activeHoverLabel = null;
@@ -1197,6 +1256,7 @@
       let popupTimer = null;
       let hoverLeaveTimer = null;
       let popupFadeTimer = null;
+      let lastTapLabel = null;
 
       const brand = getComputedStyle(document.documentElement).getPropertyValue('--brand').trim();
       const water = getComputedStyle(document.documentElement).getPropertyValue('--water').trim();
@@ -1209,6 +1269,10 @@
 
       function isDesktopView(){
         return desktopMedia.matches;
+      }
+
+      function isPhoneView(){
+        return phoneMedia.matches;
       }
 
       function showMapLoading(message = 'Loading map…'){
@@ -1577,13 +1641,13 @@
       function getDynamicFitPadding(){
         const headerH = Math.ceil(headerEl?.getBoundingClientRect()?.height || 0);
         const bannerH = Math.ceil(logoMarqueeEl?.offsetHeight || 0);
-        const safeBottom = 10;
-        const northBias = 70;
+        const safeBottom = isPhoneView() ? 6 : 10;
+        const northBias = isPhoneView() ? 16 : 70;
         return {
-          top: Math.max(0, headerH + 4),
-          right: 20,
+          top: Math.max(0, headerH + (isPhoneView() ? 6 : 4)),
+          right: isPhoneView() ? 12 : 20,
           bottom: bannerH + safeBottom + northBias,
-          left: 20
+          left: isPhoneView() ? 12 : 20
         };
       }
 
@@ -1971,11 +2035,22 @@
               map.on('click', function (e) {
                 const features = map.queryRenderedFeatures(e.point, { layers: ['subdistrict-fills'] });
                 const feature = features[0];
-                if (!feature) return;
+                if (!feature) {
+                  lastTapLabel = null;
+                  return;
+                }
 
                 const label = feature.properties.label;
-                if (labelToUrl[label]) {
-                  window.open(labelToUrl[label], '_blank');
+                const targetUrl = labelToUrl[label];
+                if (targetUrl && isPhoneView()) {
+                  if (label === lastTapLabel) {
+                    window.open(targetUrl, '_blank');
+                    lastTapLabel = null;
+                    return;
+                  }
+                  lastTapLabel = label;
+                } else if (targetUrl) {
+                  window.open(targetUrl, '_blank');
                   return;
                 }
                 const id = feature.id || feature.properties.fid || label;
