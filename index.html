@@ -929,6 +929,8 @@
         .btn{ width:100%; justify-content:center; }
         .hero-lede{ max-width:unset; }
         .table-meta .legend{ display:none; }
+        .skip-link-costs{ display:none; }
+        .map-ui{ display:none; }
       }
       @media (min-width: 1200px){
         .table-scroller{ overflow:visible; }
@@ -1017,7 +1019,7 @@
   </head>
   <body>
     <a class="skip-link" href="#map-stage">Skip to map</a>
-    <a class="skip-link" href="#data-view">Skip to office costs</a>
+    <a class="skip-link skip-link-costs" href="#data-view">Skip to office costs</a>
     <header class="site-header">
           <div class="hero-shell">
         <div class="hero-copy">
@@ -1271,6 +1273,7 @@
       const labelMarkers = [];
       let geojsonFeatures = null;
       let mapInteractionsEnabled = false;
+      let phoneInteractionSnapshot = null;
       let mapEventsBound = false;
       let cachedHeaderHeight = 0;
 
@@ -1321,6 +1324,7 @@
           retryBtn.addEventListener('click', () => bootMapData());
         }
         setMapInteractions(false);
+        syncPhoneInteractions();
       }
 
       function setHover(id, isHovering) {
@@ -1791,6 +1795,28 @@
         requestAnimationFrame(() => addLabels(geojsonFeatures));
       }, 80);
 
+      function syncPhoneInteractions(){
+        const isPhone = isPhoneView();
+        if (isPhone){
+          if (phoneInteractionSnapshot === null) {
+            phoneInteractionSnapshot = mapInteractionsEnabled;
+          }
+          if (!mapInteractionsEnabled) {
+            setMapInteractions(true);
+          }
+          if (initialBounds) {
+            map.setMaxBounds(initialBounds.pad(0.2));
+          }
+          return;
+        }
+
+        if (phoneInteractionSnapshot !== null) {
+          setMapInteractions(phoneInteractionSnapshot);
+          phoneInteractionSnapshot = null;
+        }
+        map.setMaxBounds(null);
+      }
+
       function syncDesktopMode(){
         const desktop = isDesktopView();
         document.body.classList.toggle('is-desktop', desktop);
@@ -1802,14 +1828,19 @@
       }
 
       // Keep map sized & fitted when UI changes
-      new ResizeObserver(() => { scheduleMapReflow({ refit: true }); syncDesktopMode(); }).observe(mapContainer);
-      window.addEventListener('resize', () => { scheduleMapReflow({ refit: true }); syncDesktopMode(); });
-      window.addEventListener('orientationchange', () => { scheduleMapReflow({ refit: true }); syncDesktopMode(); });
+      new ResizeObserver(() => { scheduleMapReflow({ refit: true }); syncDesktopMode(); syncPhoneInteractions(); }).observe(mapContainer);
+      window.addEventListener('resize', () => { scheduleMapReflow({ refit: true }); syncDesktopMode(); syncPhoneInteractions(); });
+      window.addEventListener('orientationchange', () => { scheduleMapReflow({ refit: true }); syncDesktopMode(); syncPhoneInteractions(); });
       map.on('resize', () => { refreshLabels(); });
       if (desktopMedia.addEventListener) {
         desktopMedia.addEventListener('change', syncDesktopMode);
       } else if (desktopMedia.addListener) {
         desktopMedia.addListener(syncDesktopMode);
+      }
+      if (phoneMedia.addEventListener) {
+        phoneMedia.addEventListener('change', syncPhoneInteractions);
+      } else if (phoneMedia.addListener) {
+        phoneMedia.addListener(syncPhoneInteractions);
       }
 
       function applyHeaderOffset(){
@@ -1994,6 +2025,7 @@
             fitToInitialBounds({ duration: 0 });
             geojsonFeatures = data.features;
             syncDesktopMode();
+            syncPhoneInteractions();
             map.once('idle', () => { hideMapStatus(); });
 
             if (!mapEventsBound) {
