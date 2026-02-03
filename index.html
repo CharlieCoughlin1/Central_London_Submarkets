@@ -1162,13 +1162,13 @@
       ];
 
       function formatCurrency(value){
-        return Number.isFinite(value) ? `£${value}` : '—';
+        return Number.isFinite(value) ? `£${value.toFixed(1)}` : '—';
       }
 
       function formatPercent(value){
         if (!Number.isFinite(value)) return '—';
         const arrow = value > 0 ? '↑' : value < 0 ? '↓' : '→';
-        return `${arrow} ${value}%`;
+        return `${arrow} ${value.toFixed(1)}%`;
       }
 
       const priceData = submarketData.reduce((acc, entry) => {
