@@ -1162,7 +1162,7 @@
       ];
 
       function formatCurrency(value){
-        return Number.isFinite(value) ? `£${value.toFixed(1)}` : '—';
+        return Number.isFinite(value) ? `£${Math.round(value)}` : '—';
       }
 
       function formatPercent(value){
@@ -2176,6 +2176,28 @@
         return `rgb(${mix(r)}, ${mix(g)}, ${mix(b)})`;
       }
 
+      function mixWithWhite(color, weight){
+        const { r, g, b } = hexToRgb(color);
+        const ratio = Math.min(Math.max(weight, 0), 1);
+        const mix = (channel) => Math.round(channel + ((255 - channel) * ratio));
+        return `rgb(${mix(r)}, ${mix(g)}, ${mix(b)})`;
+      }
+
+      function getChangeHeatColor(value, range, baseColor){
+        if (!range || !Number.isFinite(value)) return '';
+        if (Math.abs(value) < 0.0001) return mixWithBlack(baseColor, 0);
+
+        if (value > 0){
+          const maxPositive = Math.max(range.max, 0.0001);
+          const normalized = Math.min(value / maxPositive, 1);
+          return mixWithBlack(baseColor, normalized * 0.42);
+        }
+
+        const maxNegativeMagnitude = Math.max(Math.abs(Math.min(range.min, 0)), 0.0001);
+        const normalized = Math.min(Math.abs(value) / maxNegativeMagnitude, 1);
+        return mixWithWhite(baseColor, normalized * 0.38);
+      }
+
       function getHeatColor(value, range, baseColor){
         if (!range || !Number.isFinite(value)) return '';
         const spread = Math.max(range.max - range.min, 0.0001);
@@ -2216,7 +2238,11 @@
         if (!heatmapEnabled) return;
         const color = heatPalette[key];
         const range = heatmapRanges[key];
-        const shade = color ? getHeatColor(value, range, color) : '';
+        const shade = color
+          ? (key === 'changeA' || key === 'changeB'
+            ? getChangeHeatColor(value, range, color)
+            : getHeatColor(value, range, color))
+          : '';
         if (shade){
           cell.classList.add('heat-cell');
           cell.style.setProperty('--heat-bg', shade);
