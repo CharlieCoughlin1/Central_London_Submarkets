@@ -722,7 +722,7 @@
         .rent-table tbody td{
           display:flex;
           flex-direction:row;
-          justify-content:flex-start;
+          justify-content:space-between;
           align-items:baseline;
           gap:12px;
           padding:8px 12px;
@@ -735,7 +735,7 @@
         .rent-table tbody td::before{
           font-size:.72rem;
           color:var(--muted-ink);
-          flex:0 0 56%;
+          flex:1 1 auto;
         }
         .rent-table tbody td:first-child{
           display:block;
@@ -755,6 +755,11 @@
         .rent-table tbody td.heat-cell{
           background:#fff;
           color:var(--ink);
+        }
+        .rent-table tbody td.col-grade-a::before,
+        .rent-table tbody td.col-grade-b::before{
+          color:var(--muted-ink);
+          opacity:.95;
         }
         .rent-table tbody tr:hover td,
         .rent-table tbody tr:hover td.col-grade-a,
