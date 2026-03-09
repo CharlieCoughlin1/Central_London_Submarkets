@@ -121,7 +121,7 @@
       .meta-chip strong{ color:#fff; font-size:1.05rem; }
       .meta-chip .chip-dot{ width:9px; height:9px; border-radius:50%; background:var(--brand); box-shadow:0 0 0 4px rgba(204,32,48,0.25); }
       .hero-visual{ position:relative; display:grid; gap:10px; align-content:center; justify-items:end; }
-      .stat-card{ background:rgba(255,255,255,0.09); border:1px solid rgba(255,255,255,0.18); border-radius:14px; padding:10px 12px; width:230px; color:#F7F9FD; box-shadow:0 12px 28px rgba(0,0,0,0.22); backdrop-filter:saturate(130%) blur(6px); }
+      .stat-card{ background:rgba(255,255,255,0.09); border:1px solid rgba(255,255,255,0.18); border-radius:14px; padding:10px 12px; width:230px; color:#F7F9FD; box-shadow:0 12px 28px rgba(0,0,0,0.22); backdrop-filter:saturate(130%) blur(6px); box-sizing:border-box; }
       body.is-embedded .stat-card{ width:210px; padding:8px 10px; }
       .stat-card h3{ margin:0 0 6px; font-size:.92rem; letter-spacing:.35px; text-transform:uppercase; display:flex; align-items:center; gap:8px; }
       .stat-card .stat-value{ font-size:1.6rem; font-weight:900; display:block; letter-spacing:.4px; }
@@ -965,7 +965,7 @@
         .eyebrow{ display:none; }
         .hero-visual{ display:block; width:100%; }
         .stat-stack{ width:100%; }
-        .stat-card{ width:100%; padding:8px 10px; border-radius:12px; }
+        .stat-card{ width:100%; max-width:100%; padding:8px 10px; border-radius:12px; }
         .stat-card h3{ font-size:.74rem; margin:0 0 4px; }
         .stat-card .stat-value{ font-size:1.15rem; line-height:1.1; }
         .stat-subtext{ font-size:.76rem; line-height:1.2; }
@@ -1075,7 +1075,7 @@
         <div class="hero-copy">
           <span class="eyebrow">Central London office submarkets</span>
           <h1 class="hero-title">Find the right location for your next London office</h1>
-          <p class="hero-lede">Select a submarket on the map below to explore tailored benchmarks, availability, and occupier-ready detail.</p>
+          <p class="hero-lede" id="hero-lede">Select a submarket on the map below to explore tailored benchmarks, availability, and occupier-ready detail.</p>
           <div class="cta-row" role="group" aria-label="Jump controls">
             <button class="btn btn-toggle is-active" type="button" data-action="show-map" aria-pressed="true" aria-label="Jump to map">Explore districts</button>
             <button class="btn btn-toggle" type="button" data-action="show-data" aria-pressed="false" aria-label="Jump to office costs">Compare office costs</button>
@@ -1307,8 +1307,14 @@
       const mapStatusEl = document.getElementById('map-status');
       const mapStatusTextEl = mapStatusEl ? mapStatusEl.querySelector('.map-status-text') : null;
       const mapUiEl = document.querySelector('.map-ui');
+      const heroLedeEl = document.getElementById('hero-lede');
       const desktopMedia = window.matchMedia('(min-width: 1081px)');
       const phoneMedia = window.matchMedia('(max-width: 720px)');
+
+      const HERO_LEDE_TEXT = {
+        phone: 'Select a submarket in the table below, then tap the submarket title text to open its dashboard and explore tailored benchmarks, availability, and occupier-ready detail.',
+        standard: 'Select a submarket on the map below to explore tailored benchmarks, availability, and occupier-ready detail.'
+      };
 
       let hoveredId = null;
       let activeHoverLabel = null;
@@ -1343,6 +1349,11 @@
 
       function isEmbeddedPhoneView(){
         return isEmbedded && isPhoneView();
+      }
+
+      function syncHeroLede(){
+        if (!heroLedeEl) return;
+        heroLedeEl.textContent = isPhoneView() ? HERO_LEDE_TEXT.phone : HERO_LEDE_TEXT.standard;
       }
 
       function showMapLoading(message = 'Loading map…'){
@@ -1969,25 +1980,28 @@
         refreshLabels();
       }
 
+      syncHeroLede();
+
       // Keep map sized & fitted when UI changes
-      new ResizeObserver(() => { scheduleMapReflow({ refit: shouldAutoRefitViewport() }); syncDesktopMode(); syncPhoneInteractions(); }).observe(mapContainer);
-      window.addEventListener('resize', () => { scheduleMapReflow({ refit: shouldAutoRefitViewport() }); syncDesktopMode(); syncPhoneInteractions(); });
+      new ResizeObserver(() => { scheduleMapReflow({ refit: shouldAutoRefitViewport() }); syncDesktopMode(); syncPhoneInteractions(); syncHeroLede(); }).observe(mapContainer);
+      window.addEventListener('resize', () => { scheduleMapReflow({ refit: shouldAutoRefitViewport() }); syncDesktopMode(); syncPhoneInteractions(); syncHeroLede(); });
       window.addEventListener('orientationchange', () => {
         phoneViewportUserAdjusted = false;
         scheduleMapReflow({ refit: true });
         syncDesktopMode();
         syncPhoneInteractions();
+        syncHeroLede();
       });
       map.on('resize', () => { refreshLabels(); });
       if (desktopMedia.addEventListener) {
-        desktopMedia.addEventListener('change', syncDesktopMode);
+        desktopMedia.addEventListener('change', () => { syncDesktopMode(); syncHeroLede(); });
       } else if (desktopMedia.addListener) {
-        desktopMedia.addListener(syncDesktopMode);
+        desktopMedia.addListener(() => { syncDesktopMode(); syncHeroLede(); });
       }
       if (phoneMedia.addEventListener) {
-        phoneMedia.addEventListener('change', syncPhoneInteractions);
+        phoneMedia.addEventListener('change', () => { syncPhoneInteractions(); syncHeroLede(); });
       } else if (phoneMedia.addListener) {
-        phoneMedia.addListener(syncPhoneInteractions);
+        phoneMedia.addListener(() => { syncPhoneInteractions(); syncHeroLede(); });
       }
 
       function applyHeaderOffset(){
