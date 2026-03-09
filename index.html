@@ -1059,9 +1059,9 @@
             <div class="stat-card">
               <h3><span class="live-dot" aria-hidden="true"></span>RECENT HEADLINE EVENTS</h3>
               <div class="headline-rotator" id="headline-rotator" aria-live="polite">
-                <small class="stat-subtext" id="headline-description">Visa pre-let</small>
+                <small class="stat-subtext" id="headline-description">Visa relocating European headquarters to Canary Wharf, leasing</small>
                 <span class="stat-value" id="headline-size">300,000 sq ft</span>
-                <small class="stat-subtext" id="headline-building"><strong>One Canada Square, E14</strong></small>
+                <small class="stat-subtext" id="headline-building">at <strong>One Canada Square, E14</strong></small>
               </div>
             </div>
           </div>
@@ -2686,22 +2686,22 @@
 
       const HEADLINE_EVENTS = [
         {
-          description: 'Visa pre-let',
+          description: 'Visa relocating European headquarters to Canary Wharf, leasing',
           size: '300,000 sq ft',
           building: 'One Canada Square, E14'
         },
         {
-          description: 'HSF Kramer lease',
+          description: 'HSF Kramer relocating London headquarters within Broadgate, leasing',
           size: '268,000 sq ft',
           building: '1 Appold Street, EC2'
         },
         {
-          description: 'Quantexa pre-let',
+          description: 'Quantexa preletting London headquarters space at The Delft, leasing',
           size: '52,293 sq ft',
           building: 'The Delft, SE1'
         },
         {
-          description: 'Gibson, Dunn & Crutcher lease',
+          description: 'Gibson, Dunn & Crutcher relocating London office, leasing',
           size: '154,000 sq ft',
           building: 'One Exchange Square, EC2'
         }
@@ -2722,7 +2722,7 @@
         const renderEvent = (event) => {
           descriptionEl.textContent = event.description;
           sizeEl.textContent = event.size;
-          buildingEl.innerHTML = `<strong>${event.building}</strong>`;
+          buildingEl.innerHTML = `at <strong>${event.building}</strong>`;
         };
 
         const showNext = () => {
