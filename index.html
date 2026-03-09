@@ -1290,6 +1290,9 @@
       let hoverLeaveTimer = null;
       let popupFadeTimer = null;
       let lastTapLabel = null;
+      let lastTouchActivationAt = 0;
+      let touchStartPoint = null;
+      let touchMovedDuringGesture = false;
 
       const brand = getComputedStyle(document.documentElement).getPropertyValue('--brand').trim();
       const water = getComputedStyle(document.documentElement).getPropertyValue('--water').trim();
@@ -1844,6 +1847,54 @@
         map.setMaxBounds(null);
       }
 
+      function getFeatureAtPoint(point){
+        if (!point) return null;
+        const features = map.queryRenderedFeatures(point, { layers: ['subdistrict-fills'] });
+        return features[0] || null;
+      }
+
+      function activateFeature(feature){
+        if (!feature) {
+          lastTapLabel = null;
+          removeHover();
+          return;
+        }
+
+        const label = feature.properties.label;
+        const targetUrl = labelToUrl[label];
+        if (targetUrl && isPhoneView()) {
+          if (label === lastTapLabel) {
+            window.open(targetUrl, '_blank');
+            lastTapLabel = null;
+            return;
+          }
+          lastTapLabel = label;
+        } else if (targetUrl) {
+          window.open(targetUrl, '_blank');
+          return;
+        }
+
+        const id = feature.id || feature.properties.fid || label;
+        if (hoveredId !== id) {
+          if (hoveredId) setHover(hoveredId, false);
+          hoveredId = id;
+          setHover(hoveredId, true);
+        }
+
+        const center = getFeatureLabelCenter(feature.geometry);
+        if (label && label !== activeHoverLabel) {
+          if (activeHoverLabel) setLabelVisibility(activeHoverLabel, true);
+          setLabelVisibility(label, false);
+          activeHoverLabel = label;
+        }
+        clearTimeout(hoverLeaveTimer);
+        showPopup(center, label);
+        clearTimeout(popupTimer);
+        if (!isPhoneView()) {
+          popupTimer = setTimeout(removeHover, 2500);
+        }
+      }
+
       function syncDesktopMode(){
         const desktop = isDesktopView();
         document.body.classList.toggle('is-desktop', desktop);
@@ -2101,47 +2152,52 @@
               });
 
               map.on('click', function (e) {
-                const features = map.queryRenderedFeatures(e.point, { layers: ['subdistrict-fills'] });
-                const feature = features[0];
-                if (!feature) {
-                  lastTapLabel = null;
-                  removeHover();
-                  return;
-                }
-
-                const label = feature.properties.label;
-                const targetUrl = labelToUrl[label];
-                if (targetUrl && isPhoneView()) {
-                  if (label === lastTapLabel) {
-                    window.open(targetUrl, '_blank');
-                    lastTapLabel = null;
-                    return;
-                  }
-                  lastTapLabel = label;
-                } else if (targetUrl) {
-                  window.open(targetUrl, '_blank');
-                  return;
-                }
-                const id = feature.id || feature.properties.fid || label;
-                if (hoveredId !== id) {
-                  if (hoveredId) setHover(hoveredId, false);
-                  hoveredId = id;
-                  setHover(hoveredId, true);
-                }
-
-                const center = getFeatureLabelCenter(feature.geometry);
-                if (label && label !== activeHoverLabel) {
-                  if (activeHoverLabel) setLabelVisibility(activeHoverLabel, true);
-                  setLabelVisibility(label, false);
-                  activeHoverLabel = label;
-                }
-                clearTimeout(hoverLeaveTimer);
-                showPopup(center, label);
-                clearTimeout(popupTimer);
-                if (!isPhoneView()) {
-                  popupTimer = setTimeout(removeHover, 2500);
-                }
+                if (isPhoneView() && Date.now() - lastTouchActivationAt < 450) return;
+                activateFeature(getFeatureAtPoint(e.point));
               });
+
+              map.getCanvas().addEventListener('touchstart', function (event) {
+                if (!isPhoneView()) return;
+                if (event.touches.length !== 1) {
+                  touchStartPoint = null;
+                  touchMovedDuringGesture = true;
+                  return;
+                }
+                const touch = event.touches[0];
+                touchStartPoint = { x: touch.clientX, y: touch.clientY };
+                touchMovedDuringGesture = false;
+              }, { passive: true });
+
+              map.getCanvas().addEventListener('touchmove', function (event) {
+                if (!isPhoneView() || !touchStartPoint || !event.touches.length) return;
+                const touch = event.touches[0];
+                const dx = touch.clientX - touchStartPoint.x;
+                const dy = touch.clientY - touchStartPoint.y;
+                if ((dx * dx) + (dy * dy) > 81) {
+                  touchMovedDuringGesture = true;
+                }
+              }, { passive: true });
+
+              map.getCanvas().addEventListener('touchend', function (event) {
+                if (!isPhoneView()) return;
+                if (!touchStartPoint || touchMovedDuringGesture || event.changedTouches.length !== 1) {
+                  touchStartPoint = null;
+                  touchMovedDuringGesture = false;
+                  return;
+                }
+
+                const canvasRect = map.getCanvas().getBoundingClientRect();
+                const touch = event.changedTouches[0];
+                const point = {
+                  x: touch.clientX - canvasRect.left,
+                  y: touch.clientY - canvasRect.top
+                };
+
+                activateFeature(getFeatureAtPoint(point));
+                lastTouchActivationAt = Date.now();
+                touchStartPoint = null;
+                touchMovedDuringGesture = false;
+              }, { passive: true });
             }
           })
           .catch(function (error) {
