@@ -1313,6 +1313,10 @@
         return phoneMedia.matches;
       }
 
+      function isEmbeddedPhoneView(){
+        return isEmbedded && isPhoneView();
+      }
+
       function showMapLoading(message = 'Loading map…'){
         if (!mapStatusEl) return;
         mapStatusEl.classList.remove('is-hidden', 'is-error');
@@ -1361,9 +1365,10 @@
 
       function setMapInteractions(enabled){
         const phoneMode = isPhoneView();
+        const embeddedPhoneMode = isEmbeddedPhoneView();
         mapInteractionsEnabled = enabled;
         if (enabled){
-          if (phoneMode) {
+          if (phoneMode && !embeddedPhoneMode) {
             map.dragPan.disable();
           } else {
             map.dragPan.enable();
@@ -1374,7 +1379,11 @@
           map.boxZoom.disable();
           map.keyboard.disable();
           map.dragRotate.disable();
-          mapContainer.style.touchAction = phoneMode ? 'pan-y pinch-zoom' : 'none';
+          if (embeddedPhoneMode) {
+            mapContainer.style.touchAction = 'none';
+          } else {
+            mapContainer.style.touchAction = phoneMode ? 'pan-y pinch-zoom' : 'none';
+          }
         } else {
           map.dragPan.disable();
           map.scrollZoom.disable();
@@ -1909,6 +1918,18 @@
           phoneViewportUserAdjusted = true;
         }
       });
+
+      mapContainer.addEventListener('touchstart', function (event) {
+        if (!isEmbeddedPhoneView()) return;
+        if (event.touches.length === 1) {
+          event.preventDefault();
+        }
+      }, { passive: false, capture: true });
+
+      mapContainer.addEventListener('touchmove', function (event) {
+        if (!isEmbeddedPhoneView()) return;
+        event.preventDefault();
+      }, { passive: false, capture: true });
 
       function syncDesktopMode(){
         const desktop = isDesktopView();
