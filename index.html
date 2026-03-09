@@ -127,6 +127,8 @@
       .stat-card .stat-value{ font-size:1.6rem; font-weight:900; display:block; letter-spacing:.4px; }
       .stat-card small{ display:block; color:#E4E8F1; opacity:.82; line-height:1.35; }
       .stat-subtext{ font-size:.88rem; opacity:.85; }
+      .headline-rotator{ display:grid; gap:4px; transition:opacity .45s ease, transform .45s ease; transform:translateY(0); opacity:1; }
+      .headline-rotator.is-transitioning{ opacity:0; transform:translateY(8px); }
       .stat-stack{ display:grid; gap:8px; }
       .live-dot{
         width:9px;
@@ -1056,9 +1058,11 @@
           <div class="stat-stack">
             <div class="stat-card">
               <h3><span class="live-dot" aria-hidden="true"></span>Recent headline event</h3>
-              <small class="stat-subtext">Visa relocating European headquarters to Canary Wharf, leasing</small>
-              <span class="stat-value">300,000 sq ft</span>
-              <small class="stat-subtext">at <strong>One Canada Square</strong></small>
+              <div class="headline-rotator" id="headline-rotator" aria-live="polite">
+                <small class="stat-subtext" id="headline-description">Visa relocating European headquarters to Canary Wharf, leasing</small>
+                <span class="stat-value" id="headline-size">300,000 sq ft</span>
+                <small class="stat-subtext" id="headline-building">at <strong>One Canada Square</strong></small>
+              </div>
             </div>
           </div>
         </div>
@@ -2584,7 +2588,6 @@
         'AXA.png',
         'Babcock.png',
         'BBC (1).png',
-        'BBC.png',
         'British Ecological Society.png',
         'British Film Commission.png',
         'CGI.png',
@@ -2593,7 +2596,6 @@
         'Dogs Trust.png',
         'Evening Standard.png',
         'Heineken.png',
-        'IMC.png',
         'ITN.png',
         'ITV.png',
         'Macdonalds.png',
@@ -2682,6 +2684,63 @@
         renderLogoMarqueeFromSrcs(srcs);
       }
 
+      const HEADLINE_EVENTS = [
+        {
+          description: 'Visa relocating European headquarters to Canary Wharf, leasing',
+          size: '300,000 sq ft',
+          building: 'One Canada Square'
+        },
+        {
+          description: 'HSF Kramer relocating London headquarters within Broadgate, leasing',
+          size: '268,000 sq ft',
+          building: '1 Appold Street'
+        },
+        {
+          description: 'Quantexa preletting London headquarters space at The Delft, leasing',
+          size: '52,293 sq ft',
+          building: 'SE1'
+        },
+        {
+          description: 'Gibson, Dunn & Crutcher leasing',
+          size: '154,000 sq ft',
+          building: 'One Exchange Square, EC2'
+        }
+      ];
+
+      function initHeadlineRotator(){
+        const rotator = document.getElementById('headline-rotator');
+        const descriptionEl = document.getElementById('headline-description');
+        const sizeEl = document.getElementById('headline-size');
+        const buildingEl = document.getElementById('headline-building');
+        if (!rotator || !descriptionEl || !sizeEl || !buildingEl || HEADLINE_EVENTS.length < 2) return;
+
+        let currentIndex = 0;
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const displayMs = prefersReducedMotion ? 10000 : 6000;
+        const transitionMs = prefersReducedMotion ? 0 : 450;
+
+        const renderEvent = (event) => {
+          descriptionEl.textContent = event.description;
+          sizeEl.textContent = event.size;
+          buildingEl.innerHTML = `at <strong>${event.building}</strong>`;
+        };
+
+        const showNext = () => {
+          if (!prefersReducedMotion) {
+            rotator.classList.add('is-transitioning');
+          }
+
+          window.setTimeout(() => {
+            currentIndex = (currentIndex + 1) % HEADLINE_EVENTS.length;
+            renderEvent(HEADLINE_EVENTS[currentIndex]);
+            rotator.classList.remove('is-transitioning');
+          }, transitionMs);
+        };
+
+        renderEvent(HEADLINE_EVENTS[currentIndex]);
+        window.setInterval(showNext, displayMs);
+      }
+
       /* Utilities */
       function debounce(fn, ms){
         let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn.apply(null,args), ms); };
@@ -2695,6 +2754,7 @@
         setupMapUi();
         syncDesktopMode();
         initLogos();
+        initHeadlineRotator();
       } else {
         document.addEventListener('DOMContentLoaded', () => {
           buildRentsTable();
@@ -2703,6 +2763,7 @@
           setupMapUi();
           syncDesktopMode();
           initLogos();
+          initHeadlineRotator();
         });
       }
     </script>
