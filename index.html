@@ -102,7 +102,7 @@
       .hero-title{ margin:0; font-size:clamp(1.5rem, 1.6vw + 1.1rem, 2.1rem); line-height:1.18; letter-spacing:.3px; font-weight:900; text-shadow:0 8px 22px rgba(0,0,0,0.25); white-space:nowrap; }
       .hero-lede{ margin:0; max-width:760px; color:#E4E8F1; font-size:.98rem; line-height:1.5; white-space:nowrap; }
       body.is-embedded .hero-title{ font-size:clamp(1.35rem, 1.2vw + 1rem, 1.85rem); }
-      body.is-embedded .hero-lede{ font-size:.9rem; }
+      body.is-embedded .hero-lede{ font-size:.84rem; line-height:1.35; }
       .cta-row{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
       .cta-row .btn{ border-radius:10px; }
       .cta-row .btn.is-active{ box-shadow:0 12px 28px rgba(204,32,48,0.28); transform:none; }
@@ -724,10 +724,10 @@
         }
         .rent-table tbody td{
           display:flex;
-          flex-direction:row;
-          justify-content:space-between;
-          align-items:baseline;
-          gap:12px;
+          flex-direction:column;
+          justify-content:flex-start;
+          align-items:flex-start;
+          gap:4px;
           padding:8px 12px;
           border:0;
           border-bottom:1px solid rgba(148,163,184,0.25);
@@ -738,7 +738,7 @@
         .rent-table tbody td::before{
           font-size:.72rem;
           color:var(--muted-ink);
-          flex:1 1 auto;
+          flex:0 0 auto;
         }
         .rent-table tbody td:first-child{
           display:block;
@@ -753,6 +753,23 @@
         }
         .rent-table tbody td:last-child{ border-bottom:none; }
         .rent-table tbody td.numeric{ font-weight:700; color:var(--ink); }
+        .rent-table tbody td:first-child .row-label-inner a,
+        .rent-table tbody td:first-child .row-label-inner .no-link{
+          display:inline-flex;
+          align-items:center;
+          justify-content:center;
+          min-height:36px;
+          padding:8px 12px;
+          border-radius:10px;
+          border:1px solid rgba(204,32,48,0.38);
+          background:rgba(204,32,48,0.08);
+          font-weight:800;
+          color:var(--brand);
+          text-decoration:none;
+        }
+        .rent-table tbody td:first-child .row-label-inner a:active{
+          background:rgba(204,32,48,0.16);
+        }
         .rent-table tbody td.col-grade-a,
         .rent-table tbody td.col-grade-b,
         .rent-table tbody td.heat-cell{
@@ -939,12 +956,17 @@
         .hero-shell{ gap:10px; }
         .hero-copy{ gap:6px; }
         .hero-title{ font-size:clamp(1.35rem, 2.8vw + 1rem, 1.7rem); }
-        .hero-lede{ font-size:.9rem; }
+        .hero-lede{ font-size:.84rem; line-height:1.35; }
         .eyebrow{ display:none; }
-        .hero-visual{ display:none; }
-        .map-stage{ margin-top:calc(-1 * (var(--header-h) - 16px)); min-height:100svh; }
-        #map{ top:0; min-height:100svh; height:100svh; }
-        body.map-expanded #map{ min-height:100svh; }
+        .hero-visual{ display:block; width:100%; }
+        .stat-stack{ width:100%; }
+        .stat-card{ width:100%; padding:8px 10px; border-radius:12px; }
+        .stat-card h3{ font-size:.74rem; margin:0 0 4px; }
+        .stat-card .stat-value{ font-size:1.15rem; line-height:1.1; }
+        .stat-subtext{ font-size:.76rem; line-height:1.2; }
+        .glow-ring{ display:none; }
+        .map-stage{ display:none; }
+        .cta-row{ display:none; }
         .table-panel{ width:100%; border-radius:14px; box-shadow:0 10px 24px rgba(15,23,42,0.18); }
         .logo-marquee{ padding:0; }
         .logo-banner-inner{ width:min(92vw, 1560px); padding:8px 12px; }
@@ -1040,14 +1062,14 @@
     </style>
   </head>
   <body>
-    <a class="skip-link" href="#map-stage">Skip to map</a>
+    <a class="skip-link" href="#data-view">Skip to office data table</a>
     <a class="skip-link skip-link-costs" href="#data-view">Skip to office costs</a>
     <header class="site-header">
           <div class="hero-shell">
         <div class="hero-copy">
           <span class="eyebrow">Central London office submarkets</span>
           <h1 class="hero-title">Find the right location for your next London office</h1>
-          <p class="hero-lede">Select a submarket on the map below to explore tailored benchmarks, availability, and occupier-ready detail.</p>
+          <p class="hero-lede">Select a submarket in the table below, then tap the submarket title text to open its dashboard and explore tailored benchmarks, availability, and occupier-ready detail.</p>
           <div class="cta-row" role="group" aria-label="Jump controls">
             <button class="btn btn-toggle is-active" type="button" data-action="show-map" aria-pressed="true" aria-label="Jump to map">Explore districts</button>
             <button class="btn btn-toggle" type="button" data-action="show-data" aria-pressed="false" aria-label="Jump to office costs">Compare office costs</button>
@@ -1115,7 +1137,7 @@
             <input id="table-search-input" type="search" placeholder="Search submarket" aria-label="Search submarkets" />
             <button type="button" id="table-search-clear" aria-label="Clear search">Clear</button>
           </div>
-          <p class="meta-note">Values shown per sq ft and to the nearest whole number; tap a submarket to open the dashboard.</p>
+          <p class="meta-note">Values shown per sq ft and to the nearest whole number; tap the submarket title button to open the dashboard.</p>
         </div>
         <div class="table-scroller">
           <table id="rents-table" class="rent-table">
