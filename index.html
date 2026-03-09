@@ -935,7 +935,12 @@
       }
       @media (max-width:960px){
         .hero-shell{ grid-template-columns:1fr; gap:12px; }
-        .hero-visual{ justify-items:start; }
+        .hero-visual{ justify-items:start; display:block; width:100%; }
+        .stat-stack,
+        .stat-card{ width:100%; }
+        .logo-marquee{ margin:8px auto 0; }
+        .skip-link,
+        .skip-link-costs{ display:none; }
         .hero-title,
         .hero-lede{ white-space:normal; }
       }
@@ -949,10 +954,10 @@
         }
         .site-header{
           position:relative;
-          padding:calc(14px + env(safe-area-inset-top)) 14px 12px;
-          margin-top:8px;
+          padding:calc(10px + env(safe-area-inset-top)) 14px 10px;
+          margin-top:14px;
         }
-        body.is-embedded .site-header{ margin-top:calc(12px + env(safe-area-inset-top)); }
+        body.is-embedded .site-header{ margin-top:calc(14px + env(safe-area-inset-top)); }
         .hero-shell{ gap:10px; }
         .hero-copy{ gap:6px; }
         .hero-title{ font-size:clamp(1.35rem, 2.8vw + 1rem, 1.7rem); }
@@ -968,11 +973,12 @@
         .map-stage{ display:none; }
         .cta-row{ display:none; }
         .table-panel{ width:100%; border-radius:14px; box-shadow:0 10px 24px rgba(15,23,42,0.18); }
-        .logo-marquee{ padding:0; }
+        .logo-marquee{ padding:0; margin:6px auto 0; }
         .logo-banner-inner{ width:min(92vw, 1560px); padding:8px 12px; }
         .btn{ width:100%; justify-content:center; }
         .hero-lede{ max-width:unset; }
         .table-meta .legend{ display:none; }
+        .skip-link,
         .skip-link-costs{ display:none; }
         .map-ui{ display:none; }
       }
@@ -1069,7 +1075,7 @@
         <div class="hero-copy">
           <span class="eyebrow">Central London office submarkets</span>
           <h1 class="hero-title">Find the right location for your next London office</h1>
-          <p class="hero-lede">Select a submarket in the table below, then tap the submarket title text to open its dashboard and explore tailored benchmarks, availability, and occupier-ready detail.</p>
+          <p class="hero-lede">Select a submarket on the map below to explore tailored benchmarks, availability, and occupier-ready detail.</p>
           <div class="cta-row" role="group" aria-label="Jump controls">
             <button class="btn btn-toggle is-active" type="button" data-action="show-map" aria-pressed="true" aria-label="Jump to map">Explore districts</button>
             <button class="btn btn-toggle" type="button" data-action="show-data" aria-pressed="false" aria-label="Jump to office costs">Compare office costs</button>
