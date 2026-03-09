@@ -1293,6 +1293,7 @@
       let lastTouchActivationAt = 0;
       let touchStartPoint = null;
       let touchMovedDuringGesture = false;
+      let phoneViewportUserAdjusted = false;
 
       const brand = getComputedStyle(document.documentElement).getPropertyValue('--brand').trim();
       const water = getComputedStyle(document.documentElement).getPropertyValue('--water').trim();
@@ -1703,8 +1704,15 @@
           duration: options.duration ?? 0,
           easing: t => t
         });
+        if (isPhoneView()) {
+          phoneViewportUserAdjusted = false;
+        }
       }
       const debouncedRefit = debounce(() => fitToInitialBounds({ duration: 0 }), 120);
+
+      function shouldAutoRefitViewport(){
+        return !(isPhoneView() && phoneViewportUserAdjusted);
+      }
 
       let reflowScheduled = false;
       let refitScheduled = false;
@@ -1895,6 +1903,13 @@
         }
       }
 
+      map.on('movestart', function (event) {
+        if (!isPhoneView()) return;
+        if (event?.originalEvent) {
+          phoneViewportUserAdjusted = true;
+        }
+      });
+
       function syncDesktopMode(){
         const desktop = isDesktopView();
         document.body.classList.toggle('is-desktop', desktop);
@@ -1906,9 +1921,14 @@
       }
 
       // Keep map sized & fitted when UI changes
-      new ResizeObserver(() => { scheduleMapReflow({ refit: true }); syncDesktopMode(); syncPhoneInteractions(); }).observe(mapContainer);
-      window.addEventListener('resize', () => { scheduleMapReflow({ refit: true }); syncDesktopMode(); syncPhoneInteractions(); });
-      window.addEventListener('orientationchange', () => { scheduleMapReflow({ refit: true }); syncDesktopMode(); syncPhoneInteractions(); });
+      new ResizeObserver(() => { scheduleMapReflow({ refit: shouldAutoRefitViewport() }); syncDesktopMode(); syncPhoneInteractions(); }).observe(mapContainer);
+      window.addEventListener('resize', () => { scheduleMapReflow({ refit: shouldAutoRefitViewport() }); syncDesktopMode(); syncPhoneInteractions(); });
+      window.addEventListener('orientationchange', () => {
+        phoneViewportUserAdjusted = false;
+        scheduleMapReflow({ refit: true });
+        syncDesktopMode();
+        syncPhoneInteractions();
+      });
       map.on('resize', () => { refreshLabels(); });
       if (desktopMedia.addEventListener) {
         desktopMedia.addEventListener('change', syncDesktopMode);
@@ -2156,7 +2176,59 @@
                 activateFeature(getFeatureAtPoint(e.point));
               });
 
-              map.getCanvas().addEventListener('touchstart', function (event) {
+              function handlePhoneGestureStart(clientX, clientY) {
+                touchStartPoint = { x: clientX, y: clientY };
+                touchMovedDuringGesture = false;
+              }
+
+              function handlePhoneGestureMove(clientX, clientY) {
+                if (!touchStartPoint) return;
+                const dx = clientX - touchStartPoint.x;
+                const dy = clientY - touchStartPoint.y;
+                if ((dx * dx) + (dy * dy) > 81) {
+                  touchMovedDuringGesture = true;
+                }
+              }
+
+              function handlePhoneGestureEnd(clientX, clientY) {
+                if (!touchStartPoint || touchMovedDuringGesture) {
+                  touchStartPoint = null;
+                  touchMovedDuringGesture = false;
+                  return;
+                }
+                const canvasRect = map.getCanvas().getBoundingClientRect();
+                const point = {
+                  x: clientX - canvasRect.left,
+                  y: clientY - canvasRect.top
+                };
+
+                activateFeature(getFeatureAtPoint(point));
+                lastTouchActivationAt = Date.now();
+                touchStartPoint = null;
+                touchMovedDuringGesture = false;
+              }
+
+              mapContainer.addEventListener('pointerdown', function (event) {
+                if (!isPhoneView() || event.pointerType !== 'touch') return;
+                handlePhoneGestureStart(event.clientX, event.clientY);
+              }, { passive: true, capture: true });
+
+              mapContainer.addEventListener('pointermove', function (event) {
+                if (!isPhoneView() || event.pointerType !== 'touch') return;
+                handlePhoneGestureMove(event.clientX, event.clientY);
+              }, { passive: true, capture: true });
+
+              mapContainer.addEventListener('pointerup', function (event) {
+                if (!isPhoneView() || event.pointerType !== 'touch') return;
+                handlePhoneGestureEnd(event.clientX, event.clientY);
+              }, { passive: true, capture: true });
+
+              mapContainer.addEventListener('pointercancel', function () {
+                touchStartPoint = null;
+                touchMovedDuringGesture = false;
+              }, { passive: true, capture: true });
+
+              mapContainer.addEventListener('touchstart', function (event) {
                 if (!isPhoneView()) return;
                 if (event.touches.length !== 1) {
                   touchStartPoint = null;
@@ -2164,40 +2236,20 @@
                   return;
                 }
                 const touch = event.touches[0];
-                touchStartPoint = { x: touch.clientX, y: touch.clientY };
-                touchMovedDuringGesture = false;
-              }, { passive: true });
+                handlePhoneGestureStart(touch.clientX, touch.clientY);
+              }, { passive: true, capture: true });
 
-              map.getCanvas().addEventListener('touchmove', function (event) {
-                if (!isPhoneView() || !touchStartPoint || !event.touches.length) return;
+              mapContainer.addEventListener('touchmove', function (event) {
+                if (!isPhoneView() || !event.touches.length) return;
                 const touch = event.touches[0];
-                const dx = touch.clientX - touchStartPoint.x;
-                const dy = touch.clientY - touchStartPoint.y;
-                if ((dx * dx) + (dy * dy) > 81) {
-                  touchMovedDuringGesture = true;
-                }
-              }, { passive: true });
+                handlePhoneGestureMove(touch.clientX, touch.clientY);
+              }, { passive: true, capture: true });
 
-              map.getCanvas().addEventListener('touchend', function (event) {
-                if (!isPhoneView()) return;
-                if (!touchStartPoint || touchMovedDuringGesture || event.changedTouches.length !== 1) {
-                  touchStartPoint = null;
-                  touchMovedDuringGesture = false;
-                  return;
-                }
-
-                const canvasRect = map.getCanvas().getBoundingClientRect();
+              mapContainer.addEventListener('touchend', function (event) {
+                if (!isPhoneView() || event.changedTouches.length !== 1) return;
                 const touch = event.changedTouches[0];
-                const point = {
-                  x: touch.clientX - canvasRect.left,
-                  y: touch.clientY - canvasRect.top
-                };
-
-                activateFeature(getFeatureAtPoint(point));
-                lastTouchActivationAt = Date.now();
-                touchStartPoint = null;
-                touchMovedDuringGesture = false;
-              }, { passive: true });
+                handlePhoneGestureEnd(touch.clientX, touch.clientY);
+              }, { passive: true, capture: true });
             }
           })
           .catch(function (error) {
