@@ -95,7 +95,13 @@
       }
       body.is-embedded .site-header{ padding:8px 16px 10px; }
       .hero-shell{ max-width:1240px; margin:0 auto; display:grid; grid-template-columns:1fr auto; gap:12px; align-items:center; }
-      body.is-embedded .hero-shell{ max-width:1160px; }
+      body.is-embedded .hero-shell{
+        max-width:1160px;
+        grid-template-columns:1fr;
+      }
+      body.is-embedded .hero-visual{ justify-items:start; display:block; width:100%; }
+      body.is-embedded .stat-stack,
+      body.is-embedded .stat-card{ width:100%; max-width:100%; }
       .hero-copy{ display:flex; flex-direction:column; gap:8px; }
       .eyebrow{ display:inline-flex; align-items:center; gap:8px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.18); color:#E8EEF9; padding:6px 10px; border-radius:999px; font-weight:800; letter-spacing:.6px; text-transform:uppercase; font-size:.78rem; width:max-content; box-shadow:0 6px 16px rgba(0,0,0,0.14); }
       .eyebrow::before{ content:""; width:8px; height:8px; border-radius:50%; background:var(--brand); box-shadow:0 0 0 4px rgba(204,32,48,0.25); }
@@ -955,9 +961,9 @@
         .site-header{
           position:relative;
           padding:calc(10px + env(safe-area-inset-top)) 14px 10px;
-          margin-top:14px;
+          margin-top:20px;
         }
-        body.is-embedded .site-header{ margin-top:calc(14px + env(safe-area-inset-top)); }
+        body.is-embedded .site-header{ margin-top:calc(20px + env(safe-area-inset-top)); }
         .hero-shell{ gap:10px; }
         .hero-copy{ gap:6px; }
         .hero-title{ font-size:clamp(1.35rem, 2.8vw + 1rem, 1.7rem); }
@@ -1307,6 +1313,7 @@
       const mapStatusEl = document.getElementById('map-status');
       const mapStatusTextEl = mapStatusEl ? mapStatusEl.querySelector('.map-status-text') : null;
       const mapUiEl = document.querySelector('.map-ui');
+      const mapStageEl = document.getElementById('map-stage');
       const heroLedeEl = document.getElementById('hero-lede');
       const desktopMedia = window.matchMedia('(min-width: 1081px)');
       const phoneMedia = window.matchMedia('(max-width: 720px)');
@@ -1351,9 +1358,15 @@
         return isEmbedded && isPhoneView();
       }
 
+      function isMapVisibleToUser(){
+        if (!mapStageEl) return false;
+        const stageStyles = window.getComputedStyle(mapStageEl);
+        return stageStyles.display !== 'none' && stageStyles.visibility !== 'hidden';
+      }
+
       function syncHeroLede(){
         if (!heroLedeEl) return;
-        heroLedeEl.textContent = isPhoneView() ? HERO_LEDE_TEXT.phone : HERO_LEDE_TEXT.standard;
+        heroLedeEl.textContent = isMapVisibleToUser() ? HERO_LEDE_TEXT.standard : HERO_LEDE_TEXT.phone;
       }
 
       function showMapLoading(message = 'Loading map…'){
