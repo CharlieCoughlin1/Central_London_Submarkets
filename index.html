@@ -93,22 +93,16 @@
         padding:12px 20px 14px;
         transition:opacity .2s ease;
       }
-      body.is-embedded .site-header{ padding:8px 16px 10px; }
+      body.is-embedded .site-header{ padding:12px 20px 14px; }
       .hero-shell{ max-width:1240px; margin:0 auto; display:grid; grid-template-columns:1fr auto; gap:12px; align-items:center; }
-      body.is-embedded .hero-shell{
-        max-width:1160px;
-        grid-template-columns:1fr;
-      }
-      body.is-embedded .hero-visual{ justify-items:start; display:block; width:100%; }
-      body.is-embedded .stat-stack,
-      body.is-embedded .stat-card{ width:100%; max-width:100%; }
+      body.is-embedded .hero-shell{ max-width:1240px; }
       .hero-copy{ display:flex; flex-direction:column; gap:8px; }
       .eyebrow{ display:inline-flex; align-items:center; gap:8px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.18); color:#E8EEF9; padding:6px 10px; border-radius:999px; font-weight:800; letter-spacing:.6px; text-transform:uppercase; font-size:.78rem; width:max-content; box-shadow:0 6px 16px rgba(0,0,0,0.14); }
       .eyebrow::before{ content:""; width:8px; height:8px; border-radius:50%; background:var(--brand); box-shadow:0 0 0 4px rgba(204,32,48,0.25); }
       .hero-title{ margin:0; font-size:clamp(1.5rem, 1.6vw + 1.1rem, 2.1rem); line-height:1.18; letter-spacing:.3px; font-weight:900; text-shadow:0 8px 22px rgba(0,0,0,0.25); white-space:nowrap; }
       .hero-lede{ margin:0; max-width:760px; color:#E4E8F1; font-size:.98rem; line-height:1.5; white-space:nowrap; }
-      body.is-embedded .hero-title{ font-size:clamp(1.35rem, 1.2vw + 1rem, 1.85rem); }
-      body.is-embedded .hero-lede{ font-size:.84rem; line-height:1.35; }
+      body.is-embedded .hero-title{ font-size:clamp(1.5rem, 1.6vw + 1.1rem, 2.1rem); }
+      body.is-embedded .hero-lede{ font-size:.98rem; line-height:1.5; }
       .cta-row{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
       .cta-row .btn{ border-radius:10px; }
       .cta-row .btn.is-active{ box-shadow:0 12px 28px rgba(204,32,48,0.28); transform:none; }
@@ -128,7 +122,7 @@
       .meta-chip .chip-dot{ width:9px; height:9px; border-radius:50%; background:var(--brand); box-shadow:0 0 0 4px rgba(204,32,48,0.25); }
       .hero-visual{ position:relative; display:grid; gap:10px; align-content:center; justify-items:end; }
       .stat-card{ background:rgba(255,255,255,0.09); border:1px solid rgba(255,255,255,0.18); border-radius:14px; padding:10px 12px; width:230px; color:#F7F9FD; box-shadow:0 12px 28px rgba(0,0,0,0.22); backdrop-filter:saturate(130%) blur(6px); box-sizing:border-box; }
-      body.is-embedded .stat-card{ width:210px; padding:8px 10px; }
+      body.is-embedded .stat-card{ width:230px; padding:10px 12px; }
       .stat-card h3{ margin:0 0 6px; font-size:.92rem; letter-spacing:.35px; text-transform:uppercase; display:flex; align-items:center; gap:8px; }
       .stat-card .stat-value{ font-size:1.6rem; font-weight:900; display:block; letter-spacing:.4px; }
       .stat-card small{ display:block; color:#E4E8F1; opacity:.82; line-height:1.35; }
@@ -159,11 +153,7 @@
         margin-top:-130px;
         overflow:hidden;
       }
-      body.is-embedded .map-stage{
-        min-height:auto;
-        height:auto;
-        margin-top:-110px;
-      }
+      body.is-embedded .map-stage{ min-height:calc(100vh + 60px); margin-top:-130px; }
 
       .map-status{
         position:absolute;
@@ -242,19 +232,13 @@
         padding-bottom:env(safe-area-inset-bottom);
         box-sizing:border-box;
       }
-      body.is-embedded #map{
-        height:clamp(640px, calc(92vh + var(--header-h)), 1040px);
-        min-height:640px;
-      }
+      body.is-embedded #map{ height:clamp(760px, calc(100vh + var(--header-h)), 1200px); min-height:760px; }
 
       body.map-expanded #map{
         height:clamp(760px, calc(100vh + var(--header-h)), 1200px);
         min-height:760px;
       }
-      body.is-embedded.map-expanded #map{
-        height:clamp(640px, calc(92vh + var(--header-h)), 1040px);
-        min-height:640px;
-      }
+      body.is-embedded.map-expanded #map{ height:clamp(760px, calc(100vh + var(--header-h)), 1200px); min-height:760px; }
 
       .polygon-label{
         pointer-events:none;
@@ -267,7 +251,7 @@
         color:var(--ink);
         font-family:"DIN Pro","DINPro",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
         font-weight:800;
-        font-size:clamp(0.7rem, 0.68vw + 0.42rem, 0.82rem);
+        font-size:clamp(0.64rem, 0.56vw + 0.36rem, 0.74rem);
         letter-spacing:.28px;
         text-transform:uppercase;
         text-align:center;
@@ -936,7 +920,7 @@
         .logo-viewport::before, .logo-viewport::after{ width:18px; }
       }
       @media (max-width:1400px){
-        .polygon-label{ font-size:0.76rem; padding:5px 8px; max-width:150px; }
+        .polygon-label{ font-size:0.7rem; padding:4px 7px; max-width:140px; }
         #map{ height:100vh; height:clamp(720px, calc(100vh + var(--header-h)), 1180px); min-height:720px; }
       }
       @media (max-width:960px){
@@ -1797,43 +1781,16 @@
           if (entry?.marker) entry.marker.remove();
         }
       }
-
-      function getLabelBudget(total){
-        if (!mapContainer) return total;
-        const rect = mapContainer.getBoundingClientRect();
-        if (!rect?.width || !rect?.height) return total;
-        if (rect.width >= 1200 && rect.height >= 720) return total;
-        const area = rect.width * rect.height;
-        if (area >= 1400000) return total;
-        if (area >= 1100000) return Math.min(total, Math.ceil(total * 0.85));
-        if (area >= 900000) return Math.min(total, Math.ceil(total * 0.7));
-        return Math.min(total, Math.max(6, Math.ceil(total * 0.55)));
-      }
-
       function addLabels(features){
         clearLabels();
         if (!isDesktopView() || !Array.isArray(features)) return;
-        const occupied = [];
-        const sorted = features
+
+        const allLabels = features
           .filter(f => f?.properties?.label && f.properties.label !== 'River Thames')
           .map(feature => ({ feature, area: featureArea(feature.geometry) }))
           .sort((a, b) => b.area - a.area);
 
-        const priorityLabels = new Set(['Clerkenwell & Farringdon']);
-        const prioritized = [];
-        const remaining = [];
-        sorted.forEach((entry) => {
-          if (priorityLabels.has(entry.feature.properties.label)) {
-            prioritized.push(entry);
-          } else {
-            remaining.push(entry);
-          }
-        });
-
-        const labelLimit = Math.max(getLabelBudget(sorted.length), prioritized.length);
-        const limited = [...prioritized, ...remaining].slice(0, labelLimit);
-
-        limited.forEach(({ feature }) => {
+        allLabels.forEach(({ feature }) => {
           const coords = getFeatureLabelCenter(feature.geometry);
           if (!coords || !Number.isFinite(coords[0]) || !Number.isFinite(coords[1])) return;
           const el = document.createElement('div');
@@ -1843,50 +1800,6 @@
             el.style.opacity = '0';
           }
           const marker = new maplibregl.Marker({ element: el, anchor: 'center' }).setLngLat(coords).addTo(map);
-          const baseOffsets = [
-            [0, 0],
-            [0, -18],
-            [0, 18],
-            [18, 0],
-            [-18, 0],
-            [22, 12],
-            [-22, 12],
-            [22, -12],
-            [-22, -12],
-            [14, 20],
-            [-14, 20],
-            [0, -26],
-            [0, 26],
-            [28, 6],
-            [-28, 6]
-          ];
-
-          const customOffsets = {
-            'Clerkenwell & Farringdon': [[0, -12], [16, -10], [-16, -10]],
-            'Soho': [[0, 6], [12, 8], [-12, 8]]
-          };
-
-          const offsets = customOffsets[feature.properties.label] ? [...customOffsets[feature.properties.label], ...baseOffsets] : baseOffsets;
-
-          let placed = false;
-          for (const offset of offsets) {
-            marker.setOffset(offset);
-            const rect = getRelativeRect(el);
-            if (!rect) continue;
-            const padded = inflateRect(rect, 4);
-            const hasCollision = occupied.some(existing => boxesOverlap(existing, padded));
-            if (!hasCollision) {
-              occupied.push(padded);
-              placed = true;
-              break;
-            }
-          }
-
-          if (!placed) {
-            marker.remove();
-            return;
-          }
-
           labelMarkers.push({ label: feature.properties.label, marker });
         });
       }
