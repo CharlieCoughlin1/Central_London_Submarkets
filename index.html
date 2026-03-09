@@ -1356,16 +1356,21 @@
       }
 
       function setMapInteractions(enabled){
+        const phoneMode = isPhoneView();
         mapInteractionsEnabled = enabled;
         if (enabled){
-          map.dragPan.enable();
+          if (phoneMode) {
+            map.dragPan.disable();
+          } else {
+            map.dragPan.enable();
+          }
           map.touchZoomRotate.enable();
           map.scrollZoom.disable();
           map.doubleClickZoom.disable();
           map.boxZoom.disable();
           map.keyboard.disable();
           map.dragRotate.disable();
-          mapContainer.style.touchAction = 'none';
+          mapContainer.style.touchAction = phoneMode ? 'pan-y pinch-zoom' : 'none';
         } else {
           map.dragPan.disable();
           map.scrollZoom.disable();
@@ -1825,11 +1830,9 @@
           if (phoneInteractionSnapshot === null) {
             phoneInteractionSnapshot = mapInteractionsEnabled;
           }
-          if (!mapInteractionsEnabled) {
-            setMapInteractions(true);
-          }
+          setMapInteractions(true);
           if (initialBounds) {
-            map.setMaxBounds(initialBounds.pad(0.2));
+            map.setMaxBounds(initialBounds.pad(0.04));
           }
           return;
         }
@@ -2056,6 +2059,7 @@
               mapEventsBound = true;
               // Interaction (hover shows popup; no persistent labels)
               function handleMove(e) {
+                if (isPhoneView()) return;
                 const features = map.queryRenderedFeatures(e.point, { layers: ['subdistrict-fills'] });
                 const feature = features[0];
                 if (!feature) {
@@ -2101,6 +2105,7 @@
                 const feature = features[0];
                 if (!feature) {
                   lastTapLabel = null;
+                  removeHover();
                   return;
                 }
 
@@ -2133,7 +2138,9 @@
                 clearTimeout(hoverLeaveTimer);
                 showPopup(center, label);
                 clearTimeout(popupTimer);
-                popupTimer = setTimeout(removeHover, 2500);
+                if (!isPhoneView()) {
+                  popupTimer = setTimeout(removeHover, 2500);
+                }
               });
             }
           })
