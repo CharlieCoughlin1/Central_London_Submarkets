@@ -2208,48 +2208,52 @@
                 touchMovedDuringGesture = false;
               }
 
-              mapContainer.addEventListener('pointerdown', function (event) {
-                if (!isPhoneView() || event.pointerType !== 'touch') return;
-                handlePhoneGestureStart(event.clientX, event.clientY);
-              }, { passive: true, capture: true });
+              const supportsPointerEvents = 'PointerEvent' in window;
 
-              mapContainer.addEventListener('pointermove', function (event) {
-                if (!isPhoneView() || event.pointerType !== 'touch') return;
-                handlePhoneGestureMove(event.clientX, event.clientY);
-              }, { passive: true, capture: true });
+              if (supportsPointerEvents) {
+                mapContainer.addEventListener('pointerdown', function (event) {
+                  if (!isPhoneView() || event.pointerType !== 'touch') return;
+                  handlePhoneGestureStart(event.clientX, event.clientY);
+                }, { passive: true, capture: true });
 
-              mapContainer.addEventListener('pointerup', function (event) {
-                if (!isPhoneView() || event.pointerType !== 'touch') return;
-                handlePhoneGestureEnd(event.clientX, event.clientY);
-              }, { passive: true, capture: true });
+                mapContainer.addEventListener('pointermove', function (event) {
+                  if (!isPhoneView() || event.pointerType !== 'touch') return;
+                  handlePhoneGestureMove(event.clientX, event.clientY);
+                }, { passive: true, capture: true });
 
-              mapContainer.addEventListener('pointercancel', function () {
-                touchStartPoint = null;
-                touchMovedDuringGesture = false;
-              }, { passive: true, capture: true });
+                mapContainer.addEventListener('pointerup', function (event) {
+                  if (!isPhoneView() || event.pointerType !== 'touch') return;
+                  handlePhoneGestureEnd(event.clientX, event.clientY);
+                }, { passive: true, capture: true });
 
-              mapContainer.addEventListener('touchstart', function (event) {
-                if (!isPhoneView()) return;
-                if (event.touches.length !== 1) {
+                mapContainer.addEventListener('pointercancel', function () {
                   touchStartPoint = null;
-                  touchMovedDuringGesture = true;
-                  return;
-                }
-                const touch = event.touches[0];
-                handlePhoneGestureStart(touch.clientX, touch.clientY);
-              }, { passive: true, capture: true });
+                  touchMovedDuringGesture = false;
+                }, { passive: true, capture: true });
+              } else {
+                mapContainer.addEventListener('touchstart', function (event) {
+                  if (!isPhoneView()) return;
+                  if (event.touches.length !== 1) {
+                    touchStartPoint = null;
+                    touchMovedDuringGesture = true;
+                    return;
+                  }
+                  const touch = event.touches[0];
+                  handlePhoneGestureStart(touch.clientX, touch.clientY);
+                }, { passive: true, capture: true });
 
-              mapContainer.addEventListener('touchmove', function (event) {
-                if (!isPhoneView() || !event.touches.length) return;
-                const touch = event.touches[0];
-                handlePhoneGestureMove(touch.clientX, touch.clientY);
-              }, { passive: true, capture: true });
+                mapContainer.addEventListener('touchmove', function (event) {
+                  if (!isPhoneView() || !event.touches.length) return;
+                  const touch = event.touches[0];
+                  handlePhoneGestureMove(touch.clientX, touch.clientY);
+                }, { passive: true, capture: true });
 
-              mapContainer.addEventListener('touchend', function (event) {
-                if (!isPhoneView() || event.changedTouches.length !== 1) return;
-                const touch = event.changedTouches[0];
-                handlePhoneGestureEnd(touch.clientX, touch.clientY);
-              }, { passive: true, capture: true });
+                mapContainer.addEventListener('touchend', function (event) {
+                  if (!isPhoneView() || event.changedTouches.length !== 1) return;
+                  const touch = event.changedTouches[0];
+                  handlePhoneGestureEnd(touch.clientX, touch.clientY);
+                }, { passive: true, capture: true });
+              }
             }
           })
           .catch(function (error) {
