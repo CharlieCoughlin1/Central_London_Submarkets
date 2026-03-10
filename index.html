@@ -100,16 +100,16 @@
         transition:opacity .2s ease;
       }
       body.is-embedded .site-header{ padding:7px 16px 9px; }
-      .hero-shell{ max-width:1380px; margin:0 auto; display:grid; grid-template-columns:1fr auto; gap:8px; align-items:center; }
-      body.is-embedded .hero-shell{ max-width:1240px; }
-      .hero-copy{ display:flex; flex-direction:column; gap:4px; }
+      .hero-shell{ width:100%; max-width:none; margin:0 auto; display:grid; grid-template-columns:minmax(0, 980px) auto; justify-content:center; gap:6px; align-items:center; }
+      body.is-embedded .hero-shell{ max-width:none; }
+      .hero-copy{ display:flex; flex-direction:column; gap:4px; align-items:center; text-align:center; }
       .eyebrow{ display:inline-flex; align-items:center; gap:8px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.18); color:#E8EEF9; padding:6px 10px; border-radius:999px; font-weight:800; letter-spacing:.6px; text-transform:uppercase; font-size:.78rem; width:max-content; box-shadow:0 6px 16px rgba(0,0,0,0.14); }
       .eyebrow::before{ content:""; width:8px; height:8px; border-radius:50%; background:var(--brand); box-shadow:0 0 0 4px rgba(204,32,48,0.25); }
       .hero-title{ margin:0; font-size:clamp(1.2rem, 1vw + 0.92rem, 1.62rem); line-height:1.1; letter-spacing:.2px; font-weight:900; text-shadow:0 8px 22px rgba(0,0,0,0.25); white-space:nowrap; }
       .hero-lede{ margin:0; max-width:760px; color:#E4E8F1; font-size:.82rem; line-height:1.25; white-space:nowrap; }
       body.is-embedded .hero-title{ font-size:clamp(1.5rem, 1.6vw + 1.1rem, 2.1rem); }
       body.is-embedded .hero-lede{ font-size:.98rem; line-height:1.5; }
-      .cta-row{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+      .cta-row{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:center; }
       .cta-row .btn{ border-radius:10px; }
       .cta-row .btn.is-active{ box-shadow:0 12px 28px rgba(204,32,48,0.28); transform:none; }
       .btn{ appearance:none; border:none; cursor:pointer; font-weight:800; letter-spacing:.3px; border-radius:12px; padding:12px 16px; font-size:.95rem; transition:transform .12s ease, box-shadow .16s ease, background .16s ease, color .16s ease; text-decoration:none; display:inline-flex; align-items:center; gap:8px; }
@@ -122,11 +122,11 @@
       .btn-toggle:not(.is-active){ box-shadow:none; }
       .btn-toggle.is-active{ background:var(--brand); color:#fff; border-color:rgba(255,255,255,0.3); box-shadow:0 14px 32px rgba(204,32,48,0.4); }
       .btn-toggle:not(.is-active):hover{ background:rgba(255,255,255,0.18); }
-      .hero-meta{ display:flex; flex-wrap:wrap; gap:10px; margin-top:2px; }
+      .hero-meta{ display:flex; flex-wrap:wrap; gap:10px; margin-top:2px; justify-content:center; }
       .meta-chip{ background:rgba(255,255,255,0.08); color:#E4E8F1; border:1px solid rgba(255,255,255,0.2); border-radius:10px; padding:10px 12px; font-weight:800; letter-spacing:.2px; display:flex; align-items:center; gap:8px; box-shadow:0 10px 22px rgba(0,0,0,0.16); }
       .meta-chip strong{ color:#fff; font-size:1.05rem; }
       .meta-chip .chip-dot{ width:9px; height:9px; border-radius:50%; background:var(--brand); box-shadow:0 0 0 4px rgba(204,32,48,0.25); }
-      .hero-visual{ position:relative; display:grid; gap:10px; align-content:center; justify-items:end; }
+      .hero-visual{ position:relative; display:grid; gap:8px; align-content:center; justify-items:center; }
       .stat-card{ background:rgba(255,255,255,0.09); border:1px solid rgba(255,255,255,0.18); border-radius:14px; padding:10px 12px; width:230px; color:#F7F9FD; box-shadow:0 12px 28px rgba(0,0,0,0.22); backdrop-filter:saturate(130%) blur(6px); box-sizing:border-box; }
       body.is-embedded .stat-card{ width:230px; padding:10px 12px; }
       .stat-card h3{ margin:0 0 6px; font-size:.92rem; letter-spacing:.35px; text-transform:uppercase; display:flex; align-items:center; gap:8px; }
@@ -297,11 +297,12 @@
       .data-view{
         position:relative;
         inset:auto;
+        width:100%;
         background:linear-gradient(180deg, rgba(248,250,252,0.95), rgba(248,250,252,0.98));
         z-index:1;
-        padding:32px 18px calc(48px + env(safe-area-inset-bottom));
+        padding:32px 10px calc(48px + env(safe-area-inset-bottom));
         display:flex;
-        justify-content:center;
+        justify-content:stretch;
         overflow:visible;
         box-sizing:border-box;
       }
@@ -310,8 +311,8 @@
       }
       .table-panel{
         position:relative;
-        width:min(1480px, calc(100% - 36px));
-        max-width:100%;
+        width:100%;
+        max-width:none;
         height:auto;
         background:#FFFFFF;
         border:1px solid var(--stroke);
@@ -803,19 +804,19 @@
         box-shadow:none;
         pointer-events:none; /* never block map interactions */
         backdrop-filter:none;
-        padding:0 12px 8px;
-        margin:-112px auto 0;
+        padding:0 8px 8px;
+        margin:-140px 0 0;
         display:flex;
         justify-content:center;
         opacity:0;
         transform:translateY(8px);
         transition:opacity .25s ease, transform .25s ease;
-        max-width:1600px;
+        max-width:none;
       }
       .logo-marquee.is-ready{ opacity:1; transform:translateY(0); }
       .logo-marquee.is-empty{ display:none; }
       .logo-marquee .logo-accent{ display:none; }
-      .logo-banner-inner{ padding:10px 16px; width:min(98vw, 1560px); margin:0 auto; background:linear-gradient(125deg, #CC2030 6%, #B81E2D 46%, #9E1824 100%); border-radius:16px; box-shadow:0 14px 32px rgba(12,16,32,0.26); border:1px solid rgba(255,255,255,0.14); color:#fff; display:flex; flex-direction:column; gap:8px; }
+      .logo-banner-inner{ padding:10px 16px; width:100%; margin:0; background:linear-gradient(125deg, #CC2030 6%, #B81E2D 46%, #9E1824 100%); border-radius:16px; box-shadow:0 14px 32px rgba(12,16,32,0.26); border:1px solid rgba(255,255,255,0.14); color:#fff; display:flex; flex-direction:column; gap:8px; }
       body.is-embedded .logo-banner-inner{ padding:8px 14px; }
       .banner-subtitle{
         margin:0 0 2px;
@@ -956,7 +957,7 @@
         .hero-visual{ justify-items:start; display:block; width:100%; }
         .stat-stack,
         .stat-card{ width:100%; }
-        .logo-marquee{ margin:8px auto 0; }
+        .logo-marquee{ margin:-56px 0 0; }
         .skip-link,
         .skip-link-costs{ display:none; }
         .hero-title,
@@ -1381,42 +1382,63 @@
         heroLedeEl.textContent = isMapVisibleToUser() ? HERO_LEDE_TEXT.standard : HERO_LEDE_TEXT.phone;
       }
 
-      function updateDynamicLabelSize(){
+      function getBaseLabelFontRange(){
         const width = mapContainer ? mapContainer.clientWidth : window.innerWidth;
         const min = 0.54;
         const max = 0.8;
         const scaled = min + ((Math.min(Math.max(width, 920), 1880) - 920) / 960) * (max - min);
-        root.style.setProperty('--label-font-size', `${scaled.toFixed(3)}rem`);
+        return { min, max: Math.max(min, scaled) };
+      }
+
+      function setLabelFontSize(sizeRem){
+        root.style.setProperty('--label-font-size', `${sizeRem.toFixed(3)}rem`);
+      }
+
+      function mapLabelsOverlap(padding = 2){
+        if (!isDesktopView() || !labelMarkers.length) return false;
+        const rects = labelMarkers
+          .map((item) => getRelativeRect(item?.marker?.getElement?.()))
+          .filter(Boolean)
+          .map((rect) => inflateRect(rect, padding));
+
+        for (let i = 0; i < rects.length; i++) {
+          for (let j = i + 1; j < rects.length; j++) {
+            if (boxesOverlap(rects[i], rects[j])) return true;
+          }
+        }
+        return false;
+      }
+
+      function updateDynamicLabelSize(){
+        const { min, max } = getBaseLabelFontRange();
+        setLabelFontSize(max);
       }
 
       function updateLabelCollisionScaling(){
         if (!isDesktopView() || !labelMarkers.length) return;
-        const entries = labelMarkers
-          .map((item) => {
-            const el = item?.marker?.getElement?.();
-            const rect = getRelativeRect(el);
-            return { item, el, rect };
-          })
-          .filter((entry) => entry.el && entry.rect);
 
-        entries.forEach((entry) => {
-          entry.overlapCount = 0;
-          entry.el.style.setProperty('--label-scale', '1');
+        labelMarkers.forEach((entry) => {
+          const el = entry?.marker?.getElement?.();
+          if (el) el.style.setProperty('--label-scale', '1');
         });
 
-        for (let i = 0; i < entries.length; i++) {
-          for (let j = i + 1; j < entries.length; j++) {
-            if (boxesOverlap(inflateRect(entries[i].rect, 2), inflateRect(entries[j].rect, 2))) {
-              entries[i].overlapCount += 1;
-              entries[j].overlapCount += 1;
-            }
+        const { min, max } = getBaseLabelFontRange();
+        let low = min;
+        let high = max;
+        let best = min;
+
+        for (let i = 0; i < 8; i++) {
+          const mid = (low + high) / 2;
+          setLabelFontSize(mid);
+          if (mapLabelsOverlap()) {
+            high = mid;
+          } else {
+            best = mid;
+            low = mid;
           }
         }
 
-        entries.forEach((entry) => {
-          const scale = Math.max(0.72, 1 - (entry.overlapCount * 0.08));
-          entry.el.style.setProperty('--label-scale', scale.toFixed(2));
-        });
+        setLabelFontSize(best);
       }
 
       function showMapLoading(message = 'Loading map…'){
