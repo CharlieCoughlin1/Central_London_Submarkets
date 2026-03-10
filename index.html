@@ -41,8 +41,8 @@
         --logo-img-h:clamp(24px, 4.6vw, 38px);
         --logo-img-w:clamp(70px, 13vw, 122px);
         --label-font-size:clamp(0.58rem, 0.42vw + 0.34rem, 0.74rem);
-        --map-stage-min:calc(100vh - var(--header-h) + 70px);
-        --map-height:clamp(660px, calc(100vh - var(--header-h) + 146px), 980px);
+        --map-stage-min:calc(130vh - var(--header-h) + 91px);
+        --map-height:clamp(858px, calc(130vh - var(--header-h) + 190px), 1274px);
       }
 
       html, body { height:100%; }
@@ -66,7 +66,7 @@
         --logo-img-w:clamp(64px, 11vw, 108px);
         /* Avoid iframe auto-height feedback loops caused by vh-based map sizing. */
         --map-stage-min:auto;
-        --map-height:clamp(620px, 68vw, 920px);
+        --map-height:clamp(806px, 88.4vw, 1196px);
       }
 
       .skip-link{
@@ -233,18 +233,18 @@
         width:100%;
         margin-left:0;
         height:var(--map-height);
-        min-height:660px;
+        min-height:858px;
         background:#fff;
         padding-bottom:env(safe-area-inset-bottom);
         box-sizing:border-box;
       }
-      body.is-embedded #map{ height:var(--map-height); min-height:620px; }
+      body.is-embedded #map{ height:var(--map-height); min-height:806px; }
 
       body.map-expanded #map{
         height:var(--map-height);
-        min-height:660px;
+        min-height:858px;
       }
-      body.is-embedded.map-expanded #map{ height:var(--map-height); min-height:620px; }
+      body.is-embedded.map-expanded #map{ height:var(--map-height); min-height:806px; }
 
       .polygon-label{
         pointer-events:none;
