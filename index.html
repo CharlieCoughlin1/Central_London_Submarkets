@@ -1796,13 +1796,15 @@
       function getDynamicFitPadding(){
         const headerH = Math.ceil(headerEl?.getBoundingClientRect()?.height || 0);
         const bannerH = Math.ceil(logoMarqueeEl?.offsetHeight || 0);
+        const psfWidth = Math.ceil(document.querySelector('.psf-control')?.getBoundingClientRect()?.width || 0);
         const safeBottom = isPhoneView() ? 6 : 10;
         const northBias = isPhoneView() ? 16 : 26;
+        const rightPadding = isPhoneView() ? 12 : Math.max(20, psfWidth + 32);
         return {
           top: Math.max(0, headerH + (isPhoneView() ? 6 : 2)),
-          right: isPhoneView() ? 12 : 20,
+          right: rightPadding,
           bottom: bannerH + safeBottom + northBias,
-          left: isPhoneView() ? 12 : 20
+          left: isPhoneView() ? 12 : 14
         };
       }
 
