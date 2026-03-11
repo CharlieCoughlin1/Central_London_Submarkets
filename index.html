@@ -35,6 +35,7 @@
         --popup-accent: var(--brand);
         --header-h: 0px;
         --marquee-h: 0px;
+        --embed-host-offset: 0px;
         --logo-gap:clamp(6px, 1vw, 10px);
         --logo-w:clamp(72px, 12vw, 132px);
         --logo-h:clamp(40px, 6vw, 60px);
@@ -59,6 +60,7 @@
 
       body.is-embedded{
         font-size:0.94rem;
+        padding-top:var(--embed-host-offset);
         --logo-gap:clamp(5px, 0.8vw, 8px);
         --logo-w:clamp(60px, 10vw, 112px);
         --logo-h:clamp(34px, 5vw, 50px);
@@ -1884,13 +1886,45 @@
         const safeBottom = isPhoneView() ? 6 : 10;
         const northBias = isPhoneView() ? 16 : 26;
         const rightPadding = isPhoneView() ? 12 : Math.max(20, psfWidth + 32);
+        const topCompression = isPhoneView() ? 8 : 22;
         return {
-          top: Math.max(0, headerH + (isPhoneView() ? 6 : 2)),
+          top: Math.max(0, headerH - topCompression),
           right: rightPadding,
           bottom: bannerH + safeBottom + northBias,
           left: isPhoneView() ? 12 : 14
         };
       }
+
+      function resolveEmbeddedHostOffset(){
+        if (!isEmbedded) return 0;
+        const params = new URLSearchParams(window.location.search);
+        const paramValue = Number(params.get('hostBannerOffset'));
+        if (Number.isFinite(paramValue) && paramValue >= 0) {
+          return Math.round(paramValue);
+        }
+        const viewportWidth = Math.max(320, Math.round(window.visualViewport?.width || window.innerWidth || 0));
+        if (viewportWidth <= 480) return 56;
+        if (viewportWidth <= 768) return 50;
+        if (viewportWidth <= 1180) return 42;
+        return 34;
+      }
+
+      function applyEmbeddedHostOffset(offset = resolveEmbeddedHostOffset()){
+        if (!isEmbedded) return;
+        const normalizedOffset = Math.max(0, Math.round(offset));
+        root.style.setProperty('--embed-host-offset', `${normalizedOffset}px`);
+        scheduleMapReflow({ refit: shouldAutoRefitViewport() });
+      }
+
+      window.addEventListener('message', (event) => {
+        if (!isEmbedded) return;
+        const data = event?.data;
+        if (!data || typeof data !== 'object') return;
+        if (data.type !== 'setHostBannerOffset') return;
+        const offset = Number(data.offset);
+        if (!Number.isFinite(offset)) return;
+        applyEmbeddedHostOffset(offset);
+      });
 
       let initialBounds = null;
       function fitToInitialBounds(options = {}){
@@ -2065,8 +2099,9 @@
 
       // Keep map sized & fitted when UI changes
       new ResizeObserver(() => { scheduleMapReflow({ refit: shouldAutoRefitViewport() }); syncDesktopMode(); syncPhoneInteractions(); syncHeroLede(); updateDynamicLabelSize(); }).observe(mapContainer);
-      window.addEventListener('resize', () => { scheduleMapReflow({ refit: shouldAutoRefitViewport() }); syncDesktopMode(); syncPhoneInteractions(); syncHeroLede(); updateDynamicLabelSize(); });
+      window.addEventListener('resize', () => { applyEmbeddedHostOffset(); syncDesktopMode(); syncPhoneInteractions(); syncHeroLede(); updateDynamicLabelSize(); });
       window.addEventListener('orientationchange', () => {
+        applyEmbeddedHostOffset();
         phoneViewportUserAdjusted = false;
         scheduleMapReflow({ refit: true });
         syncDesktopMode();
@@ -2114,6 +2149,7 @@
         syncDesktopMode();
       }
 
+      applyEmbeddedHostOffset();
       updateHeaderHeight();
       updateMarqueeHeight();
       if (headerEl) {
