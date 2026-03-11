@@ -1903,10 +1903,16 @@
           return Math.round(paramValue);
         }
         const viewportWidth = Math.max(320, Math.round(window.visualViewport?.width || window.innerWidth || 0));
-        if (viewportWidth <= 480) return 56;
-        if (viewportWidth <= 768) return 50;
-        if (viewportWidth <= 1180) return 42;
-        return 34;
+        const viewportHeight = Math.max(420, Math.round(window.visualViewport?.height || window.innerHeight || 0));
+        const noOffsetWidth = 1440;
+        const fullOffsetWidth = 360;
+        const maxOffset = 76;
+        const widthProgress = (noOffsetWidth - viewportWidth) / (noOffsetWidth - fullOffsetWidth);
+        const widthOffset = Math.max(0, Math.min(1, widthProgress)) * maxOffset;
+
+        /* Short embedded viewports tend to have thicker sticky host nav stacks. */
+        const shortViewportBoost = Math.max(0, Math.min(1, (860 - viewportHeight) / 360)) * 12;
+        return Math.round(widthOffset + shortViewportBoost);
       }
 
       function applyEmbeddedHostOffset(offset = resolveEmbeddedHostOffset()){
