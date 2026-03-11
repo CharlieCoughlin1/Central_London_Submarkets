@@ -85,6 +85,44 @@
       }
       .skip-link:focus{ transform:translateY(0); }
 
+      .welcome-banner{
+        position:relative;
+        z-index:9;
+        padding:14px 18px;
+        background:radial-gradient(circle at 18% 24%, rgba(255,255,255,0.12), transparent 42%),
+                   radial-gradient(circle at 82% 8%, rgba(255,255,255,0.16), transparent 36%),
+                   linear-gradient(115deg, #3D3834 8%, #3D3834 52%, #CC2030 110%);
+        border-bottom:1px solid rgba(255,255,255,0.2);
+        box-shadow:0 10px 24px rgba(12,16,32,0.22);
+        opacity:1;
+        max-height:140px;
+        overflow:hidden;
+        transform:translateY(0);
+        transition:max-height .4s ease, opacity .3s ease, transform .3s ease, padding .3s ease, border-color .3s ease;
+      }
+      .welcome-banner.is-hidden{
+        opacity:0;
+        transform:translateY(-10px);
+        max-height:0;
+        padding-top:0;
+        padding-bottom:0;
+        border-bottom-color:transparent;
+      }
+      .welcome-banner-inner{
+        width:100%;
+        max-width:1280px;
+        margin:0 auto;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        color:#F8FAFC;
+        font-weight:800;
+        letter-spacing:.2px;
+        text-align:center;
+        text-shadow:0 6px 16px rgba(0,0,0,0.22);
+        font-size:clamp(1.35rem, 0.5vw + 1.18rem, 1.82rem);
+      }
+
       /* --- Hero header --- */
       .site-header{
         position:sticky;
@@ -100,7 +138,7 @@
         transition:opacity .2s ease;
       }
       body.is-embedded .site-header{ padding:7px 16px 9px; }
-      .hero-shell{ width:100%; max-width:1280px; margin:0 auto; display:grid; grid-template-columns:auto auto; justify-content:center; gap:clamp(8px, 1.2vw, 18px); align-items:center; }
+      .hero-shell{ width:100%; max-width:1120px; margin:0 auto; display:grid; grid-template-columns:auto auto; justify-content:center; gap:clamp(8px, 1.2vw, 18px); align-items:center; }
       body.is-embedded .hero-shell{ max-width:none; }
       .hero-copy{ display:flex; flex-direction:column; gap:4px; align-items:flex-start; text-align:left; }
       .eyebrow{ display:inline-flex; align-items:center; gap:8px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.18); color:#E8EEF9; padding:6px 10px; border-radius:999px; font-weight:800; letter-spacing:.6px; text-transform:uppercase; font-size:.78rem; width:max-content; box-shadow:0 6px 16px rgba(0,0,0,0.14); }
@@ -127,8 +165,8 @@
       .meta-chip strong{ color:#fff; font-size:1.05rem; }
       .meta-chip .chip-dot{ width:9px; height:9px; border-radius:50%; background:var(--brand); box-shadow:0 0 0 4px rgba(204,32,48,0.25); }
       .hero-visual{ position:relative; display:grid; gap:8px; align-content:center; justify-items:center; }
-      .stat-card{ background:rgba(255,255,255,0.09); border:1px solid rgba(255,255,255,0.18); border-radius:14px; padding:10px 12px; width:230px; color:#F7F9FD; box-shadow:0 12px 28px rgba(0,0,0,0.22); backdrop-filter:saturate(130%) blur(6px); box-sizing:border-box; }
-      body.is-embedded .stat-card{ width:230px; padding:10px 12px; }
+      .stat-card{ background:rgba(255,255,255,0.09); border:1px solid rgba(255,255,255,0.18); border-radius:14px; padding:10px 12px; width:460px; max-width:100%; color:#F7F9FD; box-shadow:0 12px 28px rgba(0,0,0,0.22); backdrop-filter:saturate(130%) blur(6px); box-sizing:border-box; }
+      body.is-embedded .stat-card{ width:460px; max-width:100%; padding:10px 12px; }
       .stat-card h3{ margin:0 0 6px; font-size:.92rem; letter-spacing:.35px; text-transform:uppercase; display:flex; align-items:center; gap:8px; }
       .stat-card .stat-value{ font-size:1.6rem; font-weight:900; display:block; letter-spacing:.4px; }
       .stat-card small{ display:block; color:#E4E8F1; opacity:.82; line-height:1.35; }
@@ -939,7 +977,7 @@
         .hero-title{ font-size:clamp(1.14rem, 0.8vw + 0.9rem, 1.45rem); }
         .hero-lede{ font-size:.78rem; line-height:1.2; }
         .eyebrow{ padding:5px 9px; font-size:.72rem; }
-        .stat-card{ padding:8px 10px; width:210px; }
+        .stat-card{ padding:8px 10px; width:420px; max-width:100%; }
         .stat-card h3{ margin:0 0 4px; font-size:.82rem; }
         .stat-card .stat-value{ font-size:1.35rem; }
         :root{
@@ -1089,10 +1127,12 @@
   <body>
     <a class="skip-link" href="#data-view">Skip to office data table</a>
     <a class="skip-link skip-link-costs" href="#data-view">Skip to office costs</a>
+    <div class="welcome-banner" id="welcome-banner" role="status" aria-live="polite">
+      <div class="welcome-banner-inner">Welcome to the Central London Occupier Guide</div>
+    </div>
     <header class="site-header">
           <div class="hero-shell">
         <div class="hero-copy">
-          <span class="eyebrow">Central London office submarkets</span>
           <h1 class="hero-title">Find the right location for your next London office</h1>
           <p class="hero-lede" id="hero-lede">Select a submarket on the map below to explore tailored benchmarks, availability, and occupier-ready detail.</p>
           <div class="cta-row" role="group" aria-label="Jump controls">
@@ -1295,8 +1335,30 @@
 
       let heatmapEnabled = shouldEnableHeatmap();
       const headerEl = document.querySelector('.site-header');
+      const welcomeBannerEl = document.getElementById('welcome-banner');
       const logoMarqueeEl = document.getElementById('logo-marquee');
       const dataView = document.getElementById('data-view');
+
+      function initWelcomeBanner(){
+        if (!welcomeBannerEl) return;
+        let dismissed = false;
+
+        const dismissWelcome = () => {
+          if (dismissed) return;
+          dismissed = true;
+          welcomeBannerEl.classList.add('is-hidden');
+          window.setTimeout(() => {
+            welcomeBannerEl.setAttribute('aria-hidden', 'true');
+          }, 420);
+          window.removeEventListener('scroll', onInitialScroll);
+        };
+
+        const onInitialScroll = () => {
+          if (window.scrollY > 0) dismissWelcome();
+        };
+
+        window.addEventListener('scroll', onInitialScroll, { passive: true });
+      }
 
       const map = new maplibregl.Map({
         container: 'map',
@@ -2959,6 +3021,7 @@
         syncDesktopMode();
         initLogos();
         initHeadlineRotator();
+        initWelcomeBanner();
       } else {
         document.addEventListener('DOMContentLoaded', () => {
           buildRentsTable();
@@ -2968,6 +3031,7 @@
           syncDesktopMode();
           initLogos();
           initHeadlineRotator();
+          initWelcomeBanner();
         });
       }
     </script>
