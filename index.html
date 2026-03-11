@@ -1011,12 +1011,22 @@
           --logo-img-h:30px;
           --logo-img-w:78px;
         }
+        .welcome-banner{
+          margin-top:calc(30px + env(safe-area-inset-top));
+          padding:12px 14px;
+          max-height:170px;
+        }
+        .welcome-banner-inner{
+          font-size:clamp(1.05rem, 3.6vw, 1.3rem);
+          line-height:1.25;
+          text-wrap:balance;
+        }
         .site-header{
           position:relative;
           padding:calc(10px + env(safe-area-inset-top)) 14px 10px;
-          margin-top:20px;
+          margin-top:0;
         }
-        body.is-embedded .site-header{ margin-top:calc(20px + env(safe-area-inset-top)); }
+        body.is-embedded .site-header{ margin-top:0; }
         .hero-shell{ gap:10px; }
         .hero-copy{ gap:6px; }
         .hero-title{ font-size:clamp(1.35rem, 2.8vw + 1rem, 1.7rem); }
@@ -1028,6 +1038,12 @@
         .stat-card h3{ font-size:.74rem; margin:0 0 4px; }
         .stat-card .stat-value{ font-size:1.15rem; line-height:1.1; }
         .stat-subtext{ font-size:.76rem; line-height:1.2; }
+        .headline-rotator .stat-subtext,
+        .headline-rotator .stat-value,
+        .headline-rotator .stat-subtext strong{
+          overflow-wrap:anywhere;
+          word-break:break-word;
+        }
         .glow-ring{ display:none; }
         .map-stage{ display:none; }
         .cta-row{ display:none; }
