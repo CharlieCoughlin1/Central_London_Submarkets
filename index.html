@@ -1000,6 +1000,11 @@
         .hero-title,
         .hero-lede{ white-space:normal; }
       }
+      @media (min-width:721px) and (max-width:1180px){
+        .welcome-banner{
+          margin-top:calc(30px + env(safe-area-inset-top));
+        }
+      }
       @media (max-width:720px){
         :root{
           --logo-gap:8px;
@@ -1041,7 +1046,9 @@
         .hero-visual{ display:block; width:100%; }
         .stat-stack{ width:100%; }
         .stat-card{ width:100%; max-width:100%; padding:8px 10px; border-radius:12px; }
+        body.is-embedded .stat-card{ width:100%; max-width:100%; }
         .stat-card h3{ font-size:.74rem; margin:0 0 4px; }
+        .stat-card h3{ flex-wrap:wrap; row-gap:2px; }
         .stat-card .stat-value{ font-size:1.15rem; line-height:1.1; }
         .headline-rotator{ min-width:0; }
         .stat-subtext{ font-size:.76rem; line-height:1.2; }
@@ -1050,6 +1057,15 @@
         .headline-rotator .stat-subtext strong{
           overflow-wrap:anywhere;
           word-break:break-word;
+        }
+        .hero-visual,
+        .stat-stack,
+        .stat-card,
+        .headline-rotator,
+        .stat-card h3,
+        .stat-card small,
+        .stat-card .stat-value{
+          max-width:100%;
         }
         .glow-ring{ display:none; }
         .map-stage{ display:none; }
