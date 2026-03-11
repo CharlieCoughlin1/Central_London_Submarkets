@@ -1904,15 +1904,21 @@
         }
         const viewportWidth = Math.max(320, Math.round(window.visualViewport?.width || window.innerWidth || 0));
         const viewportHeight = Math.max(420, Math.round(window.visualViewport?.height || window.innerHeight || 0));
-        const noOffsetWidth = 1440;
+        /*
+          Embedded pages usually sit underneath the host site's sticky nav + breadcrumb.
+          Keep a baseline offset even on wide desktop viewports, then add extra room for
+          narrow/short embeds where host chrome tends to be taller.
+        */
+        const baseOffset = 48;
+        const noOffsetWidth = 1360;
         const fullOffsetWidth = 360;
-        const maxOffset = 76;
+        const maxWidthBoost = 30;
         const widthProgress = (noOffsetWidth - viewportWidth) / (noOffsetWidth - fullOffsetWidth);
-        const widthOffset = Math.max(0, Math.min(1, widthProgress)) * maxOffset;
+        const widthBoost = Math.max(0, Math.min(1, widthProgress)) * maxWidthBoost;
 
         /* Short embedded viewports tend to have thicker sticky host nav stacks. */
-        const shortViewportBoost = Math.max(0, Math.min(1, (860 - viewportHeight) / 360)) * 12;
-        return Math.round(widthOffset + shortViewportBoost);
+        const shortViewportBoost = Math.max(0, Math.min(1, (920 - viewportHeight) / 380)) * 14;
+        return Math.round(baseOffset + widthBoost + shortViewportBoost);
       }
 
       function applyEmbeddedHostOffset(offset = resolveEmbeddedHostOffset()){
