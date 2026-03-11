@@ -123,6 +123,8 @@
         text-align:center;
         text-shadow:0 6px 16px rgba(0,0,0,0.22);
         font-size:clamp(1.35rem, 0.5vw + 1.18rem, 1.82rem);
+        white-space:normal;
+        overflow-wrap:anywhere;
       }
 
       /* --- Hero header --- */
@@ -950,11 +952,6 @@
         max-width:clamp(112px, 17vw, 160px);
       }
 
-      .logo-strip img[alt*="BBC"]{
-        height:clamp(26px, 4.1vw, 34px);
-        max-width:clamp(86px, 12vw, 118px);
-      }
-
       @media (max-width:480px){
         .site-header{padding:10px 12px 12px;}
         h1{font-size:1.6rem;}
@@ -1020,6 +1017,8 @@
           font-size:clamp(1.05rem, 3.6vw, 1.3rem);
           line-height:1.25;
           text-wrap:balance;
+          padding-inline:2px;
+          text-align:center;
         }
         .site-header{
           position:relative;
@@ -1028,15 +1027,23 @@
         }
         body.is-embedded .site-header{ margin-top:0; }
         .hero-shell{ gap:10px; }
+        .hero-shell > *{ min-width:0; }
         .hero-copy{ gap:6px; }
         .hero-title{ font-size:clamp(1.35rem, 2.8vw + 1rem, 1.7rem); }
-        .hero-lede{ font-size:.84rem; line-height:1.35; }
+        .hero-lede{
+          font-size:.84rem;
+          line-height:1.35;
+          white-space:normal;
+          overflow-wrap:anywhere;
+          word-break:break-word;
+        }
         .eyebrow{ display:none; }
         .hero-visual{ display:block; width:100%; }
         .stat-stack{ width:100%; }
         .stat-card{ width:100%; max-width:100%; padding:8px 10px; border-radius:12px; }
         .stat-card h3{ font-size:.74rem; margin:0 0 4px; }
         .stat-card .stat-value{ font-size:1.15rem; line-height:1.1; }
+        .headline-rotator{ min-width:0; }
         .stat-subtext{ font-size:.76rem; line-height:1.2; }
         .headline-rotator .stat-subtext,
         .headline-rotator .stat-value,
