@@ -441,8 +441,9 @@
       .table-search{
         display:flex;
         align-items:center;
-        gap:8px;
+        gap:10px;
         margin-left:auto;
+        position:relative;
       }
       .table-search input{
         border:1px solid var(--stroke);
@@ -452,6 +453,76 @@
         min-width:200px;
         background:#fff;
         color:var(--ink);
+      }
+      .table-search-combobox{
+        position:relative;
+        min-width:240px;
+      }
+      .table-search-combobox input{
+        width:100%;
+        padding-right:36px;
+        transition:border-color .14s ease, box-shadow .14s ease;
+      }
+      .table-search-combobox input:focus{
+        outline:none;
+        border-color:rgba(204,32,48,0.45);
+        box-shadow:0 0 0 3px rgba(204,32,48,0.12);
+      }
+      .combobox-toggle{
+        position:absolute;
+        right:6px;
+        top:50%;
+        transform:translateY(-50%);
+        border:none;
+        background:transparent;
+        color:var(--muted-ink);
+        width:24px;
+        height:24px;
+        border-radius:8px;
+        cursor:pointer;
+        display:grid;
+        place-items:center;
+        font-size:.72rem;
+        transition:background .12s ease, color .12s ease;
+      }
+      .combobox-toggle:hover{ background:rgba(15,23,42,0.08); color:var(--ink); }
+      .table-search.is-open .combobox-toggle{ transform:translateY(-50%) rotate(180deg); }
+      .table-search-dropdown{
+        position:absolute;
+        left:0;
+        right:0;
+        top:calc(100% + 6px);
+        border:1px solid var(--stroke);
+        border-radius:12px;
+        background:#fff;
+        box-shadow:0 16px 30px rgba(15,23,42,0.16);
+        max-height:220px;
+        overflow:auto;
+        z-index:12;
+        padding:6px;
+      }
+      .table-search-dropdown[hidden]{ display:none; }
+      .table-search-option{
+        width:100%;
+        border:none;
+        background:transparent;
+        text-align:left;
+        border-radius:8px;
+        padding:8px 10px;
+        font-size:.89rem;
+        color:var(--ink);
+        cursor:pointer;
+      }
+      .table-search-option:hover,
+      .table-search-option.is-active{
+        background:rgba(204,32,48,0.08);
+        color:#871727;
+      }
+      .table-search-option-empty{
+        margin:0;
+        padding:8px 10px;
+        font-size:.85rem;
+        color:var(--muted-ink);
       }
       .table-search button{
         border:none;
@@ -1229,7 +1300,6 @@
         <div class="panel-header">
           <div class="panel-title-group">
             <h2 id="rents-panel-title" class="panel-title">Central London Office Rents (Q4 2025)</h2>
-            <p class="panel-subtitle">Prime benchmarks across Grade A and Grade B stock, refreshed quarterly.</p>
           </div>
           <button class="panel-close" type="button" aria-label="Close rents table">&times;</button>
         </div>
@@ -1239,7 +1309,11 @@
             <span class="chip chip-grade-b"><span class="chip-dot"></span>Grade B (Good quality)</span>
           </div>
           <div class="table-search" role="search">
-            <input id="table-search-input" type="search" placeholder="Search submarket" aria-label="Search submarkets" />
+            <div class="table-search-combobox">
+              <input id="table-search-input" type="search" placeholder="Select submarket" aria-label="Select submarket" role="combobox" aria-expanded="false" aria-controls="submarket-dropdown" aria-autocomplete="list" autocomplete="off" />
+              <button type="button" class="combobox-toggle" id="submarket-dropdown-toggle" aria-label="Show submarket options">▼</button>
+              <div id="submarket-dropdown" class="table-search-dropdown" role="listbox" hidden></div>
+            </div>
             <button type="button" id="table-search-clear" aria-label="Clear search">Clear</button>
           </div>
           <p class="meta-note">Values shown per sq ft and to the nearest whole number; tap the submarket title button to open the dashboard.</p>
@@ -2823,22 +2897,132 @@
       }
 
       function setupTableSearch(){
+        const wrapper = document.querySelector('.table-search');
+        const comboboxWrap = document.querySelector('.table-search-combobox');
         const input = document.getElementById('table-search-input');
         const clearBtn = document.getElementById('table-search-clear');
-        if (!input || !clearBtn) return;
+        const toggleBtn = document.getElementById('submarket-dropdown-toggle');
+        const dropdown = document.getElementById('submarket-dropdown');
+        if (!wrapper || !comboboxWrap || !input || !clearBtn || !toggleBtn || !dropdown) return;
+
+        const allSubmarkets = submarketData.map(entry => entry.label).sort((a, b) => a.localeCompare(b));
+        let activeIndex = -1;
+
+        const getFilteredSubmarkets = () => {
+          const query = (input.value || '').trim().toLowerCase();
+          if (!query) return allSubmarkets;
+          return allSubmarkets.filter(label => label.toLowerCase().includes(query));
+        };
 
         const updateClearState = () => {
           clearBtn.disabled = !input.value;
+        };
+
+        const setDropdownOpen = (isOpen) => {
+          wrapper.classList.toggle('is-open', isOpen);
+          dropdown.hidden = !isOpen;
+          input.setAttribute('aria-expanded', String(isOpen));
+          if (!isOpen) {
+            activeIndex = -1;
+            input.removeAttribute('aria-activedescendant');
+          }
+        };
+
+        const renderDropdown = () => {
+          const options = getFilteredSubmarkets();
+          dropdown.innerHTML = '';
+
+          if (!options.length) {
+            const empty = document.createElement('p');
+            empty.className = 'table-search-option-empty';
+            empty.textContent = 'No submarkets match your search.';
+            dropdown.appendChild(empty);
+            activeIndex = -1;
+            input.removeAttribute('aria-activedescendant');
+            return;
+          }
+
+          options.forEach((label, index) => {
+            const option = document.createElement('button');
+            option.type = 'button';
+            option.role = 'option';
+            option.className = 'table-search-option';
+            option.id = `submarket-option-${index}`;
+            option.dataset.value = label;
+            option.setAttribute('aria-selected', String(index === activeIndex));
+            if (index === activeIndex) {
+              option.classList.add('is-active');
+              input.setAttribute('aria-activedescendant', option.id);
+            }
+            option.textContent = label;
+            option.addEventListener('click', () => {
+              input.value = label;
+              tableState.filterText = label;
+              renderTable();
+              updateClearState();
+              setDropdownOpen(false);
+              input.focus();
+            });
+            dropdown.appendChild(option);
+          });
         };
 
         const applyFilter = debounce((value) => {
           tableState.filterText = value;
           renderTable();
           updateClearState();
+          renderDropdown();
+          setDropdownOpen(true);
         }, 120);
 
+        const moveActiveOption = (direction) => {
+          const options = getFilteredSubmarkets();
+          if (!options.length) return;
+          activeIndex = Math.max(0, Math.min(options.length - 1, activeIndex + direction));
+          renderDropdown();
+          const active = dropdown.querySelector('.table-search-option.is-active');
+          if (active) active.scrollIntoView({ block: 'nearest' });
+        };
+
+        input.addEventListener('focus', () => {
+          renderDropdown();
+          setDropdownOpen(true);
+        });
+
         input.addEventListener('input', (event) => {
+          activeIndex = -1;
+          input.removeAttribute('aria-activedescendant');
           applyFilter(event.target.value.trim());
+        });
+
+        input.addEventListener('keydown', (event) => {
+          if (event.key === 'ArrowDown') {
+            event.preventDefault();
+            if (dropdown.hidden) {
+              renderDropdown();
+              setDropdownOpen(true);
+            }
+            moveActiveOption(1);
+          } else if (event.key === 'ArrowUp') {
+            event.preventDefault();
+            moveActiveOption(-1);
+          } else if (event.key === 'Enter') {
+            if (dropdown.hidden) return;
+            const active = dropdown.querySelector('.table-search-option.is-active');
+            if (active) {
+              event.preventDefault();
+              active.click();
+            }
+          } else if (event.key === 'Escape') {
+            setDropdownOpen(false);
+          }
+        });
+
+        toggleBtn.addEventListener('click', () => {
+          const willOpen = dropdown.hidden;
+          if (willOpen) renderDropdown();
+          setDropdownOpen(willOpen);
+          input.focus();
         });
 
         clearBtn.addEventListener('click', () => {
@@ -2846,10 +3030,19 @@
           tableState.filterText = '';
           renderTable();
           updateClearState();
+          renderDropdown();
+          setDropdownOpen(true);
           input.focus();
         });
 
+        document.addEventListener('click', (event) => {
+          if (!comboboxWrap.contains(event.target)) {
+            setDropdownOpen(false);
+          }
+        });
+
         updateClearState();
+        renderDropdown();
       }
 
       function buildRentsTable(){
