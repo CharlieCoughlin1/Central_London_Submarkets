@@ -2933,7 +2933,8 @@
 
         const getOrderedSubmarkets = () => {
           const query = (input.value || '').trim().toLowerCase();
-          const filtered = query
+          const shouldShowAllSubmarkets = selectedSubmarket && query === selectedSubmarket.toLowerCase();
+          const filtered = query && !shouldShowAllSubmarkets
             ? allSubmarkets.filter(label => label.toLowerCase().includes(query))
             : [...allSubmarkets];
 
