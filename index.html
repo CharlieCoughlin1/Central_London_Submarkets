@@ -392,21 +392,6 @@
         font-size:.9rem;
         letter-spacing:.1px;
       }
-      .panel-close{
-        appearance:none;
-        border:1px solid var(--stroke);
-        background:#fff;
-        border-radius:10px;
-        font-size:1rem;
-        line-height:1;
-        padding:6px 9px 7px;
-        cursor:pointer;
-        color:var(--muted-ink);
-        transition:background .12s ease, box-shadow .12s ease;
-        box-shadow:0 10px 18px rgba(15,23,42,0.08);
-      }
-      .panel-close:hover{ background:#FAFAFB; box-shadow:0 12px 22px rgba(15,23,42,0.12); }
-
       .table-meta{
         display:flex;
         align-items:center;
@@ -460,8 +445,9 @@
       }
       .table-search-combobox input{
         width:100%;
-        padding-right:36px;
+        padding:9px 44px 9px 12px;
         transition:border-color .14s ease, box-shadow .14s ease;
+        border-radius:12px;
       }
       .table-search-combobox input:focus{
         outline:none;
@@ -473,20 +459,22 @@
         right:6px;
         top:50%;
         transform:translateY(-50%);
-        border:none;
-        background:transparent;
+        border:1px solid rgba(148,163,184,0.35);
+        background:#F1F5F9;
         color:var(--muted-ink);
-        width:24px;
-        height:24px;
-        border-radius:8px;
+        width:28px;
+        height:28px;
+        border-radius:9px;
         cursor:pointer;
         display:grid;
         place-items:center;
-        font-size:.72rem;
-        transition:background .12s ease, color .12s ease;
+        font-size:.85rem;
+        line-height:1;
+        padding:0;
+        transition:background .12s ease, color .12s ease, border-color .12s ease;
       }
-      .combobox-toggle:hover{ background:rgba(15,23,42,0.08); color:var(--ink); }
-      .table-search.is-open .combobox-toggle{ transform:translateY(-50%) rotate(180deg); }
+      .combobox-toggle:hover{ background:#E2E8F0; color:var(--ink); border-color:rgba(100,116,139,0.45); }
+      .table-search.is-open .combobox-toggle{ color:var(--ink); }
       .table-search-dropdown{
         position:absolute;
         left:0;
@@ -499,24 +487,52 @@
         max-height:220px;
         overflow:auto;
         z-index:12;
-        padding:6px;
+        padding:8px;
       }
       .table-search-dropdown[hidden]{ display:none; }
       .table-search-option{
         width:100%;
-        border:none;
-        background:transparent;
+        border:1px solid #E2E8F0;
+        background:#F8FAFC;
         text-align:left;
-        border-radius:8px;
-        padding:8px 10px;
+        border-radius:10px;
+        padding:10px 12px;
         font-size:.89rem;
-        color:var(--ink);
+        font-weight:700;
+        color:#334155;
         cursor:pointer;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:10px;
+        margin-bottom:6px;
+        transition:background .12s ease, border-color .12s ease, color .12s ease, box-shadow .12s ease;
+      }
+      .table-search-option:last-child{ margin-bottom:0; }
+      .table-search-option-label{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+      .table-search-option-tag{
+        display:none;
+        flex-shrink:0;
+        border-radius:999px;
+        padding:2px 8px;
+        font-size:.68rem;
+        letter-spacing:.2px;
+        font-weight:800;
+        text-transform:uppercase;
       }
       .table-search-option:hover,
-      .table-search-option.is-active{
-        background:rgba(204,32,48,0.08);
-        color:#871727;
+      .table-search-option.is-active,
+      .table-search-option.is-selected{
+        background:#FFF4F5;
+        border-color:rgba(204,32,48,0.38);
+        color:#8A1122;
+        box-shadow:0 6px 14px rgba(204,32,48,0.12);
+      }
+      .table-search-option.is-selected .table-search-option-tag{
+        display:inline-flex;
+        align-items:center;
+        background:#CC2030;
+        color:#fff;
       }
       .table-search-option-empty{
         margin:0;
@@ -1163,7 +1179,6 @@
       button:focus-visible,
       .btn:focus-visible,
       .map-ui-btn:focus-visible,
-      .panel-close:focus-visible,
       .sort-button:focus-visible,
       .table-search input:focus-visible{
         outline:3px solid rgba(204,32,48,0.35);
@@ -1301,7 +1316,6 @@
           <div class="panel-title-group">
             <h2 id="rents-panel-title" class="panel-title">Central London Office Rents (Q4 2025)</h2>
           </div>
-          <button class="panel-close" type="button" aria-label="Close rents table">&times;</button>
         </div>
         <div class="table-meta">
           <div class="legend" aria-hidden="true">
@@ -2907,11 +2921,25 @@
 
         const allSubmarkets = submarketData.map(entry => entry.label).sort((a, b) => a.localeCompare(b));
         let activeIndex = -1;
+        let selectedSubmarket = '';
 
-        const getFilteredSubmarkets = () => {
+        const updateToggleIcon = () => {
+          toggleBtn.textContent = dropdown.hidden ? '▼' : '▲';
+          toggleBtn.setAttribute('aria-label', dropdown.hidden ? 'Show submarket options' : 'Hide submarket options');
+        };
+
+        const getOrderedSubmarkets = () => {
           const query = (input.value || '').trim().toLowerCase();
-          if (!query) return allSubmarkets;
-          return allSubmarkets.filter(label => label.toLowerCase().includes(query));
+          const filtered = query
+            ? allSubmarkets.filter(label => label.toLowerCase().includes(query))
+            : [...allSubmarkets];
+
+          if (!selectedSubmarket) return filtered;
+          const selectedIndex = filtered.indexOf(selectedSubmarket);
+          if (selectedIndex <= 0) return filtered;
+          const [selected] = filtered.splice(selectedIndex, 1);
+          filtered.unshift(selected);
+          return filtered;
         };
 
         const updateClearState = () => {
@@ -2926,10 +2954,11 @@
             activeIndex = -1;
             input.removeAttribute('aria-activedescendant');
           }
+          updateToggleIcon();
         };
 
         const renderDropdown = () => {
-          const options = getFilteredSubmarkets();
+          const options = getOrderedSubmarkets();
           dropdown.innerHTML = '';
 
           if (!options.length) {
@@ -2949,34 +2978,59 @@
             option.className = 'table-search-option';
             option.id = `submarket-option-${index}`;
             option.dataset.value = label;
-            option.setAttribute('aria-selected', String(index === activeIndex));
-            if (index === activeIndex) {
+
+            const isSelected = label === selectedSubmarket;
+            const isActive = index === activeIndex;
+            option.setAttribute('aria-selected', String(isSelected));
+            if (isActive) {
               option.classList.add('is-active');
               input.setAttribute('aria-activedescendant', option.id);
             }
-            option.textContent = label;
+            if (isSelected) {
+              option.classList.add('is-selected');
+            }
+
+            const optionLabel = document.createElement('span');
+            optionLabel.className = 'table-search-option-label';
+            optionLabel.textContent = label;
+
+            const optionTag = document.createElement('span');
+            optionTag.className = 'table-search-option-tag';
+            optionTag.textContent = 'Selected';
+
+            option.appendChild(optionLabel);
+            option.appendChild(optionTag);
+
             option.addEventListener('click', () => {
-              input.value = label;
-              tableState.filterText = label;
+              selectedSubmarket = label;
+              input.value = '';
+              tableState.filterText = '';
               renderTable();
               updateClearState();
+              activeIndex = 0;
+              renderDropdown();
               setDropdownOpen(false);
               input.focus();
             });
+
             dropdown.appendChild(option);
           });
         };
 
         const applyFilter = debounce((value) => {
-          tableState.filterText = value;
-          renderTable();
+          if (!value) {
+            activeIndex = selectedSubmarket ? 0 : -1;
+          } else {
+            activeIndex = -1;
+          }
+          input.removeAttribute('aria-activedescendant');
           updateClearState();
           renderDropdown();
           setDropdownOpen(true);
         }, 120);
 
         const moveActiveOption = (direction) => {
-          const options = getFilteredSubmarkets();
+          const options = getOrderedSubmarkets();
           if (!options.length) return;
           activeIndex = Math.max(0, Math.min(options.length - 1, activeIndex + direction));
           renderDropdown();
@@ -2990,8 +3044,6 @@
         });
 
         input.addEventListener('input', (event) => {
-          activeIndex = -1;
-          input.removeAttribute('aria-activedescendant');
           applyFilter(event.target.value.trim());
         });
 
@@ -3020,9 +3072,13 @@
 
         toggleBtn.addEventListener('click', () => {
           const willOpen = dropdown.hidden;
-          if (willOpen) renderDropdown();
-          setDropdownOpen(willOpen);
-          input.focus();
+          if (willOpen) {
+            renderDropdown();
+            setDropdownOpen(true);
+            input.focus();
+            return;
+          }
+          setDropdownOpen(false);
         });
 
         clearBtn.addEventListener('click', () => {
@@ -3043,6 +3099,7 @@
 
         updateClearState();
         renderDropdown();
+        updateToggleIcon();
       }
 
       function buildRentsTable(){
@@ -3062,7 +3119,6 @@
 
       function setupPanel(){
         const panel = document.getElementById('rents-panel');
-        const closeBtn = document.querySelector('.panel-close');
         const mapToggleBtn = document.querySelector('[data-action="show-map"]');
         const dataToggleBtn = document.querySelector('[data-action="show-data"]');
         const mapStage = document.getElementById('map-stage');
@@ -3106,10 +3162,6 @@
 
         if (dataToggleBtn) {
           dataToggleBtn.addEventListener('click', () => scrollToEl(dataView));
-        }
-
-        if (closeBtn) {
-          closeBtn.addEventListener('click', () => scrollToEl(mapStage || mapContainer));
         }
 
         document.addEventListener('keydown', (e) => {
