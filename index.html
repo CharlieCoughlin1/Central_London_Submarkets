@@ -2590,7 +2590,7 @@
       }
 
       /* === Rents Table: populate + panel behavior === */
-      const tableState = { sortKey: 'priceA', direction: 'desc', filterText: '' };
+      const tableState = { sortKey: 'priceA', direction: 'desc', filterText: '', selectedSubmarket: '' };
 
       function trackMetric(range, key, value){
         if (!Number.isFinite(value)) return;
@@ -2804,9 +2804,12 @@
         const tbody = document.querySelector('#rents-table tbody');
         if (!tbody) return;
         const frag = document.createDocumentFragment();
+        const selectedSubmarket = (tableState.selectedSubmarket || '').trim();
         const filterText = (tableState.filterText || '').trim().toLowerCase();
         let rows = getTableRows();
-        if (filterText) {
+        if (selectedSubmarket) {
+          rows = rows.filter(row => row.submarket === selectedSubmarket);
+        } else if (filterText) {
           rows = rows.filter(row => row.submarket.toLowerCase().includes(filterText));
         }
         rows = applySort(rows);
@@ -3003,8 +3006,9 @@
 
             option.addEventListener('click', () => {
               selectedSubmarket = label;
-              input.value = '';
-              tableState.filterText = '';
+              input.value = label;
+              tableState.filterText = label;
+              tableState.selectedSubmarket = label;
               renderTable();
               updateClearState();
               activeIndex = 0;
@@ -3044,6 +3048,11 @@
         });
 
         input.addEventListener('input', (event) => {
+          const nextValue = event.target.value.trim();
+          if (!selectedSubmarket || nextValue !== selectedSubmarket) {
+            selectedSubmarket = '';
+            tableState.selectedSubmarket = '';
+          }
           applyFilter(event.target.value.trim());
         });
 
@@ -3082,6 +3091,8 @@
         });
 
         clearBtn.addEventListener('click', () => {
+          selectedSubmarket = '';
+          tableState.selectedSubmarket = '';
           input.value = '';
           tableState.filterText = '';
           renderTable();
