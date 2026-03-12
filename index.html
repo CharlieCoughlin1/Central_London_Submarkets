@@ -3054,6 +3054,8 @@
             selectedSubmarket = '';
             tableState.selectedSubmarket = '';
           }
+          tableState.filterText = nextValue;
+          renderTable();
           applyFilter(event.target.value.trim());
         });
 
