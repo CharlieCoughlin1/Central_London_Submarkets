@@ -1560,8 +1560,13 @@
         return isEmbedded && isPhoneView();
       }
 
+      function isLikelyInAppBrowser(){
+        const ua = navigator.userAgent || '';
+        return /LinkedInApp|FBAN|FBAV|Instagram|Line|Twitter|Snapchat|\bwv\b/i.test(ua);
+      }
+
       function shouldUseSameTabNavigation(){
-        return isPhoneView();
+        return isPhoneView() || isEmbedded || isLikelyInAppBrowser();
       }
 
       function openDashboardUrl(targetUrl){
@@ -1570,7 +1575,10 @@
           window.location.assign(targetUrl);
           return;
         }
-        window.open(targetUrl, '_blank', 'noopener');
+        const openedWindow = window.open(targetUrl, '_blank', 'noopener');
+        if (!openedWindow) {
+          window.location.assign(targetUrl);
+        }
       }
 
       function isMapVisibleToUser(){
