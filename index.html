@@ -2861,6 +2861,10 @@
               if (!openInSameTab) {
                 a.rel = 'noopener noreferrer';
               }
+              a.addEventListener('click', (event) => {
+                event.preventDefault();
+                openDashboardUrl(row.url);
+              });
               a.textContent = row.submarket;
               a.title = `Open ${row.submarket} dashboard`;
               labelWrap.appendChild(a);
