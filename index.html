@@ -1569,15 +1569,33 @@
         return isPhoneView() || isEmbedded || isLikelyInAppBrowser();
       }
 
+      function navigateTopWindow(targetUrl){
+        if (!targetUrl) return false;
+        try {
+          if (window.top && window.top !== window.self) {
+            window.top.location.assign(targetUrl);
+            return true;
+          }
+        } catch (error) {
+          return false;
+        }
+        return false;
+      }
+
       function openDashboardUrl(targetUrl){
         if (!targetUrl) return;
+        if (isEmbedded && navigateTopWindow(targetUrl)) {
+          return;
+        }
         if (shouldUseSameTabNavigation()) {
           window.location.assign(targetUrl);
           return;
         }
-        const openedWindow = window.open(targetUrl, '_blank', 'noopener');
+        const openedWindow = window.open(targetUrl, '_blank', 'noopener,noreferrer');
         if (!openedWindow) {
-          window.location.assign(targetUrl);
+          if (!navigateTopWindow(targetUrl)) {
+            window.location.assign(targetUrl);
+          }
         }
       }
 
@@ -2839,9 +2857,9 @@
               const a = document.createElement('a');
               a.href = row.url;
               const openInSameTab = shouldUseSameTabNavigation();
-              a.target = openInSameTab ? '_self' : '_blank';
+              a.target = isEmbedded ? '_top' : (openInSameTab ? '_self' : '_blank');
               if (!openInSameTab) {
-                a.rel = 'noopener';
+                a.rel = 'noopener noreferrer';
               }
               a.textContent = row.submarket;
               a.title = `Open ${row.submarket} dashboard`;
