@@ -1560,41 +1560,18 @@
         return isEmbedded && isPhoneView();
       }
 
-      function isLikelyInAppBrowser(){
-        const ua = navigator.userAgent || '';
-        return /LinkedInApp|FBAN|FBAV|Instagram|Line|Twitter|Snapchat|\bwv\b/i.test(ua);
-      }
-
-      function navigateTopWindow(targetUrl){
-        if (!targetUrl) return false;
-        try {
-          if (window.top && window.top !== window.self) {
-            window.top.location.assign(targetUrl);
-            return true;
-          }
-        } catch (error) {
-          return false;
-        }
-        return false;
+      function shouldUseSameTabNavigation(){
+        return isPhoneView();
       }
 
       function openDashboardUrl(targetUrl){
         if (!targetUrl) return;
 
-        let resolvedUrl = targetUrl;
-        try {
-          resolvedUrl = new URL(targetUrl, window.location.href).toString();
-        } catch (error) {
+        if (shouldUseSameTabNavigation()) {
+          window.location.assign(targetUrl);
           return;
         }
-
-        if (isEmbedded && navigateTopWindow(resolvedUrl)) {
-          return;
-        }
-
-        // Mobile in-app browsers frequently block or mishandle popup windows.
-        // Navigating the current tab is the most reliable path and prevents blank popout pages.
-        window.location.assign(resolvedUrl);
+        window.open(targetUrl, '_blank', 'noopener');
       }
 
       function isMapVisibleToUser(){
@@ -2854,11 +2831,11 @@
             if (row.url){
               const a = document.createElement('a');
               a.href = row.url;
-              a.target = isEmbedded ? '_top' : '_self';
-              a.addEventListener('click', (event) => {
-                event.preventDefault();
-                openDashboardUrl(row.url);
-              });
+              const openInSameTab = shouldUseSameTabNavigation();
+              a.target = openInSameTab ? '_self' : '_blank';
+              if (!openInSameTab) {
+                a.rel = 'noopener';
+              }
               a.textContent = row.submarket;
               a.title = `Open ${row.submarket} dashboard`;
               labelWrap.appendChild(a);
