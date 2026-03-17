@@ -1533,7 +1533,6 @@
       let popupTimer = null;
       let hoverLeaveTimer = null;
       let popupFadeTimer = null;
-      let lastTapLabel = null;
       let lastTouchActivationAt = 0;
       let touchStartPoint = null;
       let touchMovedDuringGesture = false;
@@ -1559,6 +1558,19 @@
 
       function isEmbeddedPhoneView(){
         return isEmbedded && isPhoneView();
+      }
+
+      function shouldUseSameTabNavigation(){
+        return isPhoneView();
+      }
+
+      function openDashboardUrl(targetUrl){
+        if (!targetUrl) return;
+        if (shouldUseSameTabNavigation()) {
+          window.location.assign(targetUrl);
+          return;
+        }
+        window.open(targetUrl, '_blank', 'noopener');
       }
 
       function isMapVisibleToUser(){
@@ -2163,22 +2175,14 @@
 
       function activateFeature(feature){
         if (!feature) {
-          lastTapLabel = null;
           removeHover();
           return;
         }
 
         const label = feature.properties.label;
         const targetUrl = labelToUrl[label];
-        if (targetUrl && isPhoneView()) {
-          if (label === lastTapLabel) {
-            window.open(targetUrl, '_blank');
-            lastTapLabel = null;
-            return;
-          }
-          lastTapLabel = label;
-        } else if (targetUrl) {
-          window.open(targetUrl, '_blank');
+        if (targetUrl) {
+          openDashboardUrl(targetUrl);
           return;
         }
 
@@ -2826,8 +2830,11 @@
             if (row.url){
               const a = document.createElement('a');
               a.href = row.url;
-              a.target = '_blank';
-              a.rel = 'noopener';
+              const openInSameTab = shouldUseSameTabNavigation();
+              a.target = openInSameTab ? '_self' : '_blank';
+              if (!openInSameTab) {
+                a.rel = 'noopener';
+              }
               a.textContent = row.submarket;
               a.title = `Open ${row.submarket} dashboard`;
               labelWrap.appendChild(a);
