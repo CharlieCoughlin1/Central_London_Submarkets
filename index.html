@@ -1560,17 +1560,46 @@
         return isEmbedded && isPhoneView();
       }
 
+      function isLikelyInAppBrowser(){
+        const ua = navigator.userAgent || '';
+        return /LinkedInApp|FBAN|FBAV|Instagram|Line|Twitter|Snapchat|\bwv\b/i.test(ua);
+      }
+
       function shouldUseSameTabNavigation(){
-        return isPhoneView();
+        return isPhoneView() || isLikelyInAppBrowser();
+      }
+
+      function getDashboardLinkTarget(){
+        if (isEmbedded) return '_top';
+        return shouldUseSameTabNavigation() ? '_self' : '_blank';
       }
 
       function openDashboardUrl(targetUrl){
         if (!targetUrl) return;
+
+        if (isEmbedded) {
+          try {
+            if (window.top && window.top !== window.self) {
+              window.top.location.assign(targetUrl);
+              return;
+            }
+          } catch (error) {
+            // Cross-origin frame protections can block direct top-window access.
+          }
+
+          const openedTop = window.open(targetUrl, '_top');
+          if (openedTop) return;
+        }
+
         if (shouldUseSameTabNavigation()) {
           window.location.assign(targetUrl);
           return;
         }
-        window.open(targetUrl, '_blank', 'noopener');
+
+        const openedWindow = window.open(targetUrl, '_blank', 'noopener');
+        if (!openedWindow) {
+          window.location.assign(targetUrl);
+        }
       }
 
       function isMapVisibleToUser(){
@@ -2830,9 +2859,9 @@
             if (row.url){
               const a = document.createElement('a');
               a.href = row.url;
-              const openInSameTab = shouldUseSameTabNavigation();
-              a.target = openInSameTab ? '_self' : '_blank';
-              if (!openInSameTab) {
+              const linkTarget = getDashboardLinkTarget();
+              a.target = linkTarget;
+              if (linkTarget === '_blank') {
                 a.rel = 'noopener';
               }
               a.textContent = row.submarket;
