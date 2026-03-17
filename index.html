@@ -1565,10 +1565,6 @@
         return /LinkedInApp|FBAN|FBAV|Instagram|Line|Twitter|Snapchat|\bwv\b/i.test(ua);
       }
 
-      function shouldUseSameTabNavigation(){
-        return isPhoneView() || isEmbedded || isLikelyInAppBrowser();
-      }
-
       function navigateTopWindow(targetUrl){
         if (!targetUrl) return false;
         try {
@@ -1584,19 +1580,21 @@
 
       function openDashboardUrl(targetUrl){
         if (!targetUrl) return;
-        if (isEmbedded && navigateTopWindow(targetUrl)) {
+
+        let resolvedUrl = targetUrl;
+        try {
+          resolvedUrl = new URL(targetUrl, window.location.href).toString();
+        } catch (error) {
           return;
         }
-        if (shouldUseSameTabNavigation()) {
-          window.location.assign(targetUrl);
+
+        if (isEmbedded && navigateTopWindow(resolvedUrl)) {
           return;
         }
-        const openedWindow = window.open(targetUrl, '_blank', 'noopener,noreferrer');
-        if (!openedWindow) {
-          if (!navigateTopWindow(targetUrl)) {
-            window.location.assign(targetUrl);
-          }
-        }
+
+        // Mobile in-app browsers frequently block or mishandle popup windows.
+        // Navigating the current tab is the most reliable path and prevents blank popout pages.
+        window.location.assign(resolvedUrl);
       }
 
       function isMapVisibleToUser(){
@@ -2856,11 +2854,7 @@
             if (row.url){
               const a = document.createElement('a');
               a.href = row.url;
-              const openInSameTab = shouldUseSameTabNavigation();
-              a.target = isEmbedded ? '_top' : (openInSameTab ? '_self' : '_blank');
-              if (!openInSameTab) {
-                a.rel = 'noopener noreferrer';
-              }
+              a.target = isEmbedded ? '_top' : '_self';
               a.addEventListener('click', (event) => {
                 event.preventDefault();
                 openDashboardUrl(row.url);
