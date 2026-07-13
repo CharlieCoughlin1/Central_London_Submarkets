@@ -423,6 +423,73 @@
       .chip-grade-b .chip-dot{ background:var(--grade-b-strong); box-shadow:0 0 0 4px rgba(67,60,54,0.12); }
       .meta-note{ margin:0; color:var(--muted-ink); font-size:.72rem; line-height:1.2; }
 
+      .mobile-browser-notice{
+        display:none;
+        align-items:flex-start;
+        gap:10px;
+        margin:12px 16px 0;
+        padding:12px 14px;
+        border:1px solid rgba(204,32,48,0.24);
+        border-radius:12px;
+        background:#FFF7F8;
+        color:var(--ink);
+        box-shadow:0 8px 18px rgba(15,23,42,0.08);
+      }
+      .mobile-browser-notice-icon{
+        display:grid;
+        place-items:center;
+        flex:0 0 30px;
+        width:30px;
+        height:30px;
+        border-radius:9px;
+        background:var(--brand);
+        color:#fff;
+        font-size:1rem;
+        font-weight:900;
+      }
+      .mobile-browser-notice-copy{ display:grid; gap:3px; min-width:0; }
+      .mobile-browser-notice-title{ font-size:.88rem; line-height:1.2; }
+      .mobile-browser-notice-text{ margin:0; color:var(--muted-ink); font-size:.78rem; line-height:1.35; }
+
+      .browser-help-overlay{
+        position:fixed;
+        inset:0;
+        z-index:100;
+        display:grid;
+        place-items:center;
+        padding:18px;
+        background:rgba(15,23,42,0.72);
+        box-sizing:border-box;
+      }
+      .browser-help-overlay[hidden]{ display:none; }
+      .browser-help-dialog{
+        width:min(100%, 420px);
+        padding:20px;
+        border-radius:18px;
+        border:1px solid rgba(255,255,255,0.22);
+        background:#fff;
+        color:var(--ink);
+        box-shadow:0 24px 60px rgba(0,0,0,0.32);
+        box-sizing:border-box;
+      }
+      .browser-help-dialog h2{ margin:0 0 8px; font-size:1.25rem; line-height:1.2; }
+      .browser-help-dialog > p{ margin:0 0 14px; color:var(--muted-ink); line-height:1.4; }
+      .browser-help-steps{ margin:0 0 18px; padding-left:22px; color:var(--ink); line-height:1.45; }
+      .browser-help-steps li + li{ margin-top:6px; }
+      .browser-help-close{
+        width:100%;
+        min-height:46px;
+        border:0;
+        border-radius:12px;
+        background:var(--brand);
+        color:#fff;
+        font:inherit;
+        font-weight:900;
+        cursor:pointer;
+      }
+      body.browser-help-open{ overflow:hidden; }
+      .dashboard-link-cta{ display:none; }
+
       .table-search{
         display:flex;
         align-items:center;
@@ -846,46 +913,61 @@
 
       @media (max-width: 560px){
         .rent-table tbody tr{
-          display:block;
-          padding:12px;
+          display:grid;
+          grid-template-columns:minmax(0, 1fr) minmax(0, 1fr);
+          padding:10px;
           gap:0;
         }
         .rent-table tbody td{
+          width:auto;
+          min-width:0;
+          max-width:none;
           display:flex;
           flex-direction:column;
           justify-content:flex-start;
           align-items:flex-start;
           gap:4px;
-          padding:8px 12px;
+          padding:10px;
           border:0;
           border-bottom:1px solid rgba(148,163,184,0.25);
           border-radius:0;
-          background:#fff;
           box-shadow:none;
         }
         .rent-table tbody td::before{
-          font-size:.72rem;
+          font-size:.68rem;
           color:var(--muted-ink);
           flex:0 0 auto;
         }
         .rent-table tbody td:first-child{
           display:block;
+          grid-column:1 / -1;
+          grid-row:1;
           font-size:1rem;
           background:#fff;
           border:0;
-          padding:0 0 8px;
+          padding:0 0 10px;
         }
         .rent-table tbody td:first-child::before{
           display:block;
           margin-bottom:4px;
         }
-        .rent-table tbody td:last-child{ border-bottom:none; }
+        .rent-table tbody td:nth-child(2){ grid-column:1; grid-row:2; }
+        .rent-table tbody td:nth-child(5){ grid-column:2; grid-row:2; }
+        .rent-table tbody td:nth-child(3){ grid-column:1; grid-row:3; }
+        .rent-table tbody td:nth-child(6){ grid-column:2; grid-row:3; }
+        .rent-table tbody td:nth-child(4){ grid-column:1; grid-row:4; border-bottom:0; }
+        .rent-table tbody td:nth-child(7){ grid-column:2; grid-row:4; border-bottom:0; }
+        .rent-table tbody td:nth-child(2),
+        .rent-table tbody td:nth-child(3),
+        .rent-table tbody td:nth-child(4){ border-right:1px solid rgba(148,163,184,0.22); }
         .rent-table tbody td.numeric{ font-weight:700; color:var(--ink); }
         .rent-table tbody td:first-child .row-label-inner a,
         .rent-table tbody td:first-child .row-label-inner .no-link{
-          display:inline-flex;
+          display:flex;
           align-items:center;
-          justify-content:center;
+          justify-content:space-between;
+          gap:10px;
+          width:100%;
           min-height:36px;
           padding:8px 12px;
           border-radius:10px;
@@ -894,31 +976,40 @@
           font-weight:800;
           color:var(--brand);
           text-decoration:none;
+          box-sizing:border-box;
         }
         .rent-table tbody td:first-child .row-label-inner a:active{
           background:rgba(204,32,48,0.16);
         }
         .rent-table tbody td.col-grade-a,
-        .rent-table tbody td.col-grade-b,
         .rent-table tbody td.heat-cell{
-          background:#fff;
+          background:#FFF6F7;
           color:var(--ink);
         }
+        .rent-table tbody td.col-grade-b{ background:#F2FBFB; color:var(--ink); }
         .rent-table tbody td.col-grade-a::before,
         .rent-table tbody td.col-grade-b::before{
           color:var(--muted-ink);
           opacity:.95;
         }
-        .rent-table tbody tr:hover td,
-        .rent-table tbody tr:hover td.col-grade-a,
-        .rent-table tbody tr:hover td.col-grade-b{
-          background:#fff;
+        .rent-table tbody tr:hover td{ background:#fff; }
+        .rent-table tbody tr:hover td.col-grade-a{ background:#FFF6F7; }
+        .rent-table tbody tr:hover td.col-grade-b{ background:#F2FBFB; }
+        .dashboard-link-cta{
+          display:inline-flex;
+          flex:0 0 auto;
+          font-size:.7rem;
+          color:#fff;
+          background:var(--brand);
+          border-radius:999px;
+          padding:5px 8px;
+          white-space:nowrap;
         }
       }
 
       @media (max-width: 380px){
-        .rent-table tbody tr{ grid-template-columns:1fr; }
-        .rent-table tbody td:first-child{ grid-column:1 / -1; }
+        .rent-table tbody td{ padding:9px 8px; }
+        .dashboard-link-cta{ font-size:.66rem; padding:5px 7px; }
       }
 
       /* --- Client logo banner (outside #map, fixed to viewport) --- */
@@ -941,11 +1032,12 @@
         transform:translateY(8px);
         transition:opacity .25s ease, transform .25s ease;
         max-width:none;
+        box-sizing:border-box;
       }
       .logo-marquee.is-ready{ opacity:1; transform:translateY(0); }
       .logo-marquee.is-empty{ display:none; }
       .logo-marquee .logo-accent{ display:none; }
-      .logo-banner-inner{ padding:10px 16px; width:100%; margin:0; background:linear-gradient(125deg, #CC2030 6%, #B81E2D 46%, #9E1824 100%); border-radius:16px; box-shadow:0 14px 32px rgba(12,16,32,0.26); border:1px solid rgba(255,255,255,0.14); color:#fff; display:flex; flex-direction:column; gap:8px; }
+      .logo-banner-inner{ padding:10px 16px; width:100%; margin:0; background:linear-gradient(125deg, #CC2030 6%, #B81E2D 46%, #9E1824 100%); border-radius:16px; box-shadow:0 14px 32px rgba(12,16,32,0.26); border:1px solid rgba(255,255,255,0.14); color:#fff; display:flex; flex-direction:column; gap:8px; box-sizing:border-box; }
       body.is-embedded .logo-banner-inner{ padding:8px 14px; }
       .banner-subtitle{
         margin:0 0 2px;
@@ -1079,6 +1171,7 @@
       @media (max-width:960px){
         .hero-shell{ grid-template-columns:1fr; gap:12px; }
         .hero-visual{ justify-items:start; display:block; width:100%; }
+        .glow-ring{ display:none; }
         .stat-stack,
         .stat-card{ width:100%; }
         .logo-marquee{ margin:-56px 0 0; }
@@ -1166,6 +1259,12 @@
         .skip-link,
         .skip-link-costs{ display:none; }
         .map-ui{ display:none; }
+        .mobile-browser-notice{ display:flex; }
+        body.is-linkedin-browser .mobile-browser-notice{
+          border-color:rgba(204,32,48,0.42);
+          background:#FFF1F3;
+          box-shadow:0 10px 24px rgba(204,32,48,0.14);
+        }
       }
       @media (min-width: 1081px){
         .table-scroller{ overflow:visible; }
@@ -1310,11 +1409,18 @@
     </div>
 
     <div class="data-view" id="data-view" aria-hidden="false">
-      <aside id="rents-panel" class="table-panel" role="dialog" aria-labelledby="rents-panel-title" aria-hidden="false">
+      <aside id="rents-panel" class="table-panel" role="region" aria-labelledby="rents-panel-title">
         <div class="panel-accent" aria-hidden="true"></div>
         <div class="panel-header">
           <div class="panel-title-group">
-            <h2 id="rents-panel-title" class="panel-title">Central London Office Rents (Q4 2025)</h2>
+            <h2 id="rents-panel-title" class="panel-title">Central London Office Rents (Q2 2026)</h2>
+          </div>
+        </div>
+        <div id="mobile-browser-notice" class="mobile-browser-notice" role="note">
+          <span class="mobile-browser-notice-icon" aria-hidden="true">↗</span>
+          <div class="mobile-browser-notice-copy">
+            <strong id="mobile-browser-notice-title" class="mobile-browser-notice-title">Opening this guide from LinkedIn?</strong>
+            <p id="mobile-browser-notice-text" class="mobile-browser-notice-text">Before opening a dashboard, tap <strong>•••</strong> in LinkedIn and choose <strong>Open in browser</strong>.</p>
           </div>
         </div>
         <div class="table-meta">
@@ -1364,6 +1470,19 @@
       </aside>
     </div>
 
+    <div id="browser-help-overlay" class="browser-help-overlay" hidden>
+      <div class="browser-help-dialog" role="dialog" aria-modal="true" aria-labelledby="browser-help-title" aria-describedby="browser-help-description">
+        <h2 id="browser-help-title">Open this guide in your browser</h2>
+        <p id="browser-help-description">LinkedIn cannot open these dashboards here.</p>
+        <ol class="browser-help-steps">
+          <li>Tap <strong>•••</strong> at the top of this screen.</li>
+          <li>Tap <strong>Open in browser</strong>.</li>
+          <li>Choose the submarket again.</li>
+        </ol>
+        <button type="button" class="browser-help-close" data-browser-help-close>Close</button>
+      </div>
+    </div>
+
     <script src="vendor/maplibre-gl/maplibre-gl.js"></script>
     <script>
       const isEmbedded = (() => {
@@ -1377,27 +1496,27 @@
 
       /* === DATA === */
       const submarketData = [
-        { label: "Mayfair & St James's", gradeA: { primeRent: 185, totalCost: 256.33715, change: 8.823529412 }, gradeB: { primeRent: 90, totalCost: 150.63305, change: 5.882352941 } },
-        { label: "Knightsbridge / Belgravia", gradeA: { primeRent: 97.5, totalCost: 158.37715, change: 2.631578947 }, gradeB: { primeRent: 65, totalCost: 118.53715, change: 4 } },
-        { label: "Marylebone", gradeA: { primeRent: 110, totalCost: 173.47715, change: 10 }, gradeB: { primeRent: 67.5, totalCost: 117.58305, change: 8 } },
-        { label: "Soho", gradeA: { primeRent: 115, totalCost: 180.79715, change: 9.523809524 }, gradeB: { primeRent: 73, totalCost: 123.97305, change: 5.035971223 } },
-        { label: "Noho / Fitzrovia", gradeA: { primeRent: 115, totalCost: 174.52715, change: 9.523809524 }, gradeB: { primeRent: 67.5, totalCost: 114.68305, change: 3.846153846 } },
-        { label: "Covent Garden", gradeA: { primeRent: 100, totalCost: 159.38715, change: 8.108108108 }, gradeB: { primeRent: 65, totalCost: 110.69305, change: 4.838709677 } },
-        { label: "Euston & Kings Cross", gradeA: { primeRent: 100, totalCost: 152.85715, change: 11.11111111 }, gradeB: { primeRent: 62, totalCost: 103.81305, change: 3.333333333 } },
-        { label: "Victoria / Westminster", gradeA: { primeRent: 105, totalCost: 160.30305, change: 10.52631579 }, gradeB: { primeRent: 62, totalCost: 107.84895, change: 3.333333333 } },
-        { label: "Clerkenwell & Farringdon", gradeA: { primeRent: 97.5, totalCost: 139.87305, change: 5.405405405 }, gradeB: { primeRent: 65, totalCost: 103.11305, change: 0 } },
-        { label: "Midtown", gradeA: { primeRent: 90, totalCost: 138.75305, change: 5.882352941 }, gradeB: { primeRent: 57.5, totalCost: 99.37305, change: 4.545454545 } },
-        { label: "City (EC2, EC3, EC4)", gradeA: { primeRent: 97.5, totalCost: 150.29715, change: 8.333333333 }, gradeB: { primeRent: 55, totalCost: 99.33305, change: 5.769230769 } },
-        { label: "Paddington", gradeA: { primeRent: 90, totalCost: 140.41715, change: 5.882352941 }, gradeB: { primeRent: 52, totalCost: 91.31305, change: 4 } },
-        { label: "Old Street / Shoreditch", gradeA: { primeRent: 85, totalCost: 128.27305, change: 6.25 }, gradeB: { primeRent: 55, totalCost: 90.83305, change: 5.769230769 } },
-        { label: "London Bridge / Waterloo", gradeA: { primeRent: 87.5, totalCost: 137.68715, change: 2.941176471 }, gradeB: { primeRent: 52, totalCost: 94.02305, change: 0 } },
-        { label: "Vauxhall / Nine Elms & Battersea", gradeA: { primeRent: 67.5, totalCost: 105.18305, change: 3.846153846 }, gradeB: { primeRent: 37.5, totalCost: 63.07075, change: 0 } },
-        { label: "Kensington & Chelsea", gradeA: { primeRent: 77.5, totalCost: 125.07715, change: 3.333333333 }, gradeB: { primeRent: 43.5, totalCost: 78.70895, change: 2.352941176 } },
-        { label: "Camden", gradeA: { primeRent: 63, totalCost: 106.59305, change: 0.8 }, gradeB: { primeRent: 42.5, totalCost: 80.67305, change: 0 } },
-        { label: "Hammersmith", gradeA: { primeRent: 57.5, totalCost: 98.36895, change: 0 }, gradeB: { primeRent: 40, totalCost: 76.31895, change: 0 } },
-        { label: "Aldgate / Whitechapel", gradeA: { primeRent: 60, totalCost: 103.32305, change: -4.761904762 }, gradeB: { primeRent: 40, totalCost: 76.73305, change: 0 } },
-        { label: "White City / Shepherd's Bush", gradeA: { primeRent: 60, totalCost: 102.07305, change: 3.448275862 }, gradeB: { primeRent: 40, totalCost: 72.31895, change: 0 } },
-        { label: "Canary Wharf", gradeA: { primeRent: 57.5, totalCost: 106.1956, change: 0 }, gradeB: { primeRent: 32, totalCost: 69.06535, change: 0 } }
+        { label: "Mayfair & St James's", gradeA: { primeRent: 190, totalCost: 294.47, change: 5.555555556 }, gradeB: { primeRent: 90.5, totalCost: 150.75305, change: 0.555555556 } },
+        { label: "Knightsbridge / Belgravia", gradeA: { primeRent: 100, totalCost: 159.92715, change: 7.52688172 }, gradeB: { primeRent: 65.5, totalCost: 114.04715, change: 0.769230769 } },
+        { label: "Marylebone", gradeA: { primeRent: 118, totalCost: 180.74715, change: 7.272727273 }, gradeB: { primeRent: 68, totalCost: 118.52305, change: 0.740740741 } },
+        { label: "Soho", gradeA: { primeRent: 118, totalCost: 180.47715, change: 7.272727273 }, gradeB: { primeRent: 75.5, totalCost: 125.17305, change: 0.666666667 } },
+        { label: "Noho / Fitzrovia", gradeA: { primeRent: 118, totalCost: 178.44715, change: 7.272727273 }, gradeB: { primeRent: 68, totalCost: 116.26305, change: 0.740740741 } },
+        { label: "Covent Garden", gradeA: { primeRent: 103, totalCost: 158.63715, change: 8.421052632 }, gradeB: { primeRent: 65.5, totalCost: 112.44305, change: 0.769230769 } },
+        { label: "Euston & Kings Cross", gradeA: { primeRent: 103, totalCost: 159.49715, change: 8.421052632 }, gradeB: { primeRent: 65.5, totalCost: 110.25305, change: 0.769230769 } },
+        { label: "Victoria / Westminster", gradeA: { primeRent: 105, totalCost: 158.02, change: 8.24742268 }, gradeB: { primeRent: 65.5, totalCost: 107.9, change: 0.769230769 } },
+        { label: "Clerkenwell & Farringdon", gradeA: { primeRent: 100, totalCost: 148.14, change: 5.263157895 }, gradeB: { primeRent: 70.5, totalCost: 109.62305, change: 0.714285714 } },
+        { label: "Midtown", gradeA: { primeRent: 98, totalCost: 149.14, change: 8.888888889 }, gradeB: { primeRent: 58, totalCost: 100.99305, change: 0.869565217 } },
+        { label: "City (EC2, EC3, EC4)", gradeA: { primeRent: 100, totalCost: 153.42, change: 5.263157895 }, gradeB: { primeRent: 55.5, totalCost: 97.70305, change: 0.909090909 } },
+        { label: "Paddington", gradeA: { primeRent: 93, totalCost: 147.34715, change: 9.411764706 }, gradeB: { primeRent: 53, totalCost: 97.70305, change: 0.952380952 } },
+        { label: "Old Street / Shoreditch", gradeA: { primeRent: 89, totalCost: 130, change: 7.878787879 }, gradeB: { primeRent: 55.5, totalCost: 92.65305, change: 0.909090909 } },
+        { label: "London Bridge / Waterloo", gradeA: { primeRent: 92, totalCost: 137.42715, change: 8.235294118 }, gradeB: { primeRent: 55.5, totalCost: 91.14305, change: 0.909090909 } },
+        { label: "Vauxhall / Nine Elms & Battersea", gradeA: { primeRent: 66, totalCost: 109.80305, change: 1.538461538 }, gradeB: { primeRent: 42.5, totalCost: 69.78075, change: 0 } },
+        { label: "Kensington & Chelsea", gradeA: { primeRent: 80, totalCost: 142.01715, change: 6.666666667 }, gradeB: { primeRent: 43.5, totalCost: 82.14895, change: 0 } },
+        { label: "Camden", gradeA: { primeRent: 64, totalCost: 117.52305, change: 1.587301587 }, gradeB: { primeRent: 43, totalCost: 77.19, change: 0 } },
+        { label: "Hammersmith", gradeA: { primeRent: 58, totalCost: 97.91, change: 5.454545455 }, gradeB: { primeRent: 40, totalCost: 73.77, change: 0 } },
+        { label: "Aldgate / Whitechapel", gradeA: { primeRent: 61, totalCost: 111.67305, change: 1.666666667 }, gradeB: { primeRent: 40, totalCost: 71.95305, change: 0 } },
+        { label: "White City / Shepherd's Bush", gradeA: { primeRent: 61, totalCost: 101.94305, change: 1.666666667 }, gradeB: { primeRent: 42.5, totalCost: 74.51, change: 0 } },
+        { label: "Canary Wharf", gradeA: { primeRent: 59, totalCost: 100.4556, change: 7.272727273 }, gradeB: { primeRent: 32.5, totalCost: 67.99535, change: 1.5625 } }
       ];
 
       function formatCurrency(value){
@@ -1564,8 +1683,68 @@
         return isPhoneView();
       }
 
+      function isLinkedInInAppBrowser(){
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('inAppBrowser') === 'linkedin') return true;
+
+        return /LinkedInApp|LinkedIn/i.test(navigator.userAgent || '');
+      }
+
+      function shouldShowLinkedInBlocker(){
+        return isPhoneView() && isLinkedInInAppBrowser();
+      }
+
+      let browserHelpReturnFocus = null;
+
+      function hideBrowserHelp(){
+        const overlay = document.getElementById('browser-help-overlay');
+        if (!overlay || overlay.hidden) return;
+        overlay.hidden = true;
+        document.body.classList.remove('browser-help-open');
+        if (browserHelpReturnFocus && typeof browserHelpReturnFocus.focus === 'function') {
+          browserHelpReturnFocus.focus();
+        }
+        browserHelpReturnFocus = null;
+      }
+
+      function showBrowserHelp(){
+        const overlay = document.getElementById('browser-help-overlay');
+        if (!overlay) return;
+        browserHelpReturnFocus = document.activeElement;
+        overlay.hidden = false;
+        document.body.classList.add('browser-help-open');
+        overlay.querySelector('[data-browser-help-close]')?.focus();
+      }
+
+      function setupMobileBrowserGuidance(){
+        const isLinkedIn = isLinkedInInAppBrowser();
+        document.body.classList.toggle('is-linkedin-browser', isLinkedIn);
+
+        if (isLinkedIn) {
+          const title = document.getElementById('mobile-browser-notice-title');
+          const text = document.getElementById('mobile-browser-notice-text');
+          if (title) title.textContent = 'Open this guide in your browser';
+          if (text) text.innerHTML = 'LinkedIn blocks the dashboards. Tap <strong>•••</strong> above, then choose <strong>Open in browser</strong>.';
+        }
+
+        const overlay = document.getElementById('browser-help-overlay');
+        const closeButton = overlay?.querySelector('[data-browser-help-close]');
+        closeButton?.addEventListener('click', hideBrowserHelp);
+        overlay?.addEventListener('click', (event) => {
+          if (event.target === overlay) hideBrowserHelp();
+        });
+        document.addEventListener('keydown', (event) => {
+          if (event.key === 'Escape' && overlay && !overlay.hidden) hideBrowserHelp();
+        });
+      }
+
       function openDashboardUrl(targetUrl){
         if (!targetUrl) return;
+
+        if (shouldShowLinkedInBlocker()) {
+          showBrowserHelp();
+          return;
+        }
 
         if (shouldUseSameTabNavigation()) {
           window.location.assign(targetUrl);
@@ -2080,6 +2259,7 @@
       let initialBounds = null;
       function fitToInitialBounds(options = {}){
         if (!initialBounds) return;
+        if (isPhoneView() && !isMapVisibleToUser()) return;
         const padding = getDynamicFitPadding();
         map.fitBounds(initialBounds, {
           padding,
@@ -2089,6 +2269,20 @@
         if (isPhoneView()) {
           phoneViewportUserAdjusted = false;
         }
+      }
+
+      function getPaddedMapBounds(bounds, ratio = 0.04){
+        if (!bounds || typeof bounds.getSouthWest !== 'function' || typeof bounds.getNorthEast !== 'function') {
+          return bounds;
+        }
+        const southWest = bounds.getSouthWest();
+        const northEast = bounds.getNorthEast();
+        const lngPadding = (northEast.lng - southWest.lng) * ratio;
+        const latPadding = (northEast.lat - southWest.lat) * ratio;
+        return [
+          [southWest.lng - lngPadding, southWest.lat - latPadding],
+          [northEast.lng + lngPadding, northEast.lat + latPadding]
+        ];
       }
       const debouncedRefit = debounce(() => fitToInitialBounds({ duration: 0 }), 120);
 
@@ -2156,7 +2350,7 @@
           }
           setMapInteractions(true);
           if (initialBounds) {
-            map.setMaxBounds(initialBounds.pad(0.04));
+            map.setMaxBounds(getPaddedMapBounds(initialBounds));
           }
           return;
         }
@@ -2836,7 +3030,18 @@
               if (!openInSameTab) {
                 a.rel = 'noopener';
               }
-              a.textContent = row.submarket;
+              a.addEventListener('click', (event) => {
+                if (!shouldShowLinkedInBlocker()) return;
+                event.preventDefault();
+                showBrowserHelp();
+              });
+              const linkLabel = document.createElement('span');
+              linkLabel.textContent = row.submarket;
+              const linkCta = document.createElement('span');
+              linkCta.className = 'dashboard-link-cta';
+              linkCta.setAttribute('aria-hidden', 'true');
+              linkCta.textContent = 'Open dashboard';
+              a.append(linkLabel, linkCta);
               a.title = `Open ${row.submarket} dashboard`;
               labelWrap.appendChild(a);
             } else {
@@ -3371,6 +3576,7 @@
         setupTableHover();
         setupPanel();
         setupMapUi();
+        setupMobileBrowserGuidance();
         syncDesktopMode();
         initLogos();
         initHeadlineRotator();
@@ -3381,6 +3587,7 @@
           setupTableHover();
           setupPanel();
           setupMapUi();
+          setupMobileBrowserGuidance();
           syncDesktopMode();
           initLogos();
           initHeadlineRotator();
