@@ -1680,7 +1680,8 @@
       }
 
       function shouldUseSameTabNavigation(){
-        return isPhoneView();
+        /* Dashboard pages must escape the nested Infogram iframe on every device. */
+        return false;
       }
 
       function isLinkedInInAppBrowser(){
