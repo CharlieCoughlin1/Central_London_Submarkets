@@ -47,7 +47,6 @@
       }
 
       html, body { height:100%; }
-      html.is-embedded{ overflow-x:hidden; }
       body {
         margin:0;
         display:block;
@@ -60,13 +59,8 @@
       }
 
       body.is-embedded{
-        display:flex;
-        flex-direction:column;
         font-size:0.94rem;
-        min-height:100%;
         padding-top:var(--embed-host-offset);
-        overflow-x:hidden;
-        overscroll-behavior-x:none;
         --logo-gap:clamp(5px, 0.8vw, 8px);
         --logo-w:clamp(60px, 10vw, 112px);
         --logo-h:clamp(34px, 5vw, 50px);
@@ -148,7 +142,6 @@
         transition:opacity .2s ease;
       }
       body.is-embedded .site-header{ padding:7px 16px 9px; }
-      body.is-embedded .glow-ring{ display:none; }
       .hero-shell{ width:100%; max-width:1120px; margin:0 auto; display:grid; grid-template-columns:minmax(0, 1fr) minmax(300px, 420px); gap:clamp(8px, 1.2vw, 18px); align-items:center; }
       body.is-embedded .hero-shell{ max-width:none; }
       .hero-copy{ display:flex; flex-direction:column; gap:4px; align-items:flex-start; text-align:left; min-width:0; }
@@ -356,7 +349,6 @@
         box-sizing:border-box;
       }
       body.is-embedded .data-view{
-        flex:1 0 auto;
         padding:24px 14px calc(36px + env(safe-area-inset-bottom));
       }
       .table-panel{
@@ -1172,29 +1164,8 @@
         }
         body.is-embedded{
           --map-stage-min:auto;
-          --map-height:740px;
+          --map-height:clamp(840px, 98vw, 1260px);
         }
-        body.is-embedded #map,
-        body.is-embedded.map-expanded #map{ min-height:740px; }
-        body.is-embedded .data-view{ padding:14px 14px 18px; }
-        body.is-embedded .panel-header{ padding:10px 14px 6px; }
-        body.is-embedded .panel-title-group{ gap:2px; }
-        body.is-embedded .panel-subtitle{ font-size:.82rem; }
-        body.is-embedded .table-meta{ padding:6px 14px 8px; }
-        body.is-embedded .chip{ padding:5px 8px; font-size:.78rem; }
-        body.is-embedded .rent-table thead th{ padding:8px 10px 7px; }
-        body.is-embedded .rent-table thead tr.group-row th{
-          padding:7px 10px 4px;
-          font-size:.9rem;
-        }
-        body.is-embedded .rent-table thead tr.detail-row th{
-          top:27px;
-          padding:7px 10px 6px;
-        }
-        body.is-embedded .sort-button .sort-subtitle{ font-size:.78rem; }
-        body.is-embedded .rent-table tbody td{ padding:6px 10px; }
-        body.is-embedded .rent-table tbody td.numeric,
-        body.is-embedded .rent-table tbody td.heat-cell{ font-size:.86rem; }
         .map-stage{ margin-top:-70px; }
       }
       @media (max-width:960px){
@@ -1208,26 +1179,6 @@
         .skip-link-costs{ display:none; }
         .hero-title,
         .hero-lede{ white-space:normal; }
-      }
-      @media (min-width:721px) and (max-width:1080px){
-        body.is-embedded{
-          --map-stage-min:auto;
-          --map-height:clamp(430px, 60vw, 650px);
-        }
-        body.is-embedded .welcome-banner,
-        body.is-embedded .logo-marquee{ display:none; }
-        body.is-embedded #map,
-        body.is-embedded.map-expanded #map{
-          min-height:var(--map-height);
-        }
-        body.is-embedded .data-view{ padding:12px; }
-        body.is-embedded .panel-header{ padding:12px 14px 8px; }
-        body.is-embedded .table-meta{ padding:8px 14px 10px; }
-        body.is-embedded .table-scroller{ padding:6px; }
-        body.is-embedded .rent-table tbody{
-          gap:8px;
-          padding:5px;
-        }
       }
       @media (min-width:721px) and (max-width:1180px){
         .welcome-banner{
@@ -1313,126 +1264,6 @@
           border-color:rgba(204,32,48,0.42);
           background:#FFF1F3;
           box-shadow:0 10px 24px rgba(204,32,48,0.14);
-        }
-        body.is-embedded .welcome-banner{ display:none; }
-        body.is-embedded{
-          display:flex;
-          flex-direction:column;
-          min-height:100%;
-        }
-        body.is-embedded .site-header{
-          position:relative;
-          flex:0 0 auto;
-          padding:6px 8px 7px;
-        }
-        body.is-embedded .hero-shell{ gap:5px; }
-        body.is-embedded .hero-copy{ gap:2px; }
-        body.is-embedded .hero-title{
-          font-size:1.05rem;
-          line-height:1.08;
-        }
-        body.is-embedded .hero-lede{ display:none; }
-        body.is-embedded .stat-card{
-          padding:6px 8px;
-          border-radius:10px;
-        }
-        body.is-embedded .stat-card h3{
-          margin-bottom:2px;
-          font-size:.66rem;
-        }
-        body.is-embedded .stat-card .stat-value{
-          font-size:.88rem;
-          line-height:1.08;
-        }
-        body.is-embedded .stat-subtext{
-          font-size:.65rem;
-          line-height:1.12;
-        }
-        body.is-embedded .headline-rotator{ gap:2px; }
-        body.is-embedded .logo-marquee{ display:none; }
-        body.is-embedded .data-view{
-          flex:1 0 auto;
-          padding:6px 7px 7px;
-        }
-        body.is-embedded .panel-header{
-          gap:2px;
-          padding:7px 9px 5px;
-        }
-        body.is-embedded .panel-title{ font-size:.92rem; }
-        body.is-embedded .panel-subtitle{
-          font-size:.68rem;
-          line-height:1.2;
-        }
-        body.is-embedded .mobile-browser-notice{
-          gap:6px;
-          margin:6px 9px 0;
-          padding:7px 8px;
-        }
-        body.is-embedded .mobile-browser-notice-icon{
-          width:24px;
-          height:24px;
-          flex-basis:24px;
-          border-radius:7px;
-          font-size:.8rem;
-        }
-        body.is-embedded .mobile-browser-notice-title{ font-size:.75rem; }
-        body.is-embedded .mobile-browser-notice-text{
-          font-size:.66rem;
-          line-height:1.2;
-        }
-        body.is-embedded .table-meta{
-          gap:4px;
-          padding:6px 9px;
-        }
-        body.is-embedded .table-meta .meta-note{ display:none; }
-        body.is-embedded .table-search{ gap:6px; }
-        body.is-embedded .table-search-combobox{
-          width:100%;
-          min-width:0;
-        }
-        body.is-embedded .table-search-combobox input{
-          min-width:0;
-          padding:7px 38px 7px 9px;
-          border-radius:9px;
-          font-size:.78rem;
-        }
-        body.is-embedded .combobox-toggle{
-          right:4px;
-          width:25px;
-          height:25px;
-          border-radius:7px;
-        }
-        body.is-embedded .table-search > button{
-          padding:5px 8px;
-          font-size:.72rem;
-        }
-        body.is-embedded .table-scroller{ padding:3px 3px 5px; }
-        body.is-embedded .rent-table tbody{
-          gap:4px;
-          padding:3px;
-        }
-        body.is-embedded .rent-table tbody tr{
-          padding:6px;
-          border-radius:10px;
-        }
-        body.is-embedded .rent-table tbody td{
-          gap:2px;
-          padding:6px;
-        }
-        body.is-embedded .rent-table tbody td::before{ font-size:.6rem; }
-        body.is-embedded .rent-table tbody td:first-child{
-          padding:0 0 6px;
-          font-size:.86rem;
-        }
-        body.is-embedded .rent-table tbody td:first-child .row-label-inner a,
-        body.is-embedded .rent-table tbody td:first-child .row-label-inner .no-link{
-          min-height:30px;
-        }
-        body.is-embedded .rent-table tbody td.numeric{ font-size:.76rem; }
-        body.is-embedded .rent-table tbody tr.empty-row td{
-          padding:10px 7px;
-          font-size:.76rem;
-          line-height:1.3;
         }
       }
       @media (min-width: 1081px){
@@ -1661,7 +1492,6 @@
           return true;
         }
       })();
-      document.documentElement.classList.toggle('is-embedded', isEmbedded);
       document.body.classList.toggle('is-embedded', isEmbedded);
 
       /* === DATA === */
@@ -2426,59 +2256,6 @@
         applyEmbeddedHostOffset(offset);
       });
 
-      function setupEmbeddedAutoHeight(){
-        if (!isEmbedded) return;
-
-        let resizeFrame = 0;
-        let lastSentHeight = 0;
-        const measuredSections = ['.site-header', '.map-stage', '.logo-marquee', '.data-view'];
-
-        const measureContentHeight = () => {
-          const scrollTop = window.scrollY || document.documentElement.scrollTop || 0;
-          return Math.ceil(measuredSections.reduce((bottom, selector) => {
-            const element = document.querySelector(selector);
-            if (!element || element.offsetParent === null) return bottom;
-            return Math.max(bottom, element.getBoundingClientRect().bottom + scrollTop);
-          }, 0));
-        };
-
-        const notifyParent = () => {
-          resizeFrame = 0;
-          const height = measureContentHeight();
-          if (!height || Math.abs(height - lastSentHeight) < 2) return;
-          lastSentHeight = height;
-          window.parent.postMessage(JSON.stringify({
-            src: window.location.toString(),
-            context: 'iframe.resize',
-            height
-          }), '*');
-        };
-
-        const scheduleResize = () => {
-          if (resizeFrame) cancelAnimationFrame(resizeFrame);
-          resizeFrame = requestAnimationFrame(() => requestAnimationFrame(notifyParent));
-        };
-
-        window.addEventListener('load', scheduleResize);
-        window.addEventListener('resize', scheduleResize, { passive:true });
-        document.fonts?.ready.then(scheduleResize).catch(() => {});
-        document.querySelectorAll('img').forEach((image) => {
-          if (!image.complete) image.addEventListener('load', scheduleResize, { once:true });
-        });
-
-        if ('ResizeObserver' in window) {
-          const resizeObserver = new ResizeObserver(scheduleResize);
-          measuredSections.forEach((selector) => {
-            const element = document.querySelector(selector);
-            if (element) resizeObserver.observe(element);
-          });
-        }
-
-        scheduleResize();
-        window.setTimeout(scheduleResize, 500);
-        window.setTimeout(scheduleResize, 1500);
-      }
-
       let initialBounds = null;
       function fitToInitialBounds(options = {}){
         if (!initialBounds) return;
@@ -3228,11 +3005,8 @@
         const frag = document.createDocumentFragment();
         const selectedSubmarket = (tableState.selectedSubmarket || '').trim();
         const filterText = (tableState.filterText || '').trim().toLowerCase();
-        const usesEmbeddedPicker = isEmbedded && window.innerWidth <= 1080;
         let rows = getTableRows();
-        if (usesEmbeddedPicker && !selectedSubmarket) {
-          rows = [];
-        } else if (selectedSubmarket) {
+        if (selectedSubmarket) {
           rows = rows.filter(row => row.submarket === selectedSubmarket);
         } else if (filterText) {
           rows = rows.filter(row => row.submarket.toLowerCase().includes(filterText));
@@ -3325,9 +3099,7 @@
           const emptyCell = document.createElement('td');
           emptyCell.colSpan = 7;
           emptyCell.className = 'empty-cell';
-          emptyCell.textContent = usesEmbeddedPicker && !selectedSubmarket
-            ? 'Choose a submarket above to view its office costs and open its dashboard.'
-            : 'No submarkets match your search.';
+          emptyCell.textContent = 'No submarkets match your search.';
           emptyRow.appendChild(emptyCell);
           frag.appendChild(emptyRow);
         }
@@ -3800,7 +3572,6 @@
         setupPanel();
         setupMapUi();
         setupMobileBrowserGuidance();
-        setupEmbeddedAutoHeight();
         syncDesktopMode();
         initLogos();
         initHeadlineRotator();
@@ -3812,7 +3583,6 @@
           setupPanel();
           setupMapUi();
           setupMobileBrowserGuidance();
-          setupEmbeddedAutoHeight();
           syncDesktopMode();
           initLogos();
           initHeadlineRotator();
